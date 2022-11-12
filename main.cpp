@@ -167,6 +167,7 @@ void processInput(GLFWwindow* window, const float &deltatime)
 
 void update(double DeltaTime)
 {
+	camera.updateViewMatrix();
 	for (WallMesh* mesh : wallMeshes)
 	{
 		mesh->update(DeltaTime);

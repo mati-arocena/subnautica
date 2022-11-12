@@ -1,5 +1,6 @@
 #include "Shader.h"
 
+
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
 	std::string vertexCode, fragmentCode;
@@ -85,10 +86,6 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 void Shader::use() const
 {
 	glUseProgram(ID);
-	for (unsigned int x = 0; x < textureQty; x++)
-	{
-		textures[x]->use(x);
-	}
 }
 
 void Shader::setInt(const std::string& name, int value)

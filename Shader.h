@@ -20,6 +20,7 @@ public:
 	const Texture* textures[16];
 
 	// Reads and builds the shader
+	Shader();
 	Shader(const char* vertexPath, const char* fragmentPath);
 
 	// Use the shader

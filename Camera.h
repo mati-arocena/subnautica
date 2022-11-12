@@ -30,6 +30,7 @@ public:
     glm::vec3 Up;
     glm::vec3 Right;
     glm::vec3 WorldUp;
+    glm::mat4 ViewMatrix;
     // euler Angles
     float Yaw;
     float Pitch;
@@ -58,6 +59,7 @@ public:
     void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(float yoffset);
+    void updateViewMatrix();
 private:
     void updateCameraVectors();
 };
