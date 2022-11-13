@@ -28,9 +28,15 @@ void Model::loadModel(std::string path)
 	Assimp::Importer import;
 	import.SetPropertyFloat("PP_GSN_MAX_SMOOTHING_ANGLE", 90);
 
-	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices);
+	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | 
+		aiProcess_FlipUVs | 
+		aiProcess_GenSmoothNormals | 
+		aiProcess_JoinIdenticalVertices | 
+		aiProcess_CalcTangentSpace);
+	
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+
 	{
 		std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
 		return;
@@ -73,6 +79,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		}
 		else
 			vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+		
+		vertex.Tangent = glm::vec3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
+		vertex.Bitangent = glm::vec3(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z);
 
 		vertices.push_back(vertex);
 	}

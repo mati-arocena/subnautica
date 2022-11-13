@@ -5,15 +5,20 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-
+#include <vector>
 #include "Texture.h"
+#include "Light.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 
 class Shader
 {
+	void updateLight(Light* light);
 public:
+	static std::vector<Light*> lights;
+	static std::vector<Shader*> shaders;
+
 	// Program id
 	unsigned int ID;
 	// unsigned int textureQty = 0;
@@ -38,4 +43,6 @@ public:
 
 	void setMat4(const std::string& name, glm::mat4& mat);
 	void setTexture(Texture* texture, int pos);
+	static void addLight(Light* light);
+	static void updateLights();
 };
