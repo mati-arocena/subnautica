@@ -14,6 +14,7 @@ public:
 	int width, height, nrChannels;
 	bool alpha, minmap;
 	std::string name;
+	std::string path;
 
 	Texture(const char* texturePath, std::string name, bool alpha, bool minmap);
 

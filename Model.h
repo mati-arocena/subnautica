@@ -14,6 +14,7 @@ class Model
 private:
 	std::vector<Mesh> meshes;
 	std::string directory;
+    std::vector<Texture*> textures_loaded;
 
 public:
     Model(std::string path);

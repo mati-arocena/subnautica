@@ -8,6 +8,7 @@ Texture::Texture(const char* texturePath, std::string name, bool alpha, bool min
     this->alpha = alpha;
     this->minmap = minmap;
     this->name = name;
+    this->path = texturePath;
 
     if (data)
     {

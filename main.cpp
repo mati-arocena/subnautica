@@ -219,7 +219,7 @@ int main()
 
 
 	// Init
-	models.push_back(new Model("assets/caja-esferas.obj"));
+	models.push_back(new Model("assets/backpack.obj"));
 	//wallMeshes.push_back(new WallMesh());
 
 	glEnable(GL_DEPTH_TEST);

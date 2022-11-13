@@ -120,8 +120,24 @@ std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType
 		mat->GetTexture(type, i, &str);
 		std::string filename;
 		filename = this->directory + '/' + str.C_Str();
-		Texture* texture = new Texture(filename.c_str(), typeName, true, true);
-		textures.push_back(texture);
+		// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+		bool skip = false;
+		for (unsigned int j = 0; j < textures_loaded.size(); j++)
+		{
+			if (filename == textures_loaded[j]->path)
+			{
+				textures.push_back(textures_loaded[j]);
+				skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+				break;
+			}
+		}
+		if (!skip)
+		{   // if texture hasn't been loaded already, load it
+			Texture* texture = new Texture(filename.c_str(), typeName, true, true);
+			textures.push_back(texture);
+			textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
+		}
+
 	}
 	return textures;
 
