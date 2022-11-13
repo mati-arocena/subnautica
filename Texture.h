@@ -13,8 +13,9 @@ public:
 	// width, height and nrChannels of image
 	int width, height, nrChannels;
 	bool alpha, minmap;
+	std::string name;
 
-	Texture(const char* texturePath, bool alpha, bool minmap);
+	Texture(const char* texturePath, std::string name, bool alpha, bool minmap);
 
 	// Use texture (default pos 0)
 	void use(int pos) const;

@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "VBO.h"
 #include "Shader.h"
+#include "Model.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -20,6 +21,8 @@ float yaw = -90.0f;
 float pitch = 0.0f;
 bool firstMouse = true;
 float fov = 45.0f;
+
+std::vector<Model*> models;
 
 void mouse_callback
 (
@@ -106,10 +109,10 @@ public:
 		// Create shader
 		shader = new Shader("shaders/shader.vert", "shaders/shader.frag");
 
-		Texture *texture_wall = new Texture("container.jpg", false, true);
-		Texture *texture_wall2 = new Texture("roof.jpg", false, true);
-		shader->addTexture(texture_wall, "texture0");
-		shader->addTexture(texture_wall2, "texture1");
+		//Texture *texture_wall = new Texture("container.jpg", "text"false, true);
+		//Texture *texture_wall2 = new Texture("roof.jpg", false, true);
+		//shader->addTexture(texture_wall, "texture0");
+		//shader->addTexture(texture_wall2, "texture1");
 	}
 
 	void update(double DeltaTime)
@@ -168,9 +171,9 @@ void processInput(GLFWwindow* window, const float &deltatime)
 void update(double DeltaTime)
 {
 	camera.updateViewMatrix();
-	for (WallMesh* mesh : wallMeshes)
+	for (Model* model : models)
 	{
-		mesh->update(DeltaTime);
+		model->update(DeltaTime);
 	}
 }
 
@@ -179,9 +182,9 @@ void render()
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	for (WallMesh* mesh : wallMeshes)
+	for (Model* model : models)
 	{
-		mesh->draw(camera);
+		model->draw(&camera);
 	}
 
 }
@@ -214,7 +217,10 @@ int main()
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 
-	wallMeshes.push_back(new WallMesh());
+
+	// Init
+	models.push_back(new Model("assets/caja-esferas.obj"));
+	//wallMeshes.push_back(new WallMesh());
 
 	glEnable(GL_DEPTH_TEST);
 	auto lastTime = std::chrono::system_clock::now();

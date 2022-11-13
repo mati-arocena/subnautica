@@ -16,8 +16,8 @@ class Shader
 public:
 	// Program id
 	unsigned int ID;
-	unsigned int textureQty = 0;
-	const Texture* textures[16];
+	// unsigned int textureQty = 0;
+	// const Texture* textures[16];
 
 	// Reads and builds the shader
 	Shader();
@@ -26,7 +26,7 @@ public:
 	// Use the shader
 	void use() const;
 
-	void addTexture(Texture* texture, const char* name);
+	// void addTexture(Texture* texture, const char* name);
 
 	// Set uniform functions
 	void setBool(const std::string& name, bool value);
@@ -37,4 +37,5 @@ public:
 	void setFloat(const std::string& name, float x, float y, float z, float w);
 
 	void setMat4(const std::string& name, glm::mat4& mat);
+	void setTexture(Texture* texture, int pos);
 };

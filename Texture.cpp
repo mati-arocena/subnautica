@@ -1,13 +1,13 @@
 #include "Texture.h"
 
-Texture::Texture(const char* texturePath, bool alpha, bool minmap)
+Texture::Texture(const char* texturePath, std::string name, bool alpha, bool minmap)
 {
     ID = NULL; // Initialization
     unsigned char* data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
 
     this->alpha = alpha;
     this->minmap = minmap;
-
+    this->name = name;
 
     if (data)
     {

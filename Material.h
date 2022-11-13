@@ -6,11 +6,12 @@ class Material
 {
 private:
 	Shader* shader;
-	std::vector<Texture> textures;
+	std::vector<Texture*> textures;
 
 public:
-	Material(std::vector<Texture> textures);
+	Material(std::vector<Texture*> textures);
 	~Material();
 	void use();
+	Shader* getShader();
 };
 

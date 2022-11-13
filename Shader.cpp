@@ -6,11 +6,6 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	std::string vertexCode, fragmentCode;
 	std::ifstream vShaderFile, fShaderFile;
 
-	for (int x = 0; x < 16; x++)
-	{
-		textures[x] = NULL;
-	}
-
 	// ensure ifstream objects can throw exceptions:
 	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -115,6 +110,21 @@ void Shader::setFloat(const std::string& name, float x, float y, float z, float 
 	glUniform4f(glGetUniformLocation(ID, name.c_str()), x, y, z, w);
 }
 
+void Shader::setTexture(Texture *texture, int pos)
+{
+	// Get current shader program
+	GLint currentProgramId;
+	glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgramId);
+
+	// Set uniform
+	glUseProgram(ID);
+	setInt(texture->name, pos);
+
+	// Restore shader program
+	glUseProgram(currentProgramId);
+}
+
+/*
 void Shader::addTexture(Texture* texture, const char* name)
 {
 	// Get current shader program
@@ -133,6 +143,7 @@ void Shader::addTexture(Texture* texture, const char* name)
 	// Restore shader program
 	glUseProgram(currentProgramId);
 }
+*/
 
 void Shader::setMat4(const std::string& name, glm::mat4& mat)
 {
