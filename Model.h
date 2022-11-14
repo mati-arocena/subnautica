@@ -21,8 +21,8 @@ public:
     ~Model();
     void draw(Camera* camera);
     void loadModel(std::string path);
-    void processNode(aiNode* node, const aiScene* scene);
-    Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+    void processNode(aiNode* node, const aiScene* scene, glm::mat4 transformMat);
+    Mesh processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformMat);
     std::vector<Texture*> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
     void update(double DeltaTime);
 };

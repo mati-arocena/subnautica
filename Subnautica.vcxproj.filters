@@ -71,7 +71,7 @@
     <ClInclude Include="Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Water.h">      
+    <ClInclude Include="Water.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Light.h">
@@ -83,5 +83,8 @@
     <None Include="shaders\water_shader.vert" />
     <None Include="shaders\shader.frag" />
     <None Include="shaders\shader.vert" />
+    <None Include="Utils.h">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

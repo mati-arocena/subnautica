@@ -29,7 +29,7 @@ public:
     std::vector<unsigned int> indices;
     Material* material;
 
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Material* material);
+    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Material* material, glm::mat4 modelMat);
     void Draw(Camera* camera);
 
     glm::mat4 model;

@@ -173,6 +173,7 @@
     <None Include="shaders\shader.vert">
       <FileType>Document</FileType>
     </None>
+    <None Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -20,7 +20,9 @@ Water::Water()
 
 	Material* material = initializeMaterial();
 
-	mesh = new Mesh(vertices, indices, material);
+	glm::mat4 model(1.); // TODO: ver despues como hacer esto
+
+	mesh = new Mesh(vertices, indices, material, model);
 }
 
 

@@ -1,0 +1,11 @@
+Model Information:
+* title:	Victorian Desk with Props
+* source:	https://sketchfab.com/3d-models/victorian-desk-with-props-e3c6bc82146b483f9dda2051a05f9911
+* author:	mtcollings (https://sketchfab.com/mtcollings)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Victorian Desk with Props" (https://sketchfab.com/3d-models/victorian-desk-with-props-e3c6bc82146b483f9dda2051a05f9911) by mtcollings (https://sketchfab.com/mtcollings) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

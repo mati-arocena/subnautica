@@ -219,6 +219,7 @@ int main()
 
 
 	// Init
+	//models.push_back(new Model("assets/que.gltf"));
 	models.push_back(new Model("assets/backpack.obj"));
 	//wallMeshes.push_back(new WallMesh());
 

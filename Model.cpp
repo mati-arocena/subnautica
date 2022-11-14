@@ -1,5 +1,6 @@
 #include "Model.h"
 #include <assimp/Importer.hpp>
+#include "Utils.h"
 
 Model::Model(std::string path)
 {
@@ -33,7 +34,6 @@ void Model::loadModel(std::string path)
 		aiProcess_GenSmoothNormals | 
 		aiProcess_JoinIdenticalVertices | 
 		aiProcess_CalcTangentSpace);
-	
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 
@@ -43,25 +43,31 @@ void Model::loadModel(std::string path)
 	}
 	directory = path.substr(0, path.find_last_of('/'));
 
-	processNode(scene->mRootNode, scene);
+	// Initial trnasformation
+	glm::mat4 transformMat = glm::identity<glm::mat4>();
+
+	processNode(scene->mRootNode, scene, transformMat);
 }
 
-void Model::processNode(aiNode* node, const aiScene* scene)
+void Model::processNode(aiNode* node, const aiScene* scene, glm::mat4 transformMat)
 {
+	// Combined transformations applied
+	const glm::mat4 node_transformMat = transformMat * convertMatrix(node->mTransformation);
+
 	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(processMesh(mesh, scene));
+		meshes.push_back(processMesh(mesh, scene, node_transformMat));
 	}
 	// then do the same for each of its children
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		processNode(node->mChildren[i], scene);
+		processNode(node->mChildren[i], scene, node_transformMat);
 	}
 }
 
-Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
+Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformMat)
 {
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -118,7 +124,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 	Material *m = new Material(textures, shader);
 
-	return Mesh(vertices, indices, m);
+	return Mesh(vertices, indices, m, transformMat);
 }
 
 std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
