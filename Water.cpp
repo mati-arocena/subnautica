@@ -24,36 +24,53 @@ Water::Water()
 }
 
 
-void unbindFrameFuffer()
-{
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, 800, 600);
-}
-
 Material* Water::initializeMaterial() 
 {
 	Shader* shader = new Shader("shaders/water_shader.vert", "shaders/water_shader.frag");
 	std::vector<Texture*> textures;
 
-	//unsigned int reflFrameBuffer;
-	//glGenFramebuffers(1, &reflFrameBuffer);
-	//glBindFramebuffer(GL_FRAMEBUFFER, reflFrameBuffer);
-	//Texture* reflTexture = new Texture(800, 600, GL_RGB, "texture_reflection", GL_COLOR_ATTACHMENT0);
-	//textures.push_back(reflTexture);
+	glGenFramebuffers(1, &reflFrameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, reflFrameBuffer);
+	reflTexture = new Texture(800, 600, GL_RGB, "texture_reflection", GL_COLOR_ATTACHMENT0);
+	textures.push_back(reflTexture);
+	unbindFrameFuffer();
 
 	//unsigned int refrFrameBuffer;
 	//glGenFramebuffers(1, &refrFrameBuffer);
 	//glBindFramebuffer(GL_FRAMEBUFFER, refrFrameBuffer);
-	//Texture* refrTexture = new Texture(800, 600, GL_RGB, "texture_refraction", GL_COLOR_ATTACHMENT0);
+	//refrTexture = new Texture(800, 600, GL_RGB, "texture_refraction", GL_COLOR_ATTACHMENT0);
 	//textures.push_back(refrTexture);
+	//unbindFrameFuffer();
 
-	Texture* texture = new Texture("assets/diffuse.jpg", "texture_diffuse", true, true);
-	textures.push_back(texture);
+	//Texture* texture = new Texture("assets/diffuse.jpg", "texture_diffuse", true, true);
+	//textures.push_back(texture);
 
 	Material* material = new Material(textures, shader);
 	return material;
 }
 
+
+void Water::unbindFrameFuffer()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, 800, 600);
+}
+
+void Water::update(std::vector<Model*> models, Camera* camera)
+{
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, reflFrameBuffer);
+	glViewport(0, 0, 800, 600);
+
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	for (Model* model : models)
+	{
+		model->draw(camera);
+	}
+	
+	unbindFrameFuffer();
+}
 
 
 void Water::draw(Camera* camera)

@@ -11,6 +11,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <glm/gtc/type_ptr.hpp>
+#include "Water.h"
+#include "UIRenderer.h"
 
 // Meter las cosas en clases
 
@@ -225,6 +227,12 @@ int main()
 	Light* light = new Light({ 1.f, 1.f, 1.f }, { 3.f, 5.f, 0.f });
 	Shader::updateLights();
 
+	Water water;
+
+	Shader* shader = new Shader("shaders/ui.vert", "shaders/ui.frag");
+
+	UIRenderer gui(shader);
+
 	glEnable(GL_DEPTH_TEST);
 	auto lastTime = std::chrono::system_clock::now();
 	while (!glfwWindowShouldClose(window))
@@ -235,7 +243,11 @@ int main()
 
 		processInput(window, elapsed.count());
 		update(elapsed.count());
+		glEnable(GL_CLIP_DISTANCE0);
+		water.update(models, &camera);
+		glDisable(GL_CLIP_DISTANCE0);
 		render();
+		water.draw(&camera);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

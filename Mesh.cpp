@@ -47,6 +47,7 @@ void Mesh::Draw(Camera *camera)
 
 	Shader* shader = material->getShader();
 	shader->setFloat("time", glfwGetTime());
+	//esto es por ahora
 	shader->setFloat("clippingPlane", 0, -1, 0, 0 );
 
 	glm::mat4 view = camera->GetViewMatrix();

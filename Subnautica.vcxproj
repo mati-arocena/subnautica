@@ -150,6 +150,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="UIRenderer.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="VBO.cpp" />
@@ -162,11 +163,14 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="UIRenderer.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="VBO.h" />
     <ClInclude Include="Water.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\ui.frag" />
+    <None Include="shaders\ui.vert" />
     <None Include="shaders\water_shader.frag" />
     <None Include="shaders\water_shader.vert" />
     <None Include="shaders\shader.frag" />
