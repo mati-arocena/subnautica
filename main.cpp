@@ -222,6 +222,9 @@ int main()
 	models.push_back(new Model("assets/backpack.obj"));
 	//wallMeshes.push_back(new WallMesh());
 
+	Light* light = new Light({ 1.f, 1.f, 1.f }, { 3.f, 5.f, 0.f });
+	Shader::updateLights();
+
 	glEnable(GL_DEPTH_TEST);
 	auto lastTime = std::chrono::system_clock::now();
 	while (!glfwWindowShouldClose(window))

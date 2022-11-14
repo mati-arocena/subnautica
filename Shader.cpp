@@ -1,5 +1,7 @@
 #include "Shader.h"
 
+std::vector<Light*> Shader::lights;
+std::vector<Shader*> Shader::shaders;
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
@@ -76,6 +78,8 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	// delete the shaders as they're linked into our program now and no longer necessary
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
+
+	shaders.push_back(this);
 }
 
 void Shader::use() const
@@ -124,27 +128,33 @@ void Shader::setTexture(Texture *texture, int pos)
 	glUseProgram(currentProgramId);
 }
 
-
-/*
-void Shader::addTexture(Texture* texture, const char* name)
+void Shader::addLight(Light* light)
 {
-	// Get current shader program
-	GLint currentProgramId;
-	glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgramId);
-
-	// Set texture
-	textures[textureQty] = texture;
-
-	// Set uniform
-	glUseProgram(ID);
-	setInt(name, textureQty);
-
-	textureQty++;
-
-	// Restore shader program
-	glUseProgram(currentProgramId);
+	lights.push_back(light);
 }
-*/
+
+void Shader::updateLight(Light* light)
+{
+	GLint currentPorgramId;
+	glGetIntegerv(GL_CURRENT_PROGRAM, &currentPorgramId);
+
+	glUseProgram(ID);
+	setFloat("lightPos", light->getPosition().x, light->getPosition().y, light->getPosition().z);
+	setFloat("lightColor", light->getColor().x, light->getColor().y, light->getColor().z);
+
+	glUseProgram(currentPorgramId);
+}
+
+void Shader::updateLights()
+{
+	for (auto light : lights)
+	{
+		for (auto shader : shaders)
+		{
+			shader->updateLight(light);
+		}
+	}
+}
 
 void Shader::setMat4(const std::string& name, glm::mat4& mat)
 {
