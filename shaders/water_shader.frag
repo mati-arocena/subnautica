@@ -17,5 +17,5 @@ void main()
 {
     //FragColor = mix( texture(texture0, TextCoord), texture(texture1, vec2(TextCoord.x * cos(time) + TextCoord.y * sin(time), -TextCoord.x * sin(time) + TextCoord.y * cos(time))), normalize(gl_FragCoord));
     //FragColor = abs(col);
-    FragColor = mix(texture(texture_diffuse, TextCoord), texture(texture_specular, TextCoord), 0.2);
+    FragColor = texture(texture_diffuse, TextCoord);
 }

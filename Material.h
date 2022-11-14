@@ -9,7 +9,7 @@ private:
 	std::vector<Texture*> textures;
 
 public:
-	Material(std::vector<Texture*> textures);
+	Material(std::vector<Texture*> textures, Shader* shader);
 	~Material();
 	void use();
 	Shader* getShader();

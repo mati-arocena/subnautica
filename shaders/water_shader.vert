@@ -10,13 +10,12 @@ out vec4 origin;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform vec4 clippingPlane;
+
 
 void main()
 {
-	gl_ClipDistance[0] = dot(aPos, clippingPlane);
-	gl_Position = projection * view * model * aPos;
-	origin = vec4(view[0][2], view[1][2], view[2][2], 1.f);
-	col = aNormal;
-	TextCoord = aTexCoord;
+   gl_Position = projection * view * model * aPos;
+   origin = vec4(view[0][2], view[1][2], view[2][2], 1.f);
+   col = aNormal;
+   TextCoord = aTexCoord;
 }

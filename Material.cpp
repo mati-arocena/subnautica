@@ -1,9 +1,10 @@
 #include "Material.h"
 
 
-Material::Material(std::vector<Texture*> textures) 
+Material::Material(std::vector<Texture*> textures, Shader* shader) 
 {
-	shader = new Shader("shaders/shader.vert", "shaders/shader.frag");
+	//shader = new Shader("shaders/shader.vert", "shaders/shader.frag");
+	this->shader = shader;
 
 	this->textures = textures;
 	for (unsigned int x = 0; x < textures.size(); x++)

@@ -124,6 +124,7 @@ void Shader::setTexture(Texture *texture, int pos)
 	glUseProgram(currentProgramId);
 }
 
+
 /*
 void Shader::addTexture(Texture* texture, const char* name)
 {

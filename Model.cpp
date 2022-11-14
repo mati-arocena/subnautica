@@ -63,7 +63,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
-		Vertex vertex;
+		Vertex vertex({ 0, 0, 0 }, { 0, 0, 0 }, { 0, 0 });
 		// process vertex positions, normals and texture coordinates
 		vertex.Position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 		vertex.Normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
@@ -105,7 +105,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	std::vector<Texture*> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
-	Material *m = new Material(textures);
+	Shader* shader = new Shader("shaders/shader.vert", "shaders/shader.frag");
+
+	Material *m = new Material(textures, shader);
 
 	return Mesh(vertices, indices, m);
 }

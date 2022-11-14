@@ -6,6 +6,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 struct Vertex {
+    Vertex(glm::vec3 Position, glm::vec3 Normal, glm::vec2 TexCoords) {
+        this->Position = Position;
+        this->Normal = Normal;
+        this->TexCoords = TexCoords;
+    }
     glm::vec3 Position;
     glm::vec3 Normal;
     glm::vec2 TexCoords;

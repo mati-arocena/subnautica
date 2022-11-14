@@ -30,6 +30,23 @@ Texture::Texture(const char* texturePath, std::string name, bool alpha, bool min
     stbi_image_free(data);
 }
 
+Texture::Texture(int width, int height, int colorType, std::string name, int attachment)
+{
+    this->name = name;
+    this->alpha = false;
+    this->minmap = false;
+    this->path = "";
+    
+    glGenTextures(1, &ID);
+    glBindTexture(GL_TEXTURE_2D, ID);
+    glTexImage2D(GL_TEXTURE_2D, 0, colorType, width, height, 0, colorType, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, ID, 0);
+}
+
 void Texture::use(int pos) const
 {
     pos += GL_TEXTURE0;
