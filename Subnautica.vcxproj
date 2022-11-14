@@ -167,6 +167,7 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="VBO.h" />
     <ClInclude Include="Water.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\ui.frag" />
@@ -174,9 +175,7 @@
     <None Include="shaders\water_shader.frag" />
     <None Include="shaders\water_shader.vert" />
     <None Include="shaders\shader.frag" />
-    <None Include="shaders\shader.vert">
-      <FileType>Document</FileType>
-    </None>
+    <None Include="shaders\shader.vert"/>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

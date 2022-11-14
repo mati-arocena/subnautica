@@ -3,13 +3,13 @@
 
 static int numElementsInVBO = 14;
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Material *material)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Material *material, glm::mat4 modelMat)
 {
 	this->vertices = vertices;
 	this->indices = indices;
 	this->material = material;
 
-	this->model = glm::mat4(1.0f);
+	this->model = modelMat;
 
 	glGenVertexArrays(1, &vao);
 	vbo = new VBO();
