@@ -1,11 +1,13 @@
 #include "Water.h"
+#include "GameInstance.h"
+#include "Definitions.h"
 #include <vector>
 
 glm::vec3 Position;
 glm::vec3 Normal;
 glm::vec2 TexCoords;
 
-Water::Water()
+Water::Water() : GameObject()
 {
 	Vertex v1({ 1.f, 0.f, 1.f }, { 0.f,1.f,0.f }, { 1.f, 1.f });
 	Vertex v2({ -1.f, 0.f, 1.f }, { 0.f,1.f,0.f }, { 0.f, 1.f });
@@ -28,7 +30,6 @@ Water::Water()
 
 Material* Water::initializeMaterial() 
 {
-	Shader* shader = new Shader("shaders/water_shader.vert", "shaders/water_shader.frag");
 	std::vector<Texture*> textures;
 
 	glGenFramebuffers(1, &reflFrameBuffer);
@@ -47,7 +48,7 @@ Material* Water::initializeMaterial()
 	//Texture* texture = new Texture("assets/diffuse.jpg", "texture_diffuse", true, true);
 	//textures.push_back(texture);
 
-	Material* material = new Material(textures, shader);
+	Material* material = new Material(textures, GameInstance::getInstance().getShader(WATER_SHADER));
 	return material;
 }
 
@@ -58,24 +59,21 @@ void Water::unbindFrameFuffer()
 	glViewport(0, 0, 800, 600);
 }
 
-void Water::update(std::vector<Model*> models, Camera* camera)
+void Water::update(double deltaTime)
 {
+	glEnable(GL_CLIP_DISTANCE0);
+
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, reflFrameBuffer);
 	glViewport(0, 0, 800, 600);
 
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	for (Model* model : models)
-	{
-		model->draw(camera);
-	}
-	
+	GameInstance::getInstance().render(this);
+
 	unbindFrameFuffer();
+
+	glDisable(GL_CLIP_DISTANCE0);
 }
 
-
-void Water::draw(Camera* camera)
-{
-	mesh->Draw(camera);
+void Water::render() {
+	mesh->render();
 }

@@ -11,6 +11,8 @@ Camera::Camera(
     Yaw = yaw;
     Pitch = pitch;
     updateCameraVectors();
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), 640.0f / 480.0f, 0.1f, 100.0f);
+
 }
 
 Camera::Camera(
@@ -24,6 +26,7 @@ Camera::Camera(
     Yaw = yaw;
     Pitch = pitch;
     updateCameraVectors();
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), 640.0f / 480.0f, 0.1f, 100.0f);
 }
 
 void Camera::updateViewMatrix()
@@ -34,6 +37,11 @@ void Camera::updateViewMatrix()
 glm::mat4 Camera::GetViewMatrix() const
 {
     return ViewMatrix;
+}
+
+glm::mat4 Camera::GetProjectionMatrix() const
+{
+    return ProjectionMatrix;
 }
 
 glm::vec4 Camera::GetPosition() const
@@ -82,6 +90,7 @@ void Camera::ProcessMouseScroll(float yoffset)
         Zoom = 1.0f;
     if (Zoom > 90.0f)
         Zoom = 90.0f;
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), 640.0f / 480.0f, 0.1f, 100.0f);
 }
 
 void Camera::updateCameraVectors()

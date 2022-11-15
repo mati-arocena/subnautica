@@ -1,7 +1,8 @@
 #pragma once
+#include "GameObject.h"
+#include <glm/glm.hpp>
 #include "VBO.h"
 
-#include <glm/glm.hpp>
 
 class Light
 {

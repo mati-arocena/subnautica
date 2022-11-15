@@ -30,7 +30,7 @@ public:
     Material* material;
 
     Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Material* material, glm::mat4 modelMat);
-    void Draw(Camera* camera);
+    void render();
 
     glm::mat4 model;
 

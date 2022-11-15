@@ -6,7 +6,7 @@
 #include "Model.h"
 
 
-class Water
+class Water : public GameObject
 {
 private:
 	Mesh* mesh;
@@ -17,9 +17,10 @@ private:
 
 public:
 	Water();
-	void draw(Camera* camera);
+	void update(double deltaTime) override;
+	void render() override;
+
 	void unbindFrameFuffer();
-	void update(std::vector<Model*> models, Camera* camera);
 	Material* initializeMaterial();
 
 };
