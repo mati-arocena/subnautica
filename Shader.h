@@ -14,10 +14,7 @@
 
 class Shader
 {
-	void updateLight(Light* light);
 public:
-	static std::vector<Light*> lights;
-	static std::vector<Shader*> shaders;
 
 	// Program id
 	unsigned int ID;
@@ -26,7 +23,7 @@ public:
 
 	// Reads and builds the shader
 	Shader();
-	Shader(const char* vertexPath, const char* fragmentPath);
+	Shader(std::string vertexPath, std::string fragmentPath);
 
 	// Use the shader
 	void use() const;
@@ -43,6 +40,5 @@ public:
 
 	void setMat4(const std::string& name, glm::mat4& mat);
 	void setTexture(Texture* texture, int pos);
-	static void addLight(Light* light);
-	static void updateLights();
+	void prerender(std::shared_ptr<Camera> camera, std::shared_ptr<Light> light);
 };

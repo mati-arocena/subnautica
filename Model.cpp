@@ -2,7 +2,10 @@
 #include <assimp/Importer.hpp>
 #include "Utils.h"
 
-Model::Model(std::string path)
+#include "GameInstance.h"
+#include "Definitions.h"
+
+Model::Model(std::string path) : GameObject()
 {
 	loadModel(path);
 }
@@ -11,11 +14,11 @@ Model::~Model()
 {
 }
 
-void Model::draw(Camera* camera)
+void Model::render()
 {
 	for (Mesh mesh : meshes)
 	{
-		mesh.Draw(camera);
+		mesh.render();
 	}
 }
 
@@ -120,9 +123,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 	std::vector<Texture*> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
-	Shader* shader = new Shader("shaders/shader.vert", "shaders/shader.frag");
-
-	Material *m = new Material(textures, shader);
+	Material *m = new Material(textures, GameInstance::getInstance().getShader(NORMAL_SHADER));
 
 	return Mesh(vertices, indices, m, transformMat);
 }

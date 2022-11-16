@@ -41,24 +41,16 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Mate
 	
 }
 
-void Mesh::Draw(Camera *camera)
+void Mesh::render()
 {
 	material->use();
 
-	Shader* shader = material->getShader();
+	std::shared_ptr<Shader> shader = material->getShader();
 	shader->setFloat("time", glfwGetTime());
 	//esto es por ahora 
 	shader->setFloat("clippingPlane", clipPlane.x, clipPlane.y, clipPlane.z, clipPlane.w);
 
-	glm::mat4 view = camera->GetViewMatrix();
-
-	glm::mat4 projection;
-	projection = glm::perspective(glm::radians(camera->Zoom), 640.0f / 480.0f, 0.1f, 100.0f);
-
 	shader->setMat4("model", model);
-	shader->setMat4("view", view);
-	shader->setMat4("projection", projection);
-
 	glBindVertexArray(vao);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0); // cantidad de indices

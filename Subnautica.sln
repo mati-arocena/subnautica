@@ -5,12 +5,6 @@ VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Subnautica", "Subnautica.vcxproj", "{C2523471-D8E8-4F0F-A4EE-A7D58125452B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementos de la solución", "Elementos de la solución", "{9871D467-6F4D-4721-A58B-54091C7B7C09}"
-	ProjectSection(SolutionItems) = preProject
-		shaders\ui.frag = shaders\ui.frag
-		shaders\ui.vert = shaders\ui.vert
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

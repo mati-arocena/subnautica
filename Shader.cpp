@@ -1,9 +1,7 @@
 #include "Shader.h"
 
-std::vector<Light*> Shader::lights;
-std::vector<Shader*> Shader::shaders;
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath)
+Shader::Shader(std::string vertexPath, std::string fragmentPath)
 {
 	std::string vertexCode, fragmentCode;
 	std::ifstream vShaderFile, fShaderFile;
@@ -78,8 +76,6 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	// delete the shaders as they're linked into our program now and no longer necessary
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
-
-	shaders.push_back(this);
 }
 
 void Shader::use() const
@@ -128,35 +124,26 @@ void Shader::setTexture(Texture *texture, int pos)
 	glUseProgram(currentProgramId);
 }
 
-void Shader::addLight(Light* light)
+void Shader::setMat4(const std::string& name, glm::mat4& mat)
 {
-	lights.push_back(light);
+	glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
 }
 
-void Shader::updateLight(Light* light)
+void Shader::prerender(std::shared_ptr<Camera> camera, std::shared_ptr<Light> light)
 {
 	GLint currentPorgramId;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &currentPorgramId);
 
-	glUseProgram(ID);
+	use();
 	setFloat("lightPos", light->getPosition().x, light->getPosition().y, light->getPosition().z);
 	setFloat("lightColor", light->getColor().x, light->getColor().y, light->getColor().z);
+	
+	glm::mat4 view = camera->GetViewMatrix();
+	glm::mat4 projection = camera->GetProjectionMatrix();
+
+	setMat4("view", view);
+	setMat4("projection", projection);
+
 
 	glUseProgram(currentPorgramId);
-}
-
-void Shader::updateLights()
-{
-	for (auto light : lights)
-	{
-		for (auto shader : shaders)
-		{
-			shader->updateLight(light);
-		}
-	}
-}
-
-void Shader::setMat4(const std::string& name, glm::mat4& mat)
-{
-	glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
 }

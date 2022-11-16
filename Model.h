@@ -1,5 +1,7 @@
 #pragma once
 
+#include "GameObject.h"
+
 #include <vector>
 #include <string>
 #include <assimp/scene.h>
@@ -8,7 +10,7 @@
 #include "Texture.h"
 #include "Mesh.h"
 
-class Model
+class Model : public GameObject
 {
 
 private:
@@ -16,15 +18,16 @@ private:
 	std::string directory;
     std::vector<Texture*> textures_loaded;
 
-public:
-    Model(std::string path);
-    ~Model();
-    void draw(Camera* camera);
     void loadModel(std::string path);
     void processNode(aiNode* node, const aiScene* scene, glm::mat4 transformMat);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformMat);
     std::vector<Texture*> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+public:
+    Model(std::string path);
+    ~Model();
+
     void clipModel(glm::vec4 plane);
-    void update(double DeltaTime);
+    void update(double DeltaTime) override;
+    void render();
 };
 

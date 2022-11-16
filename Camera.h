@@ -21,6 +21,7 @@ const float SPEED = 2.5f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
+
 class Camera
 {
 public:
@@ -31,6 +32,7 @@ public:
     glm::vec3 Right;
     glm::vec3 WorldUp;
     glm::mat4 ViewMatrix;
+    glm::mat4 ProjectionMatrix;
     // euler Angles
     float Yaw;
     float Pitch;
@@ -52,9 +54,10 @@ public:
     );
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix() const;
-    glm::vec4 GetPosition() const;
     void SetPosition(glm::vec3 position);
     void InvertPitch();
+    glm::mat4 GetProjectionMatrix() const;
+    glm::vec4 GetPosition() const; 
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
     void ProcessKeyboard(Camera_Movement direction, float deltaTime);
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.

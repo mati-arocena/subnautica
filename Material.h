@@ -5,13 +5,13 @@
 class Material
 {
 private:
-	Shader* shader;
+	std::shared_ptr<Shader> shader;
 	std::vector<Texture*> textures;
 
 public:
-	Material(std::vector<Texture*> textures, Shader* shader);
+	Material(std::vector<Texture*> textures, std::shared_ptr<Shader> shader);
 	~Material();
 	void use();
-	Shader* getShader();
+	std::shared_ptr<Shader> getShader();
 };
 

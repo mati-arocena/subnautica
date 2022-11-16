@@ -1,6 +1,6 @@
 #include "UIRenderer.h"
 
-UIRenderer::UIRenderer(Shader* shader)
+UIRenderer::UIRenderer(std::shared_ptr<Shader> shader)
 {
     this->shader = shader;
     this->initRenderData();

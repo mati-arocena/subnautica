@@ -1,7 +1,7 @@
 #include "Material.h"
 
 
-Material::Material(std::vector<Texture*> textures, Shader* shader) 
+Material::Material(std::vector<Texture*> textures, std::shared_ptr<Shader> shader) 
 {
 	//shader = new Shader("shaders/shader.vert", "shaders/shader.frag");
 	this->shader = shader;
@@ -27,7 +27,7 @@ void Material::use()
 	}
 }
 
-Shader* Material::getShader()
+std::shared_ptr<Shader> Material::getShader()
 {
 	return shader;
 }
