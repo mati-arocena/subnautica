@@ -8,7 +8,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Mate
 	this->vertices = vertices;
 	this->indices = indices;
 	this->material = material;
-
+	clipPlane = glm::vec4{ 0.f, 0.f, 0.f, 0.f };
 	this->model = modelMat;
 
 	glGenVertexArrays(1, &vao);
@@ -47,8 +47,8 @@ void Mesh::Draw(Camera *camera)
 
 	Shader* shader = material->getShader();
 	shader->setFloat("time", glfwGetTime());
-	//esto es por ahora
-	shader->setFloat("clippingPlane", 0, -1, 0, 0 );
+	//esto es por ahora 
+	shader->setFloat("clippingPlane", clipPlane.x, clipPlane.y, clipPlane.z, clipPlane.w);
 
 	glm::mat4 view = camera->GetViewMatrix();
 
@@ -103,4 +103,14 @@ float* Vertex::toVBO(std::vector<Vertex> vertices)
 	}
 
 	return vbo;
+}
+
+void Mesh::setClipPlane(glm::vec4 plane)
+{
+	this->clipPlane = plane;
+}
+
+glm::vec4 Mesh::getClipPlane()
+{
+	return this->clipPlane;
 }

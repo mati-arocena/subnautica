@@ -24,6 +24,7 @@ public:
     void processNode(aiNode* node, const aiScene* scene, glm::mat4 transformMat);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformMat);
     std::vector<Texture*> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+    void clipModel(glm::vec4 plane);
     void update(double DeltaTime);
 };
 

@@ -159,3 +159,11 @@ std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType
 	return textures;
 
 }
+
+void Model::clipModel(glm::vec4 plane)
+{
+	for (Mesh &m : meshes)
+	{
+		m.setClipPlane(plane);
+	}
+}

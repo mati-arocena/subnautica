@@ -9,6 +9,7 @@
 class Water
 {
 private:
+	glm::vec3 position;
 	Mesh* mesh;
 	Texture* refrTexture;
 	Texture* reflTexture;

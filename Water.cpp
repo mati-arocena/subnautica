@@ -7,6 +7,7 @@ glm::vec2 TexCoords;
 
 Water::Water()
 {
+	this->position = glm::vec3(0.f, 0.f, 0.f);
 	Vertex v1({ 1.f, 0.f, 1.f }, { 0.f,1.f,0.f }, { 1.f, 1.f });
 	Vertex v2({ -1.f, 0.f, 1.f }, { 0.f,1.f,0.f }, { 0.f, 1.f });
 	Vertex v3({ -1.f, 0.f, -1.f }, { 0.f,1.f,0.f }, { 0.f, 0.f });
@@ -37,12 +38,11 @@ Material* Water::initializeMaterial()
 	textures.push_back(reflTexture);
 	unbindFrameFuffer();
 
-	//unsigned int refrFrameBuffer;
-	//glGenFramebuffers(1, &refrFrameBuffer);
-	//glBindFramebuffer(GL_FRAMEBUFFER, refrFrameBuffer);
-	//refrTexture = new Texture(800, 600, GL_RGB, "texture_refraction", GL_COLOR_ATTACHMENT0);
-	//textures.push_back(refrTexture);
-	//unbindFrameFuffer();
+	glGenFramebuffers(1, &refrFrameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, refrFrameBuffer);
+	refrTexture = new Texture(800, 600, GL_RGB, "texture_refraction", GL_COLOR_ATTACHMENT0);
+	textures.push_back(refrTexture);
+	unbindFrameFuffer();
 
 	//Texture* texture = new Texture("assets/diffuse.jpg", "texture_diffuse", true, true);
 	//textures.push_back(texture);
@@ -60,14 +60,41 @@ void Water::unbindFrameFuffer()
 
 void Water::update(std::vector<Model*> models, Camera* camera)
 {
+	glm::vec3 camPos = camera->Position;
+	float distance = 2 * (camPos.y - this->position.y);
+
+	//camera->SetPosition(glm::vec3(camPos.x, camPos.y - distance, camPos.z));
+	camera->Position.y = -camera->Position.y;
+	camera->InvertPitch();
+	camera->updateViewMatrix();
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, reflFrameBuffer);
+	glViewport(0, 0, 800, 600);
+
+
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	for (Model* model : models)
+	{
+		glm::vec4 plane = glm::vec4(0.f, 1.f, 0.f, 0.f);
+		model->clipModel(plane);
+		model->draw(camera);
+	}
+	unbindFrameFuffer();
+
+	camera->InvertPitch();
+	camera->SetPosition(camPos);
+	camera->updateViewMatrix();
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, refrFrameBuffer);
 	glViewport(0, 0, 800, 600);
 
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	for (Model* model : models)
 	{
+		glm::vec4 plane = glm::vec4(0.f, -1.f, 0.f, 0.f);
+		model->clipModel(plane);
 		model->draw(camera);
 	}
 	

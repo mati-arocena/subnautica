@@ -31,16 +31,20 @@ public:
 
     Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Material* material, glm::mat4 modelMat);
     void Draw(Camera* camera);
+    void setClipPlane(glm::vec4 plane);
+    glm::vec4 getClipPlane();
 
     glm::mat4 model;
 
 private:
     VBO* vbo;
     unsigned int vao, ebo;
+    glm::vec4 clipPlane;
 
     void setupMesh();
 
     unsigned int* ToEBO();
+
 
 };
 

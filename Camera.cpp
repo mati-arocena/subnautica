@@ -41,6 +41,18 @@ glm::vec4 Camera::GetPosition() const
     return glm::vec4(Position, 1.f);
 }
 
+void Camera::SetPosition(glm::vec3 position) 
+{
+    this->Position = position;
+}
+
+void Camera::InvertPitch()
+{
+    this->Pitch = -Pitch;
+    updateCameraVectors();
+}
+
+
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
     float velocity = MovementSpeed * deltaTime;
