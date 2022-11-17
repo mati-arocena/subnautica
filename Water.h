@@ -13,6 +13,8 @@ private:
 	Mesh* mesh;
 	Texture* refrTexture;
 	Texture* reflTexture;
+	Texture* reflectionDepthTexture;
+	Texture* refractionDepthTexture;
 	unsigned int reflFrameBuffer;
 	unsigned int refrFrameBuffer;
 

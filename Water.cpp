@@ -35,14 +35,21 @@ Material* Water::initializeMaterial()
 
 	glGenFramebuffers(1, &reflFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, reflFrameBuffer);
-	reflTexture = new Texture(800, 600, GL_RGB, "texture_reflection", GL_COLOR_ATTACHMENT0);
+	reflTexture = new Texture(800, 600, GL_RGB, GL_RGB, "texture_reflection", GL_COLOR_ATTACHMENT0);
 	textures.push_back(reflTexture);
+
+	reflectionDepthTexture = new Texture(800, 600, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_reflection_depth", GL_DEPTH_ATTACHMENT);
+	textures.push_back(reflectionDepthTexture);
+
 	unbindFrameFuffer();
 
 	glGenFramebuffers(1, &refrFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, refrFrameBuffer);
-	refrTexture = new Texture(800, 600, GL_RGB, "texture_refraction", GL_COLOR_ATTACHMENT0);
+	refrTexture = new Texture(800, 600, GL_RGB, GL_RGB, "texture_refraction", GL_COLOR_ATTACHMENT0);
 	textures.push_back(refrTexture);
+
+	refractionDepthTexture = new Texture(800, 600, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_refraction_depth", GL_DEPTH_ATTACHMENT);
+	textures.push_back(refractionDepthTexture);
 	unbindFrameFuffer();
 
 	//Texture* texture = new Texture("assets/diffuse.jpg", "texture_diffuse", true, true);
@@ -75,16 +82,12 @@ void Water::update(double deltaTime)
 	glViewport(0, 0, 800, 600);
 
 	GameInstance::getInstance().render(this);
-
-
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	GameInstance::getInstance().render(this);
 	unbindFrameFuffer();
 
 	camera->InvertPitch();
 	camera->SetPosition(camPos);
 	camera->updateViewMatrix();
+
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, refrFrameBuffer);
 	glViewport(0, 0, 800, 600);
