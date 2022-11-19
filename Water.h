@@ -15,8 +15,10 @@ private:
 	Texture* reflTexture;
 	Texture* reflectionDepthTexture;
 	Texture* refractionDepthTexture;
+	Texture* dudv_texture;
 	unsigned int reflFrameBuffer;
 	unsigned int refrFrameBuffer;
+	float moveFactor;
 
 public:
 	Water();

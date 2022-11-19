@@ -1,5 +1,6 @@
 #include "GameInstance.h"
 #include <GLFW/glfw3.h>
+#include "Model.h"
 
 float GameInstance::mouseLastX = 400;
 float GameInstance::mouseLastY = 300;
@@ -110,7 +111,7 @@ std::shared_ptr<Shader> GameInstance::getShader(std::string name)
 	}
 }
 
-void GameInstance::render(GameObject* excludeFromRendering)
+void GameInstance::render(GameObject* excludeFromRendering, glm::vec4 clipPlane)
 {
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -122,6 +123,11 @@ void GameInstance::render(GameObject* excludeFromRendering)
 
 	for (auto object : objects)
 	{
+		if (auto m = dynamic_cast<Model*>(object.get()))
+		{
+			m->clipModel(clipPlane);
+		}
+
 		if (object.get() != excludeFromRendering)
 		{
 			object->render();

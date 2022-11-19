@@ -10,10 +10,10 @@ glm::vec2 TexCoords;
 Water::Water() : GameObject()
 {
 	this->position = glm::vec3(0.f, 0.f, 0.f);
-	Vertex v1({ 1.f, 0.f, 1.f }, { 0.f,1.f,0.f }, { 1.f, 1.f });
-	Vertex v2({ -1.f, 0.f, 1.f }, { 0.f,1.f,0.f }, { 0.f, 1.f });
-	Vertex v3({ -1.f, 0.f, -1.f }, { 0.f,1.f,0.f }, { 0.f, 0.f });
-	Vertex v4({ 1.f, 0.f, -1.f }, { 0.f,1.f,0.f }, { 1.f, 0.f });
+	Vertex v1({ 1000.f, 0.f, 1000.f }, { 0.f,1000.f,0.f }, { 1000.f, 1000.f });
+	Vertex v2({ -1000.f, 0.f, 1000.f }, { 0.f,1000.f,0.f }, { 0.f, 1000.f });
+	Vertex v3({ -1000.f, 0.f, -1000.f }, { 0.f,1000.f,0.f }, { 0.f, 0.f });
+	Vertex v4({ 1000.f, 0.f, -1000.f }, { 0.f,1000.f,0.f }, { 1000.f, 0.f });
 	std::vector<Vertex> vertices = { v1,v2,v3,v4 };
 
 	std::vector<unsigned> indices = {
@@ -52,8 +52,12 @@ Material* Water::initializeMaterial()
 	textures.push_back(refractionDepthTexture);
 	unbindFrameFuffer();
 
-	//Texture* texture = new Texture("assets/diffuse.jpg", "texture_diffuse", true, true);
-	//textures.push_back(texture);
+	dudv_texture = new Texture("assets/waterDUDV.png", "dudv_map", true, true);
+	textures.push_back(dudv_texture);
+
+	dudv_texture = new Texture("assets/waterNormalMap.png", "normal_map", true, true);
+	textures.push_back(dudv_texture);
+
 
 	Material* material = new Material(textures, GameInstance::getInstance().getShader(WATER_SHADER));
 	return material;
@@ -68,24 +72,36 @@ void Water::unbindFrameFuffer()
 
 void Water::update(double deltaTime)
 {
+}
+
+
+void Water::render() {
+
 	glEnable(GL_CLIP_DISTANCE0);
 	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
 	glm::vec3 camPos = camera->Position;
-	float distance = 2 * (camPos.y - this->position.y);
 
-	//camera->SetPosition(glm::vec3(camPos.x, camPos.y - distance, camPos.z));
-	camera->Position.y = -camera->Position.y;
+	auto shader = GameInstance::getInstance().getShader(WATER_SHADER);
+	shader->use();
+	shader->setFloat("camera_position", camPos.x, camPos.y, camPos.z);
+	shader->setFloat("refract_exp", camPos.y >= this->position.y ? 5.f : 0.1f);
+	shader->setFloat("normal", 0, camPos.y >= this->position.y ? 1.f : -1.f, 0.f);
+
+
+	float distance = 2 * (camPos.y - this->position.y);
+	camera->Position.y = camPos.y - distance;
 	camera->InvertPitch();
 	camera->updateViewMatrix();
+
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, reflFrameBuffer);
 	glViewport(0, 0, 800, 600);
 
-	GameInstance::getInstance().render(this);
+	GameInstance::getInstance().render(this, glm::vec4(0.f, camPos.y >= this->position.y ? 1.f : -1.f, 0.f, this->position.y));
 	unbindFrameFuffer();
 
 	camera->InvertPitch();
-	camera->SetPosition(camPos);
+	camera->SetPosition(camPos); 
 	camera->updateViewMatrix();
 
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -94,13 +110,10 @@ void Water::update(double deltaTime)
 
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	GameInstance::getInstance().render(this);	
+	GameInstance::getInstance().render(this, glm::vec4(0.f, camPos.y < this->position.y ? 1.f : -1.f, 0.f, this->position.y));
 	unbindFrameFuffer();
 
 	glDisable(GL_CLIP_DISTANCE0);
-}
 
-
-void Water::render() {
 	mesh->render();
 }

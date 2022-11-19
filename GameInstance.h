@@ -54,7 +54,7 @@ public:
 	void processInput(double deltaTime);
 	void update(double deltaTime);
 	void render();
-	void render(GameObject* excludeFromRendering);
+	void render(GameObject* excludeFromRendering, glm::vec4 clipPlane);
 
 	bool isRunning();
 };
