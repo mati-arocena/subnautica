@@ -17,11 +17,16 @@ uniform vec3 lightPos;
 uniform vec3 lightColor;
 uniform vec4 ourColor;
 uniform float time;
+uniform vec3 viewPos;
+
+uniform float specular_strenght;
 
 uniform sampler2D texture_diffuse;
 uniform sampler2D texture_specular;
 uniform sampler2D texture_normal;
 uniform sampler2D texture_height;
+
+const int shininess = 16;
 
 void main()
 {
@@ -38,4 +43,15 @@ void main()
     vec3 diffuse = diff * color * lightColor;
 
     FragColor = vec4(ambient + diffuse, 1.0);
+
+    //specular
+    vec3 viewDir = normalize(viewPos - fs_in.FragPos);
+    vec3 reflectDir = reflect(-lightDir, normal);
+
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+
+    vec3 specularColor = texture(texture_specular, fs_in.TexCoords).rgb;
+    vec3 specular = specular_strenght * spec * specularColor;
+
+    FragColor = vec4(ambient + diffuse + specular, 1.0);   
 }

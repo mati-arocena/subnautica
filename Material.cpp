@@ -1,9 +1,8 @@
 #include "Material.h"
 
 
-Material::Material(std::vector<Texture*> textures, std::shared_ptr<Shader> shader) 
+Material::Material(std::vector<Texture*> textures, std::shared_ptr<Shader> shader, float specularStrenght)
 {
-	//shader = new Shader("shaders/shader.vert", "shaders/shader.frag");
 	this->shader = shader;
 
 	this->textures = textures;
@@ -11,7 +10,10 @@ Material::Material(std::vector<Texture*> textures, std::shared_ptr<Shader> shade
 	{
 		shader->setTexture(textures[x], x);
 	}
+
+	this->specularStrenght = specularStrenght;
 }
+
 
 Material::~Material()
 {
@@ -25,6 +27,8 @@ void Material::use()
 	{	
 		textures[x]->use(x);
 	}
+
+	shader->setFloat("specular_strenght", specularStrenght);
 }
 
 std::shared_ptr<Shader> Material::getShader()

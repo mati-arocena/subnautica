@@ -144,6 +144,8 @@ void Shader::prerender(std::shared_ptr<Camera> camera, std::shared_ptr<Light> li
 	setMat4("view", view);
 	setMat4("projection", projection);
 
+	glm::vec3 viewPos = camera->GetPosition();
+	setFloat("viewPos", viewPos.x, viewPos.y, viewPos.z);
 	setFloat("fog_color", BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
 	setFloat("water_fog_color", 0.f, .3f, .5f, 1.f);
 	setFloat("inside_water", camera->GetPosition().y > 0 ? 0.f: 1.f);
