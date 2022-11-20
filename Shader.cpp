@@ -144,6 +144,8 @@ void Shader::prerender(std::shared_ptr<Camera> camera, std::shared_ptr<Light> li
 	setMat4("view", view);
 	setMat4("projection", projection);
 
+	glm::vec3 viewPos = camera->GetPosition();
+	setFloat("viewPos", viewPos.x, viewPos.y, viewPos.z);
 
 	glUseProgram(currentPorgramId);
 }

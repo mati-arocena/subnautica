@@ -118,6 +118,7 @@ void GameInstance::render(GameObject* excludeFromRendering, glm::vec4 clipPlane)
 
 	for (auto shader : shaders)
 	{
+
 		shader.second->prerender(camera, light);
 	}
 
