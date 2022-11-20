@@ -1,0 +1,11 @@
+Model Information:
+* title:	Ruined rock fence
+* source:	https://sketchfab.com/3d-models/ruined-rock-fence-75e2716c378e4a68bac3577303671921
+* author:	VladNeko (https://sketchfab.com/vlad.neko)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Ruined rock fence" (https://sketchfab.com/3d-models/ruined-rock-fence-75e2716c378e4a68bac3577303671921) by VladNeko (https://sketchfab.com/vlad.neko) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
