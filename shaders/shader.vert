@@ -24,8 +24,10 @@ uniform vec3 lightPos;
 
 void main()
 {
+	vec4 worldPosition = model * vec4(aPos, 1.0);
+	vec4 positionRelativeToCam = view * worldPosition;
 	gl_ClipDistance[0] = dot(vec4(aPos, 1.0), clippingPlane);
-	gl_Position = projection * view * model * vec4(aPos, 1.0);
+	gl_Position = projection * positionRelativeToCam;
 	origin = vec4(view[0][2], view[1][2], view[2][2], 1.f);
 	TextCoord = aTexCoord;
 

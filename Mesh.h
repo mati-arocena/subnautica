@@ -33,8 +33,8 @@ public:
     void render();
     void setClipPlane(glm::vec4 plane);
     glm::vec4 getClipPlane();
-
     glm::mat4 model;
+    void render_withShader(std::shared_ptr<Shader> shader);
 
 private:
     VBO* vbo;

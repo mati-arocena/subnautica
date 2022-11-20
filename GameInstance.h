@@ -10,6 +10,7 @@
 #include "Light.h"
 
 #include <GLFW/glfw3.h>
+#include "PostProcessor.h"
 
 class GameInstance
 {
@@ -25,7 +26,7 @@ class GameInstance
 	std::shared_ptr<Light> light;
 
 	std::map<std::string, std::shared_ptr<Shader>> shaders;
-
+	std::shared_ptr<PostProcessor> postProcessor;
 
 	static float mouseLastX;
 	static float mouseLastY;
@@ -44,17 +45,19 @@ public:
 	void addLight(std::shared_ptr<Light> light);
 
 	void setupMouse();
-
 	void setCamera(std::shared_ptr<Camera> camera);
 	std::shared_ptr<Camera> getCamera();
 	void setWindow(GLFWwindow* window);
 
+	std::shared_ptr<Light> getLight();
 	std::shared_ptr<Shader> getShader(std::string name);
 
 	void processInput(double deltaTime);
 	void update(double deltaTime);
 	void render();
 	void render(GameObject* excludeFromRendering, glm::vec4 clipPlane);
+	void render_withShader(std::shared_ptr<Shader> shader);
+	void setPostProcessor();
 
 	bool isRunning();
 };

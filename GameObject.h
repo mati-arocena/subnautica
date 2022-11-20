@@ -4,12 +4,14 @@
 #include <vector>
 
 #include "Camera.h"
-#include "Light.h"
+
+class Shader;
 
 class GameObject
 {
 public:
 	virtual void update(double deltaTime) = 0;
 	virtual void render() = 0;
+	virtual void render_withShader(std::shared_ptr<Shader> shader) = 0;
 };
 

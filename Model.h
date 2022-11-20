@@ -29,5 +29,6 @@ public:
     void clipModel(glm::vec4 plane);
     void update(double DeltaTime) override;
     void render();
+    void render_withShader(std::shared_ptr<Shader> shader);
 };
 

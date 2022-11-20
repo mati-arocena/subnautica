@@ -1,6 +1,7 @@
 #include "GameInstance.h"
 #include <GLFW/glfw3.h>
 #include "Model.h"
+#include "Definitions.h"
 
 float GameInstance::mouseLastX = 400;
 float GameInstance::mouseLastY = 300;
@@ -113,7 +114,7 @@ std::shared_ptr<Shader> GameInstance::getShader(std::string name)
 
 void GameInstance::render(GameObject* excludeFromRendering, glm::vec4 clipPlane)
 {
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	for (auto shader : shaders)
@@ -137,7 +138,12 @@ void GameInstance::render(GameObject* excludeFromRendering, glm::vec4 clipPlane)
 
 void GameInstance::render()
 {
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	// Render escena
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glViewport(0, 0, 800, 600);
+	glBindFramebuffer(GL_FRAMEBUFFER, postProcessor->getSceneFB());
+
+	glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	for (auto shader : shaders)
@@ -149,6 +155,9 @@ void GameInstance::render()
 	{
 		object->render();
 	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	postProcessor->draw();
 }
 
 bool GameInstance::isRunning()
@@ -156,3 +165,30 @@ bool GameInstance::isRunning()
 	return running;
 }
 
+std::shared_ptr<Light> GameInstance::getLight() {
+	return this->light;
+}
+
+void GameInstance::render_withShader(std::shared_ptr<Shader> shader)
+{
+	// Renders a scene with the same shader
+
+	glClearColor(1.f, 1.f, 1.f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	shader->prerender(camera, light);
+
+	for (auto object : objects)
+	{
+		if (auto m = dynamic_cast<Model*>(object.get()))
+		{
+			object->render_withShader(shader);
+		}
+	}
+}
+
+
+void GameInstance::setPostProcessor()
+{
+	this->postProcessor = std::make_unique<PostProcessor>();
+}

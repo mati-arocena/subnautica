@@ -6,19 +6,27 @@ in vec2 TextCoord;
 in vec4 origin;
 in vec4 clipSpace;
 in vec3 toCameraVector;
+in vec3 fromLightVector;
+in float visibility;
 
 uniform vec4 ourColor;
 uniform float time;
 uniform float refract_exp;
-uniform vec3 normal;
+uniform vec3 normal_direction;
 
 uniform sampler2D texture_reflection;
 uniform sampler2D texture_refraction;
 uniform sampler2D dudv_map;
+uniform sampler2D normal_map;
+uniform vec3 lightColor;
+uniform vec4 fog_color;
+uniform vec4 water_fog_color;
 
 const float waveStrength = 0.02;
+const float waveSpeed = 0.04;
+const float shininess = 20.0;
+const float reflectivity = 0.6;
 
-const float waveSpeed = 0.03;
 
 void main()
 {
@@ -29,12 +37,8 @@ void main()
     float moveFactor = waveSpeed * time;
     moveFactor = mod(moveFactor,1);
 
-    //vec2 distortion1 = (texture(dudv_map, vec2(TextCoord.x + moveFactor, TextCoord.y)).rg * 2.0 - 1.0) * waveStrength;
-    //vec2 distortion2 = (texture(dudv_map, vec2(-TextCoord.x + moveFactor, TextCoord.y + moveFactor)).rg * 2.0 - 1.0) * waveStrength;
-    //vec2 totalDistortion = distortion1 + distortion2;
-
     vec2 distortedTexCoords = texture(dudv_map, vec2(TextCoord.x + moveFactor, TextCoord.y)).rg*0.1;
-	distortedTexCoords = TextCoord + vec2(distortedTexCoords.x, distortedTexCoords.y+moveFactor);
+	distortedTexCoords = TextCoord + vec2(distortedTexCoords.x, distortedTexCoords.y + moveFactor);
 	vec2 totalDistortion = (texture(dudv_map, distortedTexCoords).rg * 2.0 - 1.0) * waveStrength;
 
     reflectTextCoords += totalDistortion;
@@ -48,10 +52,18 @@ void main()
     vec4 reflectColor = texture(texture_reflection, reflectTextCoords);
 
     vec3 viewVector = normalize(toCameraVector);
-    float refractFactor = dot(viewVector, normal);
+    float refractFactor = dot(viewVector, normal_direction);
     refractFactor = pow(refractFactor, refract_exp);
 
+    vec4 normalMapColor = texture(normal_map, distortedTexCoords);
+    vec3 normal = vec3(normalMapColor.r * 2.0 - 1.0, normalMapColor.b, normalMapColor.g * 2.0 - 1.0);
+    normal = normalize(normal);
+
+    vec3 reflectedLight = reflect(normalize(fromLightVector), normal);
+	float specular = max(dot(reflectedLight, viewVector), 0.0);
+	specular = pow(specular, shininess);
+	vec3 specularHighlights = lightColor * specular * reflectivity;
 
     FragColor = mix(reflectColor, refractColor, refractFactor);
-
+    FragColor = mix(FragColor, vec4(.0, .3, .5, 1.0), 0.2) + vec4(specularHighlights, .1);
 }

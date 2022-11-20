@@ -5,7 +5,6 @@ in vec4 col;
 in vec2 TextCoord;
 in vec4 origin;
 
-
 in VS_OUT {
     vec3 FragPos;
     vec2 TexCoords;
@@ -24,7 +23,6 @@ uniform sampler2D texture_specular;
 uniform sampler2D texture_normal;
 uniform sampler2D texture_height;
 
-
 void main()
 {
     vec3 normal = texture(texture_normal, fs_in.TexCoords).rgb;
@@ -39,5 +37,5 @@ void main()
     float diff = max(dot(lightDir, normal), 0.0);
     vec3 diffuse = diff * color * lightColor;
 
-    FragColor = vec4(ambient + diffuse, 1.0);   
+    FragColor = vec4(ambient + diffuse, 1.0);
 }

@@ -10,10 +10,10 @@ glm::vec2 TexCoords;
 Water::Water() : GameObject()
 {
 	this->position = glm::vec3(0.f, 0.f, 0.f);
-	Vertex v1({ 1000.f, 0.f, 1000.f }, { 0.f,1000.f,0.f }, { 1000.f, 1000.f });
-	Vertex v2({ -1000.f, 0.f, 1000.f }, { 0.f,1000.f,0.f }, { 0.f, 1000.f });
+	Vertex v1({ 1000.f, 0.f, 1000.f }, { 0.f,1000.f,0.f }, { 500.f, 500.f });
+	Vertex v2({ -1000.f, 0.f, 1000.f }, { 0.f,1000.f,0.f }, { 0.f, 500.f });
 	Vertex v3({ -1000.f, 0.f, -1000.f }, { 0.f,1000.f,0.f }, { 0.f, 0.f });
-	Vertex v4({ 1000.f, 0.f, -1000.f }, { 0.f,1000.f,0.f }, { 1000.f, 0.f });
+	Vertex v4({ 1000.f, 0.f, -1000.f }, { 0.f,1000.f,0.f }, { 500.f, 0.f });
 	std::vector<Vertex> vertices = { v1,v2,v3,v4 };
 
 	std::vector<unsigned> indices = {
@@ -72,11 +72,6 @@ void Water::unbindFrameFuffer()
 
 void Water::update(double deltaTime)
 {
-}
-
-
-void Water::render() {
-
 	glEnable(GL_CLIP_DISTANCE0);
 	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
 	glm::vec3 camPos = camera->Position;
@@ -85,7 +80,7 @@ void Water::render() {
 	shader->use();
 	shader->setFloat("camera_position", camPos.x, camPos.y, camPos.z);
 	shader->setFloat("refract_exp", camPos.y >= this->position.y ? 5.f : 0.1f);
-	shader->setFloat("normal", 0, camPos.y >= this->position.y ? 1.f : -1.f, 0.f);
+	shader->setFloat("normal_direction", 0, camPos.y >= this->position.y ? 1.f : -1.f, 0.f);
 
 
 	float distance = 2 * (camPos.y - this->position.y);
@@ -101,19 +96,32 @@ void Water::render() {
 	unbindFrameFuffer();
 
 	camera->InvertPitch();
-	camera->SetPosition(camPos); 
+	camera->SetPosition(camPos);
 	camera->updateViewMatrix();
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, refrFrameBuffer);
 	glViewport(0, 0, 800, 600);
 
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	GameInstance::getInstance().render(this, glm::vec4(0.f, camPos.y < this->position.y ? 1.f : -1.f, 0.f, this->position.y));
 	unbindFrameFuffer();
 
 	glDisable(GL_CLIP_DISTANCE0);
+}
 
+
+void Water::render() {
+
+	auto shader = GameInstance::getInstance().getShader(WATER_SHADER);
+	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
+
+	shader->prerender(camera, GameInstance::getInstance().getLight());
 	mesh->render();
+}
+
+void Water::render_withShader(std::shared_ptr<Shader> shader)
+{
+	mesh->render_withShader(shader);
 }

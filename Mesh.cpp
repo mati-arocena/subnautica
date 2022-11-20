@@ -106,3 +106,18 @@ glm::vec4 Mesh::getClipPlane()
 {
 	return this->clipPlane;
 }
+
+void Mesh::render_withShader(std::shared_ptr<Shader> shader)
+{
+	shader->use();
+	shader->setFloat("clippingPlane", clipPlane.x, clipPlane.y, clipPlane.z, clipPlane.w);
+
+	shader->setMat4("model", model);
+
+	glBindVertexArray(vao);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0); // cantidad de indices
+	glBindVertexArray(0);
+
+
+}

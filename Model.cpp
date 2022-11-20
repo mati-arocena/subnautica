@@ -168,3 +168,11 @@ void Model::clipModel(glm::vec4 plane)
 		m.setClipPlane(plane);
 	}
 }
+
+void Model::render_withShader(std::shared_ptr<Shader> shader)
+{
+	for (Mesh mesh : meshes)
+	{
+		mesh.render_withShader(shader);
+	}
+}

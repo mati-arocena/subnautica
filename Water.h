@@ -27,6 +27,7 @@ public:
 
 	void unbindFrameFuffer();
 	Material* initializeMaterial();
+	void render_withShader(std::shared_ptr<Shader> shader);
 
 };
 

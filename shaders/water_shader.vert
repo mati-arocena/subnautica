@@ -8,22 +8,26 @@ out vec2 TextCoord;
 out vec4 origin;
 out vec3 toCameraVector;
 out vec4 clipSpace;
+out vec3 fromLightVector;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform vec3 camera_position;
+uniform vec3 lightPos;
 
-const float tiling = 6.0;
+const float fogDensity = 0.1;
+const float fogGradient = 2.0;
 
 void main()
 {
 	vec4 worldPosition = model * aPos;
-	clipSpace = projection * view * worldPosition;
+	vec4 positionRelativeToCam = view * worldPosition;
+	clipSpace = projection * positionRelativeToCam;
 	gl_Position = clipSpace;
 	origin = vec4(view[0][2], view[1][2], view[2][2], 1.f);
 	col = aNormal;
-	//TextCoord = vec2(aPos.x/2.0 + 0.5, aPos.y/2.0 + 0.5) * tiling;
 	TextCoord = aTexCoord;
 	toCameraVector = camera_position - worldPosition.xyz;
+	fromLightVector = worldPosition.wyz - lightPos;
 }

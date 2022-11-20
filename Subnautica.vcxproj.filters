@@ -54,6 +54,9 @@
     <ClCompile Include="GameInstance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PostProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -98,6 +101,9 @@
     <ClInclude Include="Definitions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PostProcessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\water_shader.frag" />
@@ -106,5 +112,8 @@
     <None Include="shaders\shader.vert" />
     <None Include="shaders\ui.frag" />
     <None Include="shaders\ui.vert" />
+    <None Include="shaders\post.frag" />
+    <None Include="shaders\post.vert" />
+    <None Include="shaders\occlusion.frag" />
   </ItemGroup>
 </Project>

@@ -54,12 +54,14 @@ int main()
 	gameInstance.addShader(NORMAL_SHADER, std::make_shared<Shader>(NORMAL_SHADER + ".vert", NORMAL_SHADER + ".frag"));
 	gameInstance.addShader(UI_SHADER, std::make_shared<Shader>(UI_SHADER + ".vert", UI_SHADER + ".frag"));
 	gameInstance.addShader(WATER_SHADER, std::make_shared<Shader>(WATER_SHADER + ".vert", WATER_SHADER + ".frag"));
+	gameInstance.addShader(OCCLUSION_SHADER, std::make_shared<Shader>(NORMAL_SHADER + ".vert", OCCLUSION_SHADER + ".frag"));
+	gameInstance.addShader(POST_SHADER, std::make_shared<Shader>(POST_SHADER + ".vert", POST_SHADER + ".frag"));
 
 	gameInstance.addLight(std::make_shared<Light>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{3.f, 5.f, 0.f}));
 	
 	gameInstance.addGameObject(std::make_shared<Model>("assets/backpack.obj"));
 	gameInstance.addGameObject(std::make_shared<Water>());
-
+	gameInstance.setPostProcessor();
 
 	UIRenderer gui(gameInstance.getShader(UI_SHADER));
 

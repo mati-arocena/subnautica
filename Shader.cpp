@@ -1,5 +1,5 @@
 #include "Shader.h"
-
+#include "Definitions.h"
 
 Shader::Shader(std::string vertexPath, std::string fragmentPath)
 {
@@ -144,6 +144,9 @@ void Shader::prerender(std::shared_ptr<Camera> camera, std::shared_ptr<Light> li
 	setMat4("view", view);
 	setMat4("projection", projection);
 
+	setFloat("fog_color", BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
+	setFloat("water_fog_color", 0.f, .3f, .5f, 1.f);
+	setFloat("inside_water", camera->GetPosition().y > 0 ? 0.f: 1.f);
 
 	glUseProgram(currentPorgramId);
 }
