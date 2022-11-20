@@ -16,17 +16,26 @@ uniform vec3 normal_direction;
 
 uniform sampler2D texture_reflection;
 uniform sampler2D texture_refraction;
+uniform sampler2D texture_refraction_depth;
 uniform sampler2D dudv_map;
 uniform sampler2D normal_map;
 uniform vec3 lightColor;
 uniform vec4 fog_color;
 uniform vec4 water_fog_color;
+uniform float inside_water;
 
 const float waveStrength = 0.02;
 const float waveSpeed = 0.04;
 const float shininess = 20.0;
 const float reflectivity = 0.6;
 
+float near = 0.1; 
+
+float LinearizeDepth(float depth, float far) 
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0 * near * far) / (far + near - z * (far - near));	
+}
 
 void main()
 {
@@ -37,9 +46,13 @@ void main()
     float moveFactor = waveSpeed * time;
     moveFactor = mod(moveFactor,1);
 
+    float floorDistance = LinearizeDepth(texture(texture_refraction_depth, refractTextCoords).r, 8.0);
+    float waterDistance = LinearizeDepth(gl_FragCoord.z, 8.0);
+    float dist = floorDistance - waterDistance;    
+
     vec2 distortedTexCoords = texture(dudv_map, vec2(TextCoord.x + moveFactor, TextCoord.y)).rg*0.1;
 	distortedTexCoords = TextCoord + vec2(distortedTexCoords.x, distortedTexCoords.y + moveFactor);
-	vec2 totalDistortion = (texture(dudv_map, distortedTexCoords).rg * 2.0 - 1.0) * waveStrength;
+	vec2 totalDistortion = (texture(dudv_map, distortedTexCoords).rg * 2.0 - 1.0) * waveStrength * clamp(dist/20.0, 0.0, 1.0);
 
     reflectTextCoords += totalDistortion;
     reflectTextCoords.x = clamp(reflectTextCoords.x, 0.001, 0.999);
@@ -62,8 +75,12 @@ void main()
     vec3 reflectedLight = reflect(normalize(fromLightVector), normal);
 	float specular = max(dot(reflectedLight, viewVector), 0.0);
 	specular = pow(specular, shininess);
-	vec3 specularHighlights = lightColor * specular * reflectivity;
+	vec3 specularHighlights = lightColor * specular * reflectivity * clamp(dist/20.0, 0.0, 1.0);
+
+    refractColor = mix( refractColor, water_fog_color/2.0, clamp(dist * (1-inside_water), 0.0, 1.0));
 
     FragColor = mix(reflectColor, refractColor, refractFactor);
-    FragColor = mix(FragColor, vec4(.0, .3, .5, 1.0), 0.2) + vec4(specularHighlights, .1);
+    FragColor = mix(FragColor, water_fog_color, 0.35 * (1-inside_water)) + vec4(specularHighlights, .1);
+    FragColor.a = clamp(dist/5.0, 0.0, 1.0);
+    FragColor = vec4(vec3(length(toCameraVector)/20.0), 1.0);
 }
