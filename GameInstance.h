@@ -14,7 +14,7 @@
 
 class GameInstance
 {
-	GameInstance() {};
+	GameInstance() ;
 	
 	bool running = true;
 

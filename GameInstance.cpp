@@ -36,6 +36,11 @@ void GameInstance::addLight(std::shared_ptr<Light> light)
 	this->light = light;
 }
 
+GameInstance::GameInstance()
+{
+
+}
+
 void GameInstance::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	if (firstMouse) // initially set to true

@@ -16,6 +16,7 @@
 #include "UIRenderer.h"
 #include "GameInstance.h"
 
+#include "btBulletDynamicsCommon.h"
 
 void resizeWindow(GLFWwindow* window, int width, int height)
 {
