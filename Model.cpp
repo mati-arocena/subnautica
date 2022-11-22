@@ -110,20 +110,55 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 	// specular: texture_specularN
 	// normal: texture_normalN
 
+
+	glm::vec3 diffuseColor, specularColor;
+	diffuseColor = specularColor = glm::vec3(0);
+	float specularStrenght, specularExponent;
+	specularStrenght = specularExponent = 0;
+
 	// 1. diffuse maps
-	std::vector<Texture*> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+	std::vector<Texture*> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, TEXTURE_DIFFUSE);
+	if (diffuseMaps.size() == 0)
+	{	
+		aiColor3D aiDiff;
+		material->Get(AI_MATKEY_COLOR_DIFFUSE, aiDiff);
+		diffuseColor = toVec3(aiDiff);
+	}
+	else
+	{
+		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+	}
+
 	// 2. specular maps
-	std::vector<Texture*> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+	std::vector<Texture*> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, TEXTURE_SPECULAR);
+	if (specularMaps.size() == 0)
+	{
+		aiColor3D aiSpecCol;
+		// material->Get(AI_MATKEY_COLOR_SPECULAR, aiSpecCol); No anda
+		material->Get(AI_MATKEY_SHININESS, specularExponent);
+		// material->Get(AI_MATKEY_SHININESS_STRENGTH, specularStrenght);
+		specularStrenght = 1.0;
+		specularColor = glm::vec3(1.);
+	}
+	else
+	{
+		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+	}
+
+	
 	// 3. normal maps
-	std::vector<Texture*> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+	std::vector<Texture*> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, TEXTURE_NORMAL);
+	if (normalMaps.size() == 0)
+	{
+		normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, TEXTURE_NORMAL);
+	}
+
 	textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 	// 4. height maps
-	std::vector<Texture*> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
+	std::vector<Texture*> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height"); // Se usa ??
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
-	Material *m = new Material(textures, GameInstance::getInstance().getShader(NORMAL_SHADER));
+	Material *m = new Material(textures, GameInstance::getInstance().getShader(NORMAL_SHADER), diffuseColor, specularColor, specularStrenght, specularExponent);
 
 	return Mesh(vertices, indices, m, transformMat);
 }

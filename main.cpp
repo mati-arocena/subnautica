@@ -58,9 +58,9 @@ int main()
 	gameInstance.addShader(OCCLUSION_SHADER, std::make_shared<Shader>(NORMAL_SHADER + ".vert", OCCLUSION_SHADER + ".frag"));
 	gameInstance.addShader(POST_SHADER, std::make_shared<Shader>(POST_SHADER + ".vert", POST_SHADER + ".frag"));
 
-	gameInstance.addLight(std::make_shared<Light>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{3.f, 5.f, 0.f}));
+	gameInstance.addLight(std::make_shared<Light>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{0.f, 10.f, 0.f}));
 	
-	gameInstance.addGameObject(std::make_shared<Model>("assets/mar.gltf"));
+	gameInstance.addGameObject(std::make_shared<Model>("assets/mar2.gltf"));
 	gameInstance.addGameObject(std::make_shared<Water>());
 	gameInstance.setPostProcessor();
 
