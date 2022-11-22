@@ -62,3 +62,10 @@ std::shared_ptr<Shader> Material::getShader()
 {
 	return shader;
 }
+
+std::shared_ptr<Shader> Material::changeShader(std::shared_ptr<Shader> shader)
+{
+	std::shared_ptr<Shader> previousShrd = this->shader;
+	this->shader = shader;
+	return previousShrd;
+}

@@ -50,4 +50,5 @@ void main()
     float dist = LinearizeDepth(texture(scene_texture_depth, textCoord).r) / far;
 
     FragColor = mix(FragColor, water_fog_color, dist * inside_water);
+    //FragColor = texture(occlusion_texture, textCoord);
 }

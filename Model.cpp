@@ -116,19 +116,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 	float specularStrenght, specularExponent;
 	specularStrenght = specularExponent = 0;
 
-	// 1. diffuse maps
-	std::vector<Texture*> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, TEXTURE_DIFFUSE);
-	if (diffuseMaps.size() == 0)
-	{	
-		aiColor3D aiDiff;
-		material->Get(AI_MATKEY_COLOR_DIFFUSE, aiDiff);
-		diffuseColor = toVec3(aiDiff);
-	}
-	else
-	{
-		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-	}
-
 	// 2. specular maps
 	std::vector<Texture*> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, TEXTURE_SPECULAR);
 	if (specularMaps.size() == 0)
@@ -144,6 +131,21 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 	{
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}
+
+	// 1. diffuse maps
+	std::vector<Texture*> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, TEXTURE_DIFFUSE);
+	if (diffuseMaps.size() == 0)
+	{	
+		aiColor3D aiDiff;
+		material->Get(AI_MATKEY_COLOR_DIFFUSE, aiDiff);
+		diffuseColor = toVec3(aiDiff);
+	}
+	else
+	{
+		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+	}
+
+
 
 	
 	// 3. normal maps
@@ -210,4 +212,9 @@ void Model::render_withShader(std::shared_ptr<Shader> shader)
 	{
 		mesh.render_withShader(shader);
 	}
+}
+
+void Model::renderOclussion()
+{
+	printf("No esta hecho"); // Ya se que es una cagada esto 
 }

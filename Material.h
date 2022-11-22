@@ -24,5 +24,7 @@ public:
 	~Material();
 	void use();
 	std::shared_ptr<Shader> getShader();
+
+	std::shared_ptr<Shader> changeShader(std::shared_ptr<Shader> shader);
 };
 

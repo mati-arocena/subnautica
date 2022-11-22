@@ -121,5 +121,6 @@
     <None Include="shaders\post.frag" />
     <None Include="shaders\post.vert" />
     <None Include="shaders\occlusion.frag" />
+    <None Include="shaders\water_occlusion.frag" />
   </ItemGroup>
 </Project>

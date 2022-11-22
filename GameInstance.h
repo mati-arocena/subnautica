@@ -57,6 +57,7 @@ public:
 	void render();
 	void render(GameObject* excludeFromRendering, glm::vec4 clipPlane);
 	void render_withShader(std::shared_ptr<Shader> shader);
+	void renderOclussion();
 	void setPostProcessor();
 
 	bool isRunning();

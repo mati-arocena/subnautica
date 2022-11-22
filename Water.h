@@ -24,6 +24,7 @@ public:
 	Water();
 	void update(double deltaTime) override;
 	void render() override;
+	void renderOclussion() override;
 
 	void unbindFrameFuffer();
 	Material* initializeMaterial();
