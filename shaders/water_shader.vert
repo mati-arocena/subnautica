@@ -29,5 +29,5 @@ void main()
 	col = aNormal;
 	TextCoord = aTexCoord;
 	toCameraVector = camera_position - worldPosition.xyz;
-	fromLightVector = worldPosition.wyz - lightPos;
+	fromLightVector = worldPosition.xyz - lightPos;
 }

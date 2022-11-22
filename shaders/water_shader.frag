@@ -70,14 +70,14 @@ void main()
 
     vec4 normalMapColor = texture(normal_map, distortedTexCoords);
     vec3 normal = vec3(normalMapColor.r * 2.0 - 1.0, normalMapColor.b, normalMapColor.g * 2.0 - 1.0);
-    normal = normalize(normal);
+    normal = normalize(normal); // Global space
 
     vec3 reflectedLight = reflect(normalize(fromLightVector), normal);
 	float specular = max(dot(reflectedLight, viewVector), 0.0);
 	specular = pow(specular, shininess);
 	vec3 specularHighlights = lightColor * specular * reflectivity * clamp(dist/20.0, 0.0, 1.0);
 
-    //refractColor = mix(refractColor, water_fog_color/2.0, clamp(dist * (1-inside_water), 0.0, 1.0));
+    refractColor = mix(refractColor, water_fog_color/2.0, clamp(dist * (1-inside_water), 0.0, 1.0));
 
     FragColor = mix(reflectColor, refractColor, refractFactor);
     FragColor = mix(FragColor, water_fog_color, 0.35 * (1-inside_water)) + vec4(specularHighlights, .1);
