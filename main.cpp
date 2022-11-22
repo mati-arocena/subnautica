@@ -17,6 +17,7 @@
 #include "GameInstance.h"
 
 #include "btBulletDynamicsCommon.h"
+#include "SkyBox.h"
 
 void resizeWindow(GLFWwindow* window, int width, int height)
 {
@@ -57,10 +58,13 @@ int main()
 	gameInstance.addShader(WATER_SHADER, std::make_shared<Shader>(WATER_SHADER + ".vert", WATER_SHADER + ".frag"));
 	gameInstance.addShader(OCCLUSION_SHADER, std::make_shared<Shader>(NORMAL_SHADER + ".vert", OCCLUSION_SHADER + ".frag"));
 	gameInstance.addShader(POST_SHADER, std::make_shared<Shader>(POST_SHADER + ".vert", POST_SHADER + ".frag"));
+	gameInstance.addShader(SKY_BOX_SHADER, std::make_shared<Shader>(SKY_BOX_SHADER + ".vert", SKY_BOX_SHADER + ".frag"));
+
 
 	gameInstance.addLight(std::make_shared<Light>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{3.f, 5.f, 0.f}));
 	
 	gameInstance.addGameObject(std::make_shared<Model>("assets/mar.gltf"));
+	gameInstance.addGameObject(std::make_shared<SkyBox>());
 	gameInstance.addGameObject(std::make_shared<Water>());
 	gameInstance.setPostProcessor();
 
