@@ -50,6 +50,12 @@ SkyBox::~SkyBox()
 }
 
 
+void SkyBox::renderOclussion()
+{
+	return;
+}
+
+
 void SkyBox::update(double DeltaTime)
 {
 

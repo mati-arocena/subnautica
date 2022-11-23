@@ -67,7 +67,7 @@ PostProcessor::PostProcessor()
 void PostProcessor::draw()
 {
     // RUN
-
+    glEnable(GL_DEPTH_TEST);
     // Render de occlussion
     glBindTexture(GL_TEXTURE_2D, 0);
     glViewport(0, 0, 200, 150);

@@ -18,6 +18,11 @@ GameInstance& GameInstance::getInstance()
 void GameInstance::addGameObject(std::shared_ptr<GameObject> gameObject)
 {
 	objects.push_back(gameObject);
+	auto waterPtr = std::dynamic_pointer_cast<Water>(gameObject);
+	if (waterPtr)
+	{
+		water = waterPtr;
+	}
 }
 
 void GameInstance::addShader(std::string name, std::shared_ptr<Shader> shader)
@@ -202,15 +207,15 @@ void GameInstance::renderOclussion()
 	std::shared_ptr<Shader> occShdr = getShader(OCCLUSION_SHADER);
 	occShdr->prerender(camera, light);
 
+	if (water != NULL)
+	{
+		this->water->renderOclussion();
+	}
 	for (auto object : objects)
 	{
 		if (auto m = dynamic_cast<Model*>(object.get()))
 		{
 			object->render_withShader(occShdr);
-		}
-		else if (auto m = dynamic_cast<Water*>(object.get()))
-		{
-			object->renderOclussion();
 		}
 	}
 }

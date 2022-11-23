@@ -10,5 +10,4 @@ static const glm::vec4 BACKGROUND_COLOR = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
 static const std::string OCCLUSION_SHADER = "shaders/occlusion";
 static const std::string POST_SHADER = "shaders/post"; 
 static const std::string SKY_BOX_SHADER = "shaders/skybox";
-static const glm::vec4 BACKGROUND_COLOR = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
 static const std::string SKY_BOX_TEXT_PATH = "assets/skybox/";

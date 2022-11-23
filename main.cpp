@@ -65,6 +65,7 @@ int main()
 	
 	gameInstance.addGameObject(std::make_shared<Model>("assets/mar2.gltf"));
 	gameInstance.addGameObject(std::make_shared<Water>());
+	gameInstance.addGameObject(std::make_shared<SkyBox>());
 	gameInstance.setPostProcessor();
 
 	UIRenderer gui(gameInstance.getShader(UI_SHADER));
