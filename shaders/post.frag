@@ -45,9 +45,10 @@ void main()
     acc /= steps;
 
 
-    FragColor =  acc * inside_water * vec4(1.f,1.f, 1.f, 1.f) * 1.f + texture(scene_texture, textCoord);
+    FragColor =  acc * inside_water * vec4(1.f,1.f, 1.f, 1.f) + texture(scene_texture, textCoord);
 
     float dist = LinearizeDepth(texture(scene_texture_depth, textCoord).r) / far;
 
     FragColor = mix(FragColor, water_fog_color, dist * inside_water);
+    //FragColor = texture(occlusion_texture, textCoord);
 }

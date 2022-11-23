@@ -13,7 +13,7 @@ Camera::Camera(
     Pitch = pitch;
     createViewFrustum(640, 480, 0.1f, 100.f);
     updateCameraVectors();
-    ProjectionMatrix = glm::perspective(glm::radians(Zoom), 640.0f / 480.0f, 0.1f, 100.0f);
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), 640.0f / 480.0f, 0.1f, 200.0f);
 
 }
 
@@ -29,7 +29,7 @@ Camera::Camera(
     Pitch = pitch;
     createViewFrustum(640, 480, 0.1f, 100.f);
     updateCameraVectors();
-    ProjectionMatrix = glm::perspective(glm::radians(Zoom), 640.0f / 480.0f, 0.1f, 100.0f);
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), 640.0f / 480.0f, 0.1f, 200.0f);
 }
 
 

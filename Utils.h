@@ -13,3 +13,10 @@ glm::mat4 convertMatrix(const aiMatrix4x4 &assMap)
 		assMap.a4, assMap.b4, assMap.c4, assMap.d4,
 	};
 }
+
+glm::vec3 toVec3(const aiColor3D& vec)
+{
+	return {
+		vec.r, vec.g, vec.b
+	};
+}

@@ -14,5 +14,6 @@ public:
 	virtual void render() = 0;
 	virtual void render_withShader(std::shared_ptr<Shader> shader) = 0;
 	virtual std::vector<std::shared_ptr<btRigidBody>> getCollisionObject() = 0;
+	virtual void renderOclussion() = 0;
 };
 

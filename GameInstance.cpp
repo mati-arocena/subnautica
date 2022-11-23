@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include "Model.h"
 #include "Definitions.h"
+#include "Water.h"
 
 float GameInstance::mouseLastX = 400;
 float GameInstance::mouseLastY = 300;
@@ -18,6 +19,11 @@ void GameInstance::addGameObject(std::shared_ptr<GameObject> gameObject)
 {
 	world->addToWorld(gameObject);
 	objects.push_back(gameObject);
+	auto waterPtr = std::dynamic_pointer_cast<Water>(gameObject);
+	if (waterPtr)
+	{
+		water = waterPtr;
+	}
 }
 
 void GameInstance::addShader(std::string name, std::shared_ptr<Shader> shader)
@@ -211,6 +217,27 @@ void GameInstance::render_withShader(std::shared_ptr<Shader> shader)
 		if (auto m = dynamic_cast<Model*>(object.get()))
 		{
 			object->render_withShader(shader);
+		}
+	}
+}
+
+void GameInstance::renderOclussion()
+{
+	glClearColor(1.f, 1.f, 1.f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	std::shared_ptr<Shader> occShdr = getShader(OCCLUSION_SHADER);
+	occShdr->prerender(camera, light);
+
+	if (water != NULL)
+	{
+		this->water->renderOclussion();
+	}
+	for (auto object : objects)
+	{
+		if (auto m = dynamic_cast<Model*>(object.get()))
+		{
+			object->render_withShader(occShdr);
 		}
 	}
 }

@@ -67,12 +67,12 @@ PostProcessor::PostProcessor()
 void PostProcessor::draw()
 {
     // RUN
-
+    glEnable(GL_DEPTH_TEST);
     // Render de occlussion
     glBindTexture(GL_TEXTURE_2D, 0);
     glViewport(0, 0, 200, 150);
     glBindFramebuffer(GL_FRAMEBUFFER, occlusion_FB);
-    GameInstance::getInstance().render_withShader(occlusionShader);
+    GameInstance::getInstance().renderOclussion();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, 800, 600);
 

@@ -31,6 +31,7 @@ public:
     void clipModel(glm::vec4 plane);
     void update(double DeltaTime) override;
     void render();
+    void renderOclussion();
     void render_withShader(std::shared_ptr<Shader> shader);
     std::vector<std::shared_ptr<btRigidBody>> getCollisionObject();
 };

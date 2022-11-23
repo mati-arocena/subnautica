@@ -58,11 +58,16 @@ Material* Water::initializeMaterial()
 	dudv_texture = new Texture("assets/waterNormalMap.png", "normal_map", true, true);
 	textures.push_back(dudv_texture);
 
+	Texture* occlusion_texture = new Texture("assets/waterOclussion.jpg", "occlusion_map", true, true);
+	textures.push_back(occlusion_texture);
+
+	auto occlusionShader = GameInstance::getInstance().getShader(WATER_SHADER_OCCLUSION);
+	occlusionShader->setTexture(dudv_texture,4);
+	occlusionShader->setTexture(occlusion_texture,6);
 
 	Material* material = new Material(textures, GameInstance::getInstance().getShader(WATER_SHADER));
 	return material;
 }
-
 
 void Water::unbindFrameFuffer()
 {
@@ -78,6 +83,7 @@ void Water::update(double deltaTime)
 	glm::vec3 camPos = camera->Position;
 	float camDir = camPos.y >= this->position.y ? 1.f : -1.f;
 	auto shader = GameInstance::getInstance().getShader(WATER_SHADER);
+	
 	shader->use();
 	shader->setFloat("camera_position", camPos.x, camPos.y, camPos.z);
 	shader->setFloat("refract_exp", camPos.y >= this->position.y ? 5.f : 0.1f);
@@ -121,6 +127,18 @@ void Water::render() {
 
 	shader->prerender(camera, GameInstance::getInstance().getLight());
 	mesh->render();
+}
+
+void Water::renderOclussion()
+{
+	auto shader = GameInstance::getInstance().getShader(WATER_SHADER_OCCLUSION);
+	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
+
+	shader->prerender(camera, GameInstance::getInstance().getLight());
+
+	std::shared_ptr<Shader> previousShdr = mesh->material->changeShader(shader);
+	mesh->render();
+	mesh->material->changeShader(previousShdr);
 }
 
 void Water::render_withShader(std::shared_ptr<Shader> shader)
