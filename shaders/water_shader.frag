@@ -82,5 +82,6 @@ void main()
     FragColor = mix(reflectColor, refractColor, refractFactor);
     FragColor = mix(FragColor, water_fog_color, 0.35 * (1-inside_water)) + vec4(specularHighlights, .1);
     FragColor.a = clamp(dist/5.0, 0.0, 1.0);
-    FragColor = vec4(vec3(length(toCameraVector)/20.0), 1.0);
+    
+    //FragColor = vec4(vec3(length(toCameraVector)/20.0), 1.0);
 }

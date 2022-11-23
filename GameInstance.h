@@ -8,6 +8,7 @@
 #include "GameObject.h"
 #include "Shader.h"
 #include "Light.h"
+#include "World.h"
 
 #include <GLFW/glfw3.h>
 #include "PostProcessor.h"
@@ -22,11 +23,15 @@ class GameInstance
 
 	GLFWwindow* window;
 
+	std::unique_ptr<World> world;
 	std::vector<std::shared_ptr<GameObject>> objects;
 	std::shared_ptr<Light> light;
 
 	std::map<std::string, std::shared_ptr<Shader>> shaders;
 	std::shared_ptr<PostProcessor> postProcessor;
+	
+	bool onlyFrustumObjects = false;
+	bool fPressed = false;
 
 	static float mouseLastX;
 	static float mouseLastY;

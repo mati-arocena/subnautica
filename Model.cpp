@@ -2,8 +2,15 @@
 #include <assimp/Importer.hpp>
 #include "Utils.h"
 
+
 #include "GameInstance.h"
 #include "Definitions.h"
+
+void Model::decomposeGLMMatrix(const glm::mat4& m, glm::vec3& pos, glm::quat& rot)
+{
+	pos = m[3];
+	rot = glm::quat_cast(m);
+}
 
 Model::Model(std::string path) : GameObject()
 {
@@ -36,7 +43,8 @@ void Model::loadModel(std::string path)
 		aiProcess_FlipUVs | 
 		aiProcess_GenSmoothNormals | 
 		aiProcess_JoinIdenticalVertices | 
-		aiProcess_CalcTangentSpace);
+		aiProcess_CalcTangentSpace |
+		aiProcess_GenBoundingBoxes);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 
@@ -56,11 +64,37 @@ void Model::processNode(aiNode* node, const aiScene* scene, glm::mat4 transformM
 {
 	// Combined transformations applied
 	const glm::mat4 node_transformMat = transformMat * convertMatrix(node->mTransformation);
+	glm::vec3 pos;
+	glm::quat rot;
+	decomposeGLMMatrix(node_transformMat, pos, rot);
 
 	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+		Mesh m = processMesh(mesh, scene, node_transformMat);
+
+		aiVector3D max = mesh->mAABB.mMax;
+		aiVector3D min = mesh->mAABB.mMin;
+		btVector3 halfExtent(std::abs(max.x - min.x) / 2, std::abs(max.y - min.y) / 2, std::abs(max.z - min.z) / 2);
+		btCollisionShape* boxCollisionShape = new btBoxShape(halfExtent);
+
+		btMotionState* motionState = new btDefaultMotionState(btTransform(
+			btQuaternion(rot.x, rot.y, rot.z, rot.w),
+			btVector3(pos.x, pos.y, pos.z)
+		));
+
+		btRigidBody::btRigidBodyConstructionInfo Info(
+			0,
+			motionState,
+			boxCollisionShape,
+			btVector3(0,0,0)
+		);
+
+		std::shared_ptr<btRigidBody> rigidBody = std::make_shared<btRigidBody>(Info);
+
+		this->collisionObjects.push_back(rigidBody);
+
 		meshes.push_back(processMesh(mesh, scene, node_transformMat));
 	}
 	// then do the same for each of its children
@@ -175,4 +209,9 @@ void Model::render_withShader(std::shared_ptr<Shader> shader)
 	{
 		mesh.render_withShader(shader);
 	}
+}
+
+std::vector<std::shared_ptr<btRigidBody>> Model::getCollisionObject()
+{
+	return collisionObjects;
 }

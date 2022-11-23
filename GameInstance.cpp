@@ -16,6 +16,7 @@ GameInstance& GameInstance::getInstance()
 
 void GameInstance::addGameObject(std::shared_ptr<GameObject> gameObject)
 {
+	world->addToWorld(gameObject);
 	objects.push_back(gameObject);
 }
 
@@ -38,7 +39,7 @@ void GameInstance::addLight(std::shared_ptr<Light> light)
 
 GameInstance::GameInstance()
 {
-
+	world = std::make_unique<World>();
 }
 
 void GameInstance::mouse_callback(GLFWwindow* window, double xpos, double ypos)
@@ -70,6 +71,7 @@ std::shared_ptr<Camera> GameInstance::getCamera()
 void GameInstance::setCamera(std::shared_ptr<Camera> camera)
 {
 	this->camera = camera;
+	world->addToWorld(*camera);
 }
 
 void GameInstance::setWindow(GLFWwindow* window)
@@ -92,6 +94,13 @@ void GameInstance::processInput(double deltaTime)
 		camera->ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera->ProcessKeyboard(RIGHT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+		fPressed = true;
+	if (fPressed && glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE)
+	{
+		fPressed = false;
+		onlyFrustumObjects = !onlyFrustumObjects;
+	}
 }
 
 void GameInstance::update(double deltaTime)
@@ -156,10 +165,23 @@ void GameInstance::render()
 	{
 		shader.second->prerender(camera, light);
 	}
-
-	for (auto object : objects)
+	
+	if (onlyFrustumObjects)
 	{
-		object->render();
+		std::vector<std::shared_ptr<GameObject>> objectsInFrustum = world->getObjectsInFrustum();
+		for (auto object : objectsInFrustum)
+		{
+			object->render();
+		}
+
+	}
+	else
+	{
+		for (auto object : objects)
+		{
+			object->render();
+		}
+
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

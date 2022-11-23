@@ -17,11 +17,13 @@ private:
 	std::vector<Mesh> meshes;
 	std::string directory;
     std::vector<Texture*> textures_loaded;
+    std::vector<std::shared_ptr<btRigidBody>> collisionObjects;
 
     void loadModel(std::string path);
     void processNode(aiNode* node, const aiScene* scene, glm::mat4 transformMat);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformMat);
     std::vector<Texture*> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+    void decomposeGLMMatrix(const glm::mat4& m, glm::vec3& pos, glm::quat& rot);
 public:
     Model(std::string path);
     ~Model();
@@ -30,5 +32,6 @@ public:
     void update(double DeltaTime) override;
     void render();
     void render_withShader(std::shared_ptr<Shader> shader);
+    std::vector<std::shared_ptr<btRigidBody>> getCollisionObject();
 };
 

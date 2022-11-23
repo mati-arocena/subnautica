@@ -4,7 +4,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <memory>
 #include <vector>
+#include <btBulletDynamicsCommon.h>
+#include <BulletCollision/CollisionDispatch/btGhostObject.h>
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
@@ -33,6 +36,9 @@ public:
     glm::vec3 WorldUp;
     glm::mat4 ViewMatrix;
     glm::mat4 ProjectionMatrix;
+
+    btScalar modelViewMatrix[16];
+
     // euler Angles
     float Yaw;
     float Pitch;
@@ -65,6 +71,12 @@ public:
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(float yoffset);
     void updateViewMatrix();
+
+    std::shared_ptr<btPairCachingGhostObject> getViewFrustum() const;
 private:
+    std::shared_ptr<btPairCachingGhostObject> frustum = nullptr;
+
+    void createViewFrustum(float screenWidth, float screenHeight, float near, float far);
+
     void updateCameraVectors();
 };

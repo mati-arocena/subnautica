@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "btBulletDynamicsCommon.h"
 
 Camera::Camera(
     glm::vec3 position,
@@ -10,6 +11,7 @@ Camera::Camera(
     WorldUp = up;
     Yaw = yaw;
     Pitch = pitch;
+    createViewFrustum(640, 480, 0.1f, 100.f);
     updateCameraVectors();
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), 640.0f / 480.0f, 0.1f, 100.0f);
 
@@ -25,13 +27,62 @@ Camera::Camera(
     WorldUp = glm::vec3(upX, upY, upZ);
     Yaw = yaw;
     Pitch = pitch;
+    createViewFrustum(640, 480, 0.1f, 100.f);
     updateCameraVectors();
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), 640.0f / 480.0f, 0.1f, 100.0f);
+}
+
+
+void Camera::createViewFrustum(float screenWidth, float screenHeight, float near, float far)
+{
+    const btScalar nearPlane = near;
+    const btScalar farPlane = far;
+
+    const btScalar planesFraction = farPlane / nearPlane;
+    const btScalar centralPlate = (farPlane - nearPlane) * 0.5;
+
+    const btScalar aspect = (btScalar)screenWidth / (btScalar)screenHeight;
+
+    bool isScreenWide = screenWidth > screenHeight;
+    const btScalar left = isScreenWide ? -aspect :  1.0;
+    const btScalar right = isScreenWide ? aspect : -1.0;
+    const btScalar bottom = isScreenWide ? -1.0 : -aspect;
+    const btScalar top = isScreenWide ? 1.0 : aspect;
+    const btScalar farLeft = left * planesFraction;
+    const btScalar farRight = right * planesFraction;
+    const btScalar farBottom = bottom * planesFraction;
+    const btScalar farTop = top * planesFraction;
+
+    btConvexHullShape* shape = new btConvexHullShape();
+
+    shape->addPoint(btVector3(left, top, centralPlate));
+    shape->addPoint(btVector3(right, top, centralPlate));
+    shape->addPoint(btVector3(left, bottom, centralPlate));
+    shape->addPoint(btVector3(right, bottom, centralPlate));
+    shape->addPoint(btVector3(farLeft, farTop, centralPlate));
+    shape->addPoint(btVector3(farRight, farTop, centralPlate));
+    shape->addPoint(btVector3(farLeft, farBottom, centralPlate));
+    shape->addPoint(btVector3(farRight, farBottom, centralPlate));
+
+    btCompoundShape* frustumShape = new btCompoundShape();
+    const btVector3 v(0., 0., -(nearPlane + farPlane));
+    const btQuaternion q = btQuaternion::getIdentity();
+    btTransform T(q, v);
+    frustumShape->addChildShape(T, shape);
+
+    frustum = std::make_shared<btPairCachingGhostObject>();
+    frustum->setCollisionShape(frustumShape);
+    frustum->setCollisionFlags(btCollisionObject::CF_NO_CONTACT_RESPONSE);
 }
 
 void Camera::updateViewMatrix()
 {
     ViewMatrix = glm::lookAt(Position, Position + Front, Up);
+}
+
+std::shared_ptr<btPairCachingGhostObject> Camera::getViewFrustum() const
+{
+    return frustum;
 }
 
 glm::mat4 Camera::GetViewMatrix() const
@@ -105,6 +156,7 @@ void Camera::ProcessMouseScroll(float yoffset)
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), 640.0f / 480.0f, 0.1f, 100.0f);
 }
 
+
 void Camera::updateCameraVectors()
 {
     // calculate the new Front vector
@@ -116,4 +168,10 @@ void Camera::updateCameraVectors()
     // also re-calculate the Right and Up vector
     Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
     Up = glm::normalize(glm::cross(Right, Front));
+
+    glGetDoublev(GL_MODELVIEW_MATRIX, modelViewMatrix);
+    
+    btTransform T;
+    T.setFromOpenGLMatrix(modelViewMatrix);
+    frustum->setWorldTransform(T.inverse());
 }

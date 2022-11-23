@@ -60,7 +60,8 @@ int main()
 
 	gameInstance.addLight(std::make_shared<Light>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{3.f, 5.f, 0.f}));
 	
-	gameInstance.addGameObject(std::make_shared<Model>("assets/mar.gltf"));
+	//gameInstance.addGameObject(std::make_shared<Model>("assets/mar.gltf"));
+	gameInstance.addGameObject(std::make_shared<Model>("assets/backpack.obj"));
 	gameInstance.addGameObject(std::make_shared<Water>());
 	gameInstance.setPostProcessor();
 

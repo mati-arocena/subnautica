@@ -127,3 +127,8 @@ void Water::render_withShader(std::shared_ptr<Shader> shader)
 {
 	mesh->render_withShader(shader);
 }
+
+std::vector<std::shared_ptr<btRigidBody>> Water::getCollisionObject()
+{
+	return std::vector<std::shared_ptr<btRigidBody>>();
+}

@@ -42,9 +42,6 @@ private:
     glm::vec4 clipPlane;
 
     void setupMesh();
-
     unsigned int* ToEBO();
-
-
 };
 
