@@ -9,14 +9,13 @@
 #include "Shader.h"
 #include "Light.h"
 #include "Water.h"
-#include "World.h"
 
 #include <GLFW/glfw3.h>
 #include "PostProcessor.h"
 
 class GameInstance
 {
-	GameInstance() ;
+	GameInstance() {};
 	
 	bool running = true;
 
@@ -24,7 +23,6 @@ class GameInstance
 
 	GLFWwindow* window;
 
-	std::unique_ptr<World> world;
 	std::vector<std::shared_ptr<GameObject>> objects;
 	std::shared_ptr<Water> water;
 	std::shared_ptr<Light> light;

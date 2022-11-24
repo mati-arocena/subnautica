@@ -9,6 +9,39 @@
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 
+
+struct Plane
+{
+    glm::vec3 normal = { 0.f, 1.f, 0.f };
+    float distance = 0.f;
+
+    Plane(const glm::vec3& p1, const glm::vec3& norm)
+        : normal(glm::normalize(norm)),
+        distance(glm::dot(normal, p1))
+    {}
+
+    Plane() = default;
+
+    float getSignedDistanceToPlan(const glm::vec3& point) const
+    {
+        return glm::dot(normal, point) - distance;
+    }
+};
+
+struct Frustum
+{
+    Plane topFace;
+    Plane bottomFace;
+
+    Plane rightFace;
+    Plane leftFace;
+
+    Plane farFace;
+    Plane nearFace;
+
+  
+};
+
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
     FORWARD,
@@ -27,6 +60,11 @@ const float ZOOM = 45.0f;
 
 class Camera
 {
+    float height = 480;
+    float width = 640;
+    float near = 0.1;
+    float far = 200;
+    Frustum frustum;
 public:
     // camera Attributes
     glm::vec3 Position;
@@ -72,11 +110,9 @@ public:
     void ProcessMouseScroll(float yoffset);
     void updateViewMatrix();
 
-    std::shared_ptr<btPairCachingGhostObject> getViewFrustum() const;
 private:
-    std::shared_ptr<btPairCachingGhostObject> frustum = nullptr;
 
-    void createViewFrustum(float screenWidth, float screenHeight, float near, float far);
+    void createViewFrustum();
 
     void updateCameraVectors();
 };

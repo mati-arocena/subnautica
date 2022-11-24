@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="GameInstance.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -166,7 +167,6 @@
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="VBO.cpp" />
     <ClCompile Include="Water.cpp" />
-    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -185,7 +185,6 @@
     <ClInclude Include="VBO.h" />
     <ClInclude Include="Water.h" />
     <ClInclude Include="Utils.h" />
-    <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\occlusion.frag" />

@@ -21,7 +21,7 @@ Model::~Model()
 {
 }
 
-void Model::render()
+void Model::renderLOD(LOD levelOfDetail)
 {
 	for (Mesh mesh : meshes)
 	{
@@ -78,12 +78,15 @@ void Model::processNode(aiNode* node, const aiScene* scene, glm::mat4 transformM
 		aiVector3D min = mesh->mAABB.mMin;
 		btVector3 halfExtent(std::abs(max.x - min.x) / 2, std::abs(max.y - min.y) / 2, std::abs(max.z - min.z) / 2);
 		btCollisionShape* boxCollisionShape = new btBoxShape(halfExtent);
-
+		/*
 		btMotionState* motionState = new btDefaultMotionState(btTransform(
 			btQuaternion(rot.x, rot.y, rot.z, rot.w),
 			btVector3(pos.x, pos.y, pos.z)
 		));
-
+		*/
+		btTransform transform;
+		transform.setIdentity();
+		btDefaultMotionState* motionState = new btDefaultMotionState(transform);
 		btRigidBody::btRigidBodyConstructionInfo Info(
 			0,
 			motionState,
@@ -252,7 +255,7 @@ void Model::renderOclussion()
 {
 	printf("No esta hecho"); // Ya se que es una cagada esto 
 }
-}
+
 
 std::vector<std::shared_ptr<btRigidBody>> Model::getCollisionObject()
 {

@@ -17,7 +17,6 @@ GameInstance& GameInstance::getInstance()
 
 void GameInstance::addGameObject(std::shared_ptr<GameObject> gameObject)
 {
-	world->addToWorld(gameObject);
 	objects.push_back(gameObject);
 	auto waterPtr = std::dynamic_pointer_cast<Water>(gameObject);
 	if (waterPtr)
@@ -43,10 +42,6 @@ void GameInstance::addLight(std::shared_ptr<Light> light)
 	this->light = light;
 }
 
-GameInstance::GameInstance()
-{
-	world = std::make_unique<World>();
-}
 
 void GameInstance::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
@@ -77,7 +72,6 @@ std::shared_ptr<Camera> GameInstance::getCamera()
 void GameInstance::setCamera(std::shared_ptr<Camera> camera)
 {
 	this->camera = camera;
-	world->addToWorld(*camera);
 }
 
 void GameInstance::setWindow(GLFWwindow* window)
@@ -172,22 +166,9 @@ void GameInstance::render()
 		shader.second->prerender(camera, light);
 	}
 	
-	if (onlyFrustumObjects)
+	for (auto object : objects)
 	{
-		std::vector<std::shared_ptr<GameObject>> objectsInFrustum = world->getObjectsInFrustum();
-		for (auto object : objectsInFrustum)
-		{
-			object->render();
-		}
-
-	}
-	else
-	{
-		for (auto object : objects)
-		{
-			object->render();
-		}
-
+		object->render();
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

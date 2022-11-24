@@ -120,7 +120,7 @@ void Water::update(double deltaTime)
 }
 
 
-void Water::render() {
+void Water::renderLOD(LOD levelOfDetail) {
 
 	auto shader = GameInstance::getInstance().getShader(WATER_SHADER);
 	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();

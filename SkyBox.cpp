@@ -61,7 +61,7 @@ void SkyBox::update(double DeltaTime)
 
 }
 
-void SkyBox::render()
+void SkyBox::renderLOD(LOD levelOfDetail)
 {
 	this->shader->use();
 
