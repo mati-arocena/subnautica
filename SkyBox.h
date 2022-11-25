@@ -4,7 +4,7 @@
 #include <string>
 
 
-static float SIZE = 80.f;
+static float SIZE = 1.f;
 
 static float VERTICES[108] = {
 	-SIZE,  SIZE, -SIZE,

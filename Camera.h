@@ -110,6 +110,8 @@ public:
     void ProcessMouseScroll(float yoffset);
     void updateViewMatrix();
 
+	void changeSize(glm::ivec2 size);
+	
 private:
 
     void createViewFrustum();

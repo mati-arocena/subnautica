@@ -181,9 +181,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 	{
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 	}
-
-
-
 	
 	// 3. normal maps
 	std::vector<Texture*> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, TEXTURE_NORMAL);

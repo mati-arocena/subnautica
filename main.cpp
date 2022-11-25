@@ -18,10 +18,14 @@
 
 #include "btBulletDynamicsCommon.h"
 #include "SkyBox.h"
+#include "ConfigManager.h"
+#include <thread>
 
 void resizeWindow(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+	ConfigManager::getInstance().setWindowSize(glm::ivec2(width, height));
+	GameInstance::getInstance().updateScreenSize(glm::ivec2(width, height));
 }
 
 int main()
@@ -34,7 +38,10 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(640, 480, "Subnautica", nullptr, nullptr);
+	unsigned width, height;
+	width = ConfigManager::getInstance().getWindowSize().x;
+	height = ConfigManager::getInstance().getWindowSize().y;
+	GLFWwindow* window = glfwCreateWindow(width, height, "Subnautica", nullptr, nullptr);
 	if (!window)
 	{
 		glfwTerminate();
@@ -61,11 +68,11 @@ int main()
 	gameInstance.addShader(POST_SHADER, std::make_shared<Shader>(POST_SHADER + ".vert", POST_SHADER + ".frag"));
 	gameInstance.addShader(SKY_BOX_SHADER, std::make_shared<Shader>(SKY_BOX_SHADER + ".vert", SKY_BOX_SHADER + ".frag"));
 
-	gameInstance.addLight(std::make_shared<Light>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{0.f, 10.f, 0.f}));
+	gameInstance.addLight(std::make_shared<PointLight>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{0.f, 10.f, 0.f}));
 	
 	gameInstance.addGameObject(std::make_shared<Model>("assets/mar2.gltf"));
 	gameInstance.addGameObject(std::make_shared<Water>());
-	gameInstance.addGameObject(std::make_shared<SkyBox>());
+	gameInstance.addSkyBox(std::make_shared<SkyBox>());
 	gameInstance.setPostProcessor();
 
 	UIRenderer gui(gameInstance.getShader(UI_SHADER));
@@ -77,14 +84,15 @@ int main()
 		auto current = std::chrono::system_clock::now();
 
 		std::chrono::duration<double> elapsed = current - lastTime;
-
 		gameInstance.processInput(elapsed.count());
+		
 		gameInstance.update(elapsed.count());
 		gameInstance.render();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
+		
 		lastTime = current;
 	}
 

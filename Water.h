@@ -20,6 +20,8 @@ private:
 	unsigned int refrFrameBuffer;
 	float moveFactor;
 
+	glm::ivec2 waterReflectionResolution;
+
 public:
 	Water();
 	void update(double deltaTime) override;

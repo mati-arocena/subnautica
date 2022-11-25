@@ -4,12 +4,12 @@
 #include "VBO.h"
 
 
-class Light
+class PointLight
 {
 	glm::vec3 color;
 	glm::vec3 position;
 public:
-	Light(glm::vec3 color, glm::vec3 position);
+	PointLight(glm::vec3 color, glm::vec3 position);
 
 	glm::vec3 getColor() const;
 	glm::vec3 getPosition() const;

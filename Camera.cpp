@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "btBulletDynamicsCommon.h"
+#include "ConfigManager.h"
 
 Camera::Camera(
     glm::vec3 position,
@@ -55,6 +56,13 @@ void Camera::createViewFrustum()
 void Camera::updateViewMatrix()
 {
     ViewMatrix = glm::lookAt(Position, Position + Front, Up);
+}
+
+void Camera::changeSize(glm::ivec2 size)
+{
+    this->width  = size.x;
+    this->height = size.y;
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), width / height, near, far);
 }
 
 glm::mat4 Camera::GetViewMatrix() const
@@ -125,7 +133,9 @@ void Camera::ProcessMouseScroll(float yoffset)
         Zoom = 1.0f;
     if (Zoom > 90.0f)
         Zoom = 90.0f;
-    ProjectionMatrix = glm::perspective(glm::radians(Zoom), 640.0f / 480.0f, 0.1f, 100.0f);
+	float aspect = width / height;
+	
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, 0.1f, 100.0f);
 }
 
 

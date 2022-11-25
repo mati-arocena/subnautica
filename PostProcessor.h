@@ -25,6 +25,9 @@ private:
 
 	Texture* occlusion_TX, * scene_TX, * sceneDepth_TX;
 
+	glm::ivec2 windowSize;
+	glm::ivec2 occlusionMapResolution;
+
 	void initVertexBuffers();
 	void initFrameBuffers();
 
