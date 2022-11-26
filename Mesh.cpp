@@ -136,7 +136,7 @@ LOD Mesh::getLOD()
 		std::abs(glm::dot(glm::vec3{ 0.f, 0.f, 1.f }, up)) +
 		std::abs(glm::dot(glm::vec3{ 0.f, 0.f, 1.f }, forward));
 	const glm::vec3 extents = { newIi, newIj, newIk };
-
+	
 	if (isOnFrustum(globalCenter, extents, frustumLOD0))
 	{
 		return LOD::LOD0;
@@ -218,6 +218,4 @@ void Mesh::render_withShader(std::shared_ptr<Shader> shader)
 
 
 
-}
 
-}

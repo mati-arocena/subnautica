@@ -62,7 +62,7 @@ class Camera
 {
     float height = 480;
     float width = 640;
-    float near = 0.1.f;
+    float near = 0.1f;
     float far = 200.f;
     std::shared_ptr<Frustum> frustumLOD0;
     std::shared_ptr<Frustum> frustumLOD1;

@@ -4,7 +4,7 @@ VBO::VBO()
 {
 	glGenBuffers(1, &id);
 	this->lenght = 0;
-	this->vertices = nullptr;
+	this->verticesLOD0 = nullptr;
 }
 
 void VBO::load(float* verticesLOD0, size_t lenght)
