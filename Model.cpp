@@ -21,7 +21,7 @@ Model::~Model()
 {
 }
 
-void Model::renderLOD(LOD levelOfDetail)
+void Model::render()
 {
 	for (Mesh mesh : meshes)
 	{
@@ -109,8 +109,8 @@ void Model::processNode(aiNode* node, const aiScene* scene, glm::mat4 transformM
 
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformMat)
 {
-	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indices;
+	std::vector<Vertex> verticesLOD0;
+	std::vector<unsigned int> indicesLOD0;
 	std::vector<Texture*> textures;
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
@@ -129,14 +129,14 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 		vertex.Tangent = glm::vec3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
 		vertex.Bitangent = glm::vec3(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z);
 
-		vertices.push_back(vertex);
+		verticesLOD0.push_back(vertex);
 	}
 
 	for (int i = 0; i < static_cast<int>(mesh->mNumFaces); i++)
 	{
 		aiFace face = mesh->mFaces[i];
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
-			indices.push_back(face.mIndices[j]);
+			indicesLOD0.push_back(face.mIndices[j]);
 	}
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -195,8 +195,10 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 	Material *m = new Material(textures, GameInstance::getInstance().getShader(NORMAL_SHADER), diffuseColor, specularColor, specularStrenght, specularExponent);
-
-	return Mesh(vertices, indices, m, transformMat);
+	
+	glm::vec3 AABBmin = { mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z };
+	glm::vec3 AABBmax = { mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z };
+	return Mesh(verticesLOD0, indicesLOD0, verticesLOD0, indicesLOD0, verticesLOD0, indicesLOD0, m, transformMat, AABBmin, AABBmax);
 }
 
 std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
@@ -257,4 +259,20 @@ void Model::renderOclussion()
 std::vector<std::shared_ptr<btRigidBody>> Model::getCollisionObject()
 {
 	return collisionObjects;
+}
+
+void Model::move(glm::vec3 movement)
+{
+	for (auto mesh : meshes)
+	{
+		mesh.move(movement);
+	}
+}
+
+void Model::rotate(glm::vec3 rotationAxis, float angle)
+{
+	for (auto mesh : meshes)
+	{
+		mesh.rotate(rotationAxis, angle);
+	}
 }

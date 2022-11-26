@@ -11,7 +11,7 @@
 void PostProcessor::initVertexBuffers()
 {
     // configure VAO/VBO for postprocessing
-    float vertices[] = {
+    float verticesLOD0[] = {
         // pos        // tex
         -1.0f, -1.0f, 0.0f, 0.0f,
          1.0f,  1.0f, 1.0f, 1.0f,
@@ -25,7 +25,7 @@ void PostProcessor::initVertexBuffers()
     glGenBuffers(1, &VBO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(verticesLOD0), verticesLOD0, GL_STATIC_DRAW);
 
     glBindVertexArray(VAO);
     glEnableVertexAttribArray(0);

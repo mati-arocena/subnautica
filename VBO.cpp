@@ -7,12 +7,12 @@ VBO::VBO()
 	this->vertices = nullptr;
 }
 
-void VBO::load(float* vertices, size_t lenght)
+void VBO::load(float* verticesLOD0, size_t lenght)
 {
 	bind();
 	this->lenght = lenght;
-	this->vertices = vertices;
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * lenght, this->vertices, GL_STATIC_DRAW);
+	this->verticesLOD0 = verticesLOD0;
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * lenght, this->verticesLOD0, GL_STATIC_DRAW);
 }
 
 void VBO::bind()

@@ -25,7 +25,7 @@ private:
 public:
 	Water();
 	void update(double deltaTime) override;
-	void renderLOD(LOD levelOfDetail) override;
+	void render() override;
 	void renderOclussion() override;
 
 	void unbindFrameFuffer();

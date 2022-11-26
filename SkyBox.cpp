@@ -35,10 +35,10 @@ SkyBox::SkyBox()
 	this->shader->use();
 	this->shader->setInt("cube_map", 0);
 
-	glGenVertexArrays(1, &vao);
-	vbo = new VBO();
-	glBindVertexArray(vao);
-	vbo->load(VERTICES, 108); 
+	glGenVertexArrays(1, &vaoLOD1);
+	vboLOD1 = new VBO();
+	glBindVertexArray(vaoLOD1);
+	vboLOD1->load(VERTICES, 108); 
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -61,11 +61,11 @@ void SkyBox::update(double DeltaTime)
 
 }
 
-void SkyBox::renderLOD(LOD levelOfDetail)
+void SkyBox::render()
 {
 	this->shader->use();
 
-	glBindVertexArray(vao);
+	glBindVertexArray(vaoLOD1);
 	glEnableVertexAttribArray(0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
@@ -78,7 +78,7 @@ void SkyBox::renderLOD(LOD levelOfDetail)
 
 void SkyBox::render_withShader(std::shared_ptr<Shader> shader)
 {
-	glBindVertexArray(vao);
+	glBindVertexArray(vaoLOD1);
 	glEnableVertexAttribArray(0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, ID);

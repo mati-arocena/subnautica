@@ -216,7 +216,7 @@ namespace glm
 	}
 
 	template<typename T>
-	GLM_FUNC_QUALIFIER mat<4, 4, T, defaultp> frustum(T left, T right, T bottom, T top, T nearVal, T farVal)
+	GLM_FUNC_QUALIFIER mat<4, 4, T, defaultp> frustumLOD0(T left, T right, T bottom, T top, T nearVal, T farVal)
 	{
 #		if GLM_CONFIG_CLIP_CONTROL == GLM_CLIP_CONTROL_LH_ZO
 			return frustumLH_ZO(left, right, bottom, top, nearVal, farVal);

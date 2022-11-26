@@ -143,7 +143,7 @@ void GameInstance::processInput(double deltaTime)
 	if (fPressed && glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE)
 	{
 		fPressed = false;
-		onlyFrustumObjects = !onlyFrustumObjects;
+		camera->toggleFrustumUpdate();
 	}
 }
 
