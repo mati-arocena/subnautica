@@ -13,10 +13,11 @@
 #include <GLFW/glfw3.h>
 #include "PostProcessor.h"
 #include "SkyBox.h"
+#include "DirectionalLight.h"
 
 class GameInstance
 {
-	GameInstance() {};
+	GameInstance();
 	
 	bool running = true;
 
@@ -26,13 +27,17 @@ class GameInstance
 
 	std::vector<std::shared_ptr<GameObject>> objects;
 	std::shared_ptr<Water> water;
-	std::shared_ptr<PointLight> light;
+	
+	std::shared_ptr<PointLight> pointLight;
+	
+	std::shared_ptr<DirectionalLight> directionalLight;
 
 	std::map<std::string, std::shared_ptr<Shader>> shaders;
 	std::shared_ptr<PostProcessor> postProcessor;
 	
 	bool onlyFrustumObjects = false;
 	bool fPressed = false;
+	bool fullscreen = true;
 
 	static float mouseLastX;
 	static float mouseLastY;
@@ -52,6 +57,7 @@ public:
 	void addGameObject(std::shared_ptr<GameObject> gameObject);
 	void addShader(std::string name, std::shared_ptr<Shader> shader);
 	void addLight(std::shared_ptr<PointLight> light);
+	void addLight(std::shared_ptr<DirectionalLight> light);
 	void addSkyBox(std::shared_ptr<SkyBox> skyBox);
 
 	void setupMouse();
@@ -59,7 +65,7 @@ public:
 	std::shared_ptr<Camera> getCamera();
 	void setWindow(GLFWwindow* window);
 
-	std::shared_ptr<PointLight> getLight();
+	std::shared_ptr<PointLight> getPointLight();
 	std::shared_ptr<Shader> getShader(std::string name);
 
 	void processInput(double deltaTime);
@@ -70,6 +76,9 @@ public:
 	void renderOclussion();
 	void setPostProcessor();
 
+	void removeFullscreen();
+	void setFullscreen();
+	
 	bool isRunning();
 
 	void updateScreenSize(glm::ivec2 size);

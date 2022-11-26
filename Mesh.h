@@ -10,12 +10,15 @@ struct Vertex {
         this->Position = Position;
         this->Normal = Normal;
         this->TexCoords = TexCoords;
+
+        this->Bitangent = glm::vec3(0.0f, 0.0f, 0.0f);
+        this->Tangent = glm::vec3(0.0f, 0.0f, 0.0f);
     }
     glm::vec3 Position;
     glm::vec3 Normal;
     glm::vec2 TexCoords;
     glm::vec3 Tangent;
-    glm::vec3 Bitangent;
+	glm::vec3 Bitangent;
 
     static float* toVBO(std::vector<Vertex> vertices);
 };

@@ -60,10 +60,10 @@ const float ZOOM = 45.0f;
 
 class Camera
 {
-    float height = 480;
-    float width = 640;
-    float near = 0.1;
-    float far = 200;
+    unsigned height = 480;
+    unsigned width = 640;
+    float near = 0.1f;
+    float far = 200.f;
     Frustum frustum;
 public:
     // camera Attributes

@@ -15,7 +15,8 @@ Camera::Camera(
     createViewFrustum();
 
     updateCameraVectors();
-    ProjectionMatrix = glm::perspective(glm::radians(Zoom), width / height, near, far);
+	float aspect = (float)width / (float)height;
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, near, far);
 
 }
 
@@ -31,7 +32,8 @@ Camera::Camera(
     Pitch = pitch;
     createViewFrustum();
     updateCameraVectors();
-    ProjectionMatrix = glm::perspective(glm::radians(Zoom), width / height , near, far);
+	float aspect = float(width) / float(height);
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, near, far);
 }
 
 
@@ -62,7 +64,8 @@ void Camera::changeSize(glm::ivec2 size)
 {
     this->width  = size.x;
     this->height = size.y;
-    ProjectionMatrix = glm::perspective(glm::radians(Zoom), width / height, near, far);
+    float aspect = float(width) / float(height);
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, near, far);
 }
 
 glm::mat4 Camera::GetViewMatrix() const
@@ -133,7 +136,7 @@ void Camera::ProcessMouseScroll(float yoffset)
         Zoom = 1.0f;
     if (Zoom > 90.0f)
         Zoom = 90.0f;
-	float aspect = width / height;
+	float aspect = float(width) / float(height);
 	
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, 0.1f, 100.0f);
 }

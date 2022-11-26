@@ -118,6 +118,4 @@ void Mesh::render_withShader(std::shared_ptr<Shader> shader)
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0); // cantidad de indices
 	glBindVertexArray(0);
-
-
 }
