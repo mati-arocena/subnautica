@@ -112,6 +112,8 @@ public:
     void ProcessMouseScroll(float yoffset);
     void updateViewMatrix();
 
+	void changeSize(glm::ivec2 size);
+	
     std::shared_ptr<Frustum> getFrustum(enum class LOD lod);
 
     void toggleFrustumUpdate();

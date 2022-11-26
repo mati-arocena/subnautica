@@ -2,6 +2,7 @@
 #include "GameInstance.h"
 #include "Definitions.h"
 #include <vector>
+#include "ConfigManager.h"
 
 glm::vec3 Position;
 glm::vec3 Normal;
@@ -21,8 +22,12 @@ Water::Water() : GameObject()
 			1, 2, 3
 	};
 
+
+	waterReflectionResolution = ConfigManager::getInstance().getWaterReflectionResolution();
+
 	Material* material = initializeMaterial();
 
+	
 	glm::mat4 model(1.); // TODO: ver despues como hacer esto
 
 	mesh = new Mesh(verticesLOD0, indicesLOD0, verticesLOD0, indicesLOD0, verticesLOD0, indicesLOD0, material, model, glm::vec3(0.f, 0.f, 0.f), glm::vec3(1000.f, 1000.f, 1000.f));
@@ -35,20 +40,20 @@ Material* Water::initializeMaterial()
 
 	glGenFramebuffers(1, &reflFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, reflFrameBuffer);
-	reflTexture = new Texture(800, 600, GL_RGB, GL_RGB, "texture_reflection", GL_COLOR_ATTACHMENT0);
+	reflTexture = new Texture(waterReflectionResolution.x, waterReflectionResolution.y, GL_RGB, GL_RGB, "texture_reflection", GL_COLOR_ATTACHMENT0);
 	textures.push_back(reflTexture);
 
-	reflectionDepthTexture = new Texture(800, 600, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_reflection_depth", GL_DEPTH_ATTACHMENT);
+	reflectionDepthTexture = new Texture(waterReflectionResolution.x, waterReflectionResolution.y, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_reflection_depth", GL_DEPTH_ATTACHMENT);
 	textures.push_back(reflectionDepthTexture);
 
 	unbindFrameFuffer();
 
 	glGenFramebuffers(1, &refrFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, refrFrameBuffer);
-	refrTexture = new Texture(800, 600, GL_RGB, GL_RGB, "texture_refraction", GL_COLOR_ATTACHMENT0);
+	refrTexture = new Texture(waterReflectionResolution.x, waterReflectionResolution.y, GL_RGB, GL_RGB, "texture_refraction", GL_COLOR_ATTACHMENT0);
 	textures.push_back(refrTexture);
 
-	refractionDepthTexture = new Texture(800, 600, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_refraction_depth", GL_DEPTH_ATTACHMENT);
+	refractionDepthTexture = new Texture(waterReflectionResolution.x, waterReflectionResolution.y, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_refraction_depth", GL_DEPTH_ATTACHMENT);
 	textures.push_back(refractionDepthTexture);
 	unbindFrameFuffer();
 
@@ -72,11 +77,21 @@ Material* Water::initializeMaterial()
 void Water::unbindFrameFuffer()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, 800, 600);
+	glm::ivec2 windowSize = ConfigManager::getInstance().getWindowSize();
+	glViewport(0, 0, windowSize.x, windowSize.y);
 }
 
 void Water::update(double deltaTime)
 {
+	if (waterReflectionResolution != ConfigManager::getInstance().getWaterReflectionResolution())
+	{
+		waterReflectionResolution = ConfigManager::getInstance().getWaterReflectionResolution();
+		reflTexture->resize(waterReflectionResolution);
+		reflectionDepthTexture->resize(waterReflectionResolution);
+		refrTexture->resize(waterReflectionResolution);
+		refractionDepthTexture->resize(waterReflectionResolution);
+	}
+	
 	glEnable(GL_CLIP_DISTANCE0);
 	glEnable(GL_BLEND);
 	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
@@ -97,7 +112,7 @@ void Water::update(double deltaTime)
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, reflFrameBuffer);
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, waterReflectionResolution.x, waterReflectionResolution.y);
 
 	GameInstance::getInstance().render(this, glm::vec4(0.f, camDir, 0.f, this->position.y * camDir * -1));
 	unbindFrameFuffer();
@@ -108,9 +123,10 @@ void Water::update(double deltaTime)
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, refrFrameBuffer);
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, waterReflectionResolution.x, waterReflectionResolution.y);
 
-	glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
+	glm::vec3 clearColor = ConfigManager::getInstance().getClearColor();
+	glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	GameInstance::getInstance().render(this, glm::vec4(0.f, camDir * -1, 0.f, this->position.y * camDir));
 	unbindFrameFuffer();

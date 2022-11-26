@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "btBulletDynamicsCommon.h"
+#include "ConfigManager.h"
 #include "Mesh.h"
 
 Camera::Camera(
@@ -109,6 +110,18 @@ std::shared_ptr<Frustum> Camera::getFrustum(LOD lod)
     }
 }
 
+void Camera::changeSize(glm::ivec2 size)
+{
+    this->width  = size.x;
+    this->height = size.y;
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), width / height, near, far);
+
+    if (shouldFrustumUpdate)
+        createViewFrustum();
+
+}
+
+
 glm::mat4 Camera::GetViewMatrix() const
 {
     return ViewMatrix;
@@ -177,7 +190,13 @@ void Camera::ProcessMouseScroll(float yoffset)
         Zoom = 1.0f;
     if (Zoom > 90.0f)
         Zoom = 90.0f;
-    ProjectionMatrix = glm::perspective(glm::radians(Zoom), 640.0f / 480.0f, 0.1f, 100.0f);
+	float aspect = width / height;
+	
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, 0.1f, 100.0f);
+
+    if (shouldFrustumUpdate)
+        createViewFrustum();
+
 }
 
 
