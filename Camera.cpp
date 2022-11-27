@@ -18,7 +18,9 @@ Camera::Camera(
     Pitch = pitch;
 
     updateCameraVectors();
-    ProjectionMatrix = glm::perspective(glm::radians(Zoom), width / height, near, far);
+	float aspect = (float)width / (float)height;
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, near, far);
+
 }
 
 Camera::Camera(
@@ -36,6 +38,8 @@ Camera::Camera(
     updateCameraVectors();
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), width / height , near, far);
 
+	float aspect = float(width) / float(height);
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, near, far);
 }
 
 void Camera::createViewFrustum()
@@ -84,8 +88,9 @@ void Camera::changeSize(glm::ivec2 size)
 {
     this->width  = size.x;
     this->height = size.y;
-    ProjectionMatrix = glm::perspective(glm::radians(Zoom), width / height, near, far);
- 
+    float aspect = float(width) / float(height);
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, near, far);
+
     if (shouldFrustumUpdate)
     {
         updateFrustums();
@@ -161,7 +166,7 @@ void Camera::ProcessMouseScroll(float yoffset)
         Zoom = 1.0f;
     if (Zoom > 90.0f)
         Zoom = 90.0f;
-	float aspect = width / height;
+	float aspect = float(width) / float(height);
 	
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, 0.1f, 100.0f);
     
@@ -282,6 +287,19 @@ void Frustum::renderDebug()
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glDrawElements(GL_LINES, indicesSize, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+}
+
+glm::vec3* Frustum::getPoint()
+{
+    //m_points[0] = intersection<Left, Bottom, Near>(crosses);
+    //m_points[1] = intersection<Left, Top, Near>(crosses);
+    //m_points[2] = intersection<Right, Bottom, Near>(crosses);
+    //m_points[3] = intersection<Right, Top, Near>(crosses);
+    //m_points[4] = intersection<Left, Bottom, Far>(crosses);
+    //m_points[5] = intersection<Left, Top, Far>(crosses);
+    //m_points[6] = intersection<Right, Bottom, Far>(crosses);
+    //m_points[7] = intersection<Right, Top, Far>(crosses);
+    return m_points;
 }
 
 void Frustum::setupDebug()

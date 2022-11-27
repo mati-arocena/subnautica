@@ -20,6 +20,7 @@ public:
     bool IsBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) const;
 
     void renderDebug();
+    glm::vec3* getPoint();
 private:
     enum Planes
     {
@@ -83,8 +84,8 @@ class Camera
 {
     float height = 480;
     float width = 640;
-    float near = 0.1;
-    float far = 100;
+    float near = 0.1f;
+    float far = 200.f;
     std::shared_ptr<Frustum> frustumLOD0;
     std::shared_ptr<Frustum> frustumLOD1;
     std::shared_ptr<Frustum> frustumLOD2;

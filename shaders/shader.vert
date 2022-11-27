@@ -34,7 +34,7 @@ void main()
 
 	TextCoord = aTexCoord;
 
-	vs_out.FragPos = vec3(model * vec4(aPos, 1.0));
+	vs_out.FragPos = vec3(worldPosition);
 	vs_out.TexCoords = TextCoord;
 	
 	mat3 normalMatrix = transpose(inverse(mat3(model)));
@@ -42,12 +42,12 @@ void main()
 	vec3 N = normalize(normalMatrix * aNormal);
 	T = normalize(T - dot(T, N) * N);
 	vec3 B = cross(N, T);
-
+	
 	mat3 TBN = transpose(mat3(T, B, N));
 	vs_out.TangentLightPos = TBN * lightPos;
 	vs_out.TangentFragPos = TBN * vs_out.FragPos;
-	vs_out.Normal = TBN * aNormal;
+	// Tangent space normal from local space
+	vs_out.Normal = TBN * N;
 
 	vs_out.TangentViewPos = TBN * viewPos;
-
 }

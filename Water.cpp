@@ -142,7 +142,7 @@ void Water::render() {
 	auto shader = GameInstance::getInstance().getShader(WATER_SHADER);
 	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
 
-	shader->prerender(camera, GameInstance::getInstance().getLight());
+	shader->prerender(camera, GameInstance::getInstance().getPointLight());
 	mesh->render();
 }
 
@@ -151,7 +151,7 @@ void Water::renderOclussion()
 	auto shader = GameInstance::getInstance().getShader(WATER_SHADER_OCCLUSION);
 	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
 
-	shader->prerender(camera, GameInstance::getInstance().getLight());
+	shader->prerender(camera, GameInstance::getInstance().getPointLight());
 
 	std::shared_ptr<Shader> previousShdr = mesh->material->changeShader(shader);
 	mesh->render();

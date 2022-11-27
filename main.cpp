@@ -38,10 +38,18 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+
+	
 	unsigned width, height;
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+	width = mode->width;
+	height = mode->height;
+	ConfigManager::getInstance().setWindowSize(glm::ivec2(width, height));
+	
 	width = ConfigManager::getInstance().getWindowSize().x;
 	height = ConfigManager::getInstance().getWindowSize().y;
-	GLFWwindow* window = glfwCreateWindow(width, height, "Subnautica", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(width, height, "Subnautica", monitor, nullptr);
 	if (!window)
 	{
 		glfwTerminate();
@@ -49,11 +57,12 @@ int main()
 	}
 	gameInstance.setWindow(window);
 
+	//glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, mode->refreshRate);
+
 	glfwMakeContextCurrent(window);
 
 	if (glewInit() != GLEW_OK)
 		return -1;
-
 	std::shared_ptr<Camera> camera = std::make_shared<Camera>();
 	gameInstance.setCamera(camera);
 
@@ -71,7 +80,7 @@ int main()
 
 	camera->createViewFrustum();
 
-	gameInstance.addLight(std::make_shared<PointLight>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{0.f, 10.f, 0.f}));
+	gameInstance.addLight(std::make_shared<PointLight>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{1000.f, 1000.f, 0.f}));
 	
 	gameInstance.addGameObject(std::make_shared<Model>("assets/caja.obj"));
 //	gameInstance.addGameObject(std::make_shared<Model>("assets/mar2.gltf"));
