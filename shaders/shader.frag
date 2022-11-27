@@ -2,7 +2,6 @@
 
 out vec4 FragColor;
 
-in vec2 TextCoord;
 in vec4 origin;
 
 in VS_OUT {
@@ -12,6 +11,7 @@ in VS_OUT {
     vec3 TangentLightPos;
     vec3 TangentViewPos;
     vec3 TangentFragPos;
+	vec4 FragPosLightSpace;
 } fs_in;
 
 uniform vec3 lightPos;
@@ -28,6 +28,7 @@ uniform vec3 texture_factor; // DIF, SPEC, NOR
 uniform sampler2D texture_diffuse;
 uniform sampler2D texture_specular;
 uniform sampler2D texture_normal;
+uniform sampler2D depth_shadow;
 
 
 float avg(vec3 col)
@@ -40,6 +41,22 @@ float roughnessToSpec(float roughness)
     return 100/(500 * roughness + 0.01);
 }
 
+
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 - 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(depth_shadow, projCoords.xy).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // check whether current frag pos is in shadow
+    float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+
+    return currentDepth * 100;
+}
 
 void main()
 {
@@ -80,6 +97,9 @@ void main()
     
     vec3 specular = specular_strenght * spec * specularColor;
 
-    FragColor = vec4(ambient + diffuse + specular, 1.0);
+    float shadow = ShadowCalculation(fs_in.FragPosLightSpace);
+
+    //FragColor = vec4(ambient + (1.0 - shadow) * (diffuse + specular), 1.0);
+    FragColor = vec4(vec3   (shadow), 1.0);
     //FragColor = vec4(vec3(normalize(vec3(fs_in.TangentViewPos))), 1.0);
 }

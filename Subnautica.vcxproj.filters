@@ -63,6 +63,9 @@
     <ClCompile Include="GameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ShadowMapBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -113,6 +116,9 @@
     <ClInclude Include="SkyBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ShadowMapBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\water_shader.frag" />
@@ -127,5 +133,7 @@
     <None Include="shaders\skybox.frag" />
     <None Include="shaders\skybox.vert" />
     <None Include="shaders\water_occlusion.frag" />
+    <None Include="shaders\shadow_map.frag" />
+    <None Include="shaders\shadow_map.vert" />
   </ItemGroup>
 </Project>

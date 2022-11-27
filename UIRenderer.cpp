@@ -11,7 +11,7 @@ UIRenderer::~UIRenderer()
     glDeleteVertexArrays(1, &this->quadVAO);
 }
 
-void UIRenderer::draw(Texture* texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
+void UIRenderer::draw(std::shared_ptr<Texture> texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
 {
     // prepare transformations
     shader->use();

@@ -31,34 +31,34 @@ Water::Water() : GameObject()
 
 Material* Water::initializeMaterial() 
 {
-	std::vector<Texture*> textures;
+	std::vector<std::shared_ptr<Texture>> textures;
 
 	glGenFramebuffers(1, &reflFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, reflFrameBuffer);
-	reflTexture = new Texture(800, 600, GL_RGB, GL_RGB, "texture_reflection", GL_COLOR_ATTACHMENT0);
+	reflTexture = std::make_shared<Texture>(WIDTH, HEIGHT, GL_RGB, GL_RGB, "texture_reflection", GL_COLOR_ATTACHMENT0);
 	textures.push_back(reflTexture);
 
-	reflectionDepthTexture = new Texture(800, 600, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_reflection_depth", GL_DEPTH_ATTACHMENT);
+	reflectionDepthTexture = std::make_shared<Texture>(WIDTH, HEIGHT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_reflection_depth", GL_DEPTH_ATTACHMENT);
 	textures.push_back(reflectionDepthTexture);
 
 	unbindFrameFuffer();
 
 	glGenFramebuffers(1, &refrFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, refrFrameBuffer);
-	refrTexture = new Texture(800, 600, GL_RGB, GL_RGB, "texture_refraction", GL_COLOR_ATTACHMENT0);
+	refrTexture = std::make_shared<Texture>(WIDTH, HEIGHT, GL_RGB, GL_RGB, "texture_refraction", GL_COLOR_ATTACHMENT0);
 	textures.push_back(refrTexture);
 
-	refractionDepthTexture = new Texture(800, 600, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_refraction_depth", GL_DEPTH_ATTACHMENT);
+	refractionDepthTexture = std::make_shared<Texture>(WIDTH, HEIGHT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_refraction_depth", GL_DEPTH_ATTACHMENT);
 	textures.push_back(refractionDepthTexture);
 	unbindFrameFuffer();
 
-	dudv_texture = new Texture("assets/waterDUDV.png", "dudv_map", true, true);
+	dudv_texture = std::make_shared<Texture>("assets/waterDUDV.png", "dudv_map", true, true);
 	textures.push_back(dudv_texture);
 
-	dudv_texture = new Texture("assets/waterNormalMap.png", "normal_map", true, true);
+	dudv_texture = std::make_shared<Texture>("assets/waterNormalMap.png", "normal_map", true, true);
 	textures.push_back(dudv_texture);
 
-	Texture* occlusion_texture = new Texture("assets/waterOclussion.jpg", "occlusion_map", true, true);
+	std::shared_ptr<Texture> occlusion_texture = std::make_shared<Texture>("assets/waterOclussion.jpg", "occlusion_map", true, true);
 	textures.push_back(occlusion_texture);
 
 	auto occlusionShader = GameInstance::getInstance().getShader(WATER_SHADER_OCCLUSION);
@@ -72,7 +72,7 @@ Material* Water::initializeMaterial()
 void Water::unbindFrameFuffer()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, WIDTH, HEIGHT);
 }
 
 void Water::update(double deltaTime)
@@ -97,7 +97,7 @@ void Water::update(double deltaTime)
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, reflFrameBuffer);
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, WIDTH, HEIGHT);
 
 	GameInstance::getInstance().render(this, glm::vec4(0.f, camDir, 0.f, this->position.y * camDir * -1));
 	unbindFrameFuffer();
@@ -108,7 +108,7 @@ void Water::update(double deltaTime)
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, refrFrameBuffer);
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, WIDTH, HEIGHT);
 
 	glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

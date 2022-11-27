@@ -25,6 +25,11 @@ void GameInstance::addGameObject(std::shared_ptr<GameObject> gameObject)
 	}
 }
 
+void GameInstance::setShadowMapBuffer(std::shared_ptr<ShadowMapBuffer> shadowMapBuffer)
+{
+	this->shadowMapBuffer = shadowMapBuffer;
+}
+
 void GameInstance::addShader(std::string name, std::shared_ptr<Shader> shader)
 {
 	shaders[name] = shader;
@@ -151,11 +156,29 @@ void GameInstance::render(GameObject* excludeFromRendering, glm::vec4 clipPlane)
 	}
 }
 
+void GameInstance::renderShadowMap()
+{
+	shadowMapBuffer->bind();
+	glClear(GL_DEPTH_BUFFER_BIT);
+	shadowMapBuffer->shader->lightSpaceTransform(this->light);
+	for (auto object : objects)
+	{
+		if (auto m = dynamic_cast<Model*>(object.get()))
+		{
+			object->render_withShader(shadowMapBuffer->shader);
+		}
+	}
+	shadowMapBuffer->unbind();
+
+}
+
 void GameInstance::render()
 {
+	renderShadowMap();
+
 	// Render escena
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, WIDTH, HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, postProcessor->getSceneFB());
 
 	glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
@@ -165,6 +188,7 @@ void GameInstance::render()
 	{
 		shader.second->prerender(camera, light);
 	}
+
 	
 	for (auto object : objects)
 	{

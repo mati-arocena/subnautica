@@ -50,14 +50,14 @@ PostProcessor::PostProcessor()
     // Occlusion Buffer
     glGenFramebuffers(1, &occlusion_FB);
     glBindFramebuffer(GL_FRAMEBUFFER, occlusion_FB);
-    occlusion_TX = new Texture(200, 150, GL_RGB, GL_RGB, "occlusion_texture", GL_COLOR_ATTACHMENT0);
+    occlusion_TX = std::make_shared<Texture>(200, 150, GL_RGB, GL_RGB, "occlusion_texture", GL_COLOR_ATTACHMENT0);
 
     // Scene Buffer
     glGenFramebuffers(1, &scene_FB);
     glBindFramebuffer(GL_FRAMEBUFFER, scene_FB);
 
-    scene_TX = new Texture(800, 600, GL_RGB, GL_RGB, "scene_texture", GL_COLOR_ATTACHMENT0);
-    sceneDepth_TX = new Texture(800, 600, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "scene_texture_depth", GL_DEPTH_ATTACHMENT);
+    scene_TX = std::make_shared<Texture>(WIDTH, HEIGHT, GL_RGB, GL_RGB, "scene_texture", GL_COLOR_ATTACHMENT0);
+    sceneDepth_TX = std::make_shared<Texture>(WIDTH, HEIGHT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "scene_texture_depth", GL_DEPTH_ATTACHMENT);
 
     postProcessingShader->setTexture(occlusion_TX, 0);
     postProcessingShader->setTexture(scene_TX, 1);
@@ -74,7 +74,7 @@ void PostProcessor::draw()
     glBindFramebuffer(GL_FRAMEBUFFER, occlusion_FB);
     GameInstance::getInstance().renderOclussion();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, WIDTH, HEIGHT);
 
     // Blend
     postProcessingShader->use();

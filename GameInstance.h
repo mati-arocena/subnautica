@@ -9,6 +9,7 @@
 #include "Shader.h"
 #include "Light.h"
 #include "Water.h"
+#include "ShadowMapBuffer.h"
 
 #include <GLFW/glfw3.h>
 #include "PostProcessor.h"
@@ -20,7 +21,6 @@ class GameInstance
 	bool running = true;
 
 	std::shared_ptr<Camera> camera;
-
 	GLFWwindow* window;
 
 	std::vector<std::shared_ptr<GameObject>> objects;
@@ -41,6 +41,7 @@ class GameInstance
 	
 public:
 	static GameInstance& getInstance();
+	std::shared_ptr<ShadowMapBuffer> shadowMapBuffer;
 
 	GameInstance(GameInstance const&) = delete;
 	void operator=(GameInstance const&) = delete;
@@ -48,6 +49,7 @@ public:
 	void addGameObject(std::shared_ptr<GameObject> gameObject);
 	void addShader(std::string name, std::shared_ptr<Shader> shader);
 	void addLight(std::shared_ptr<Light> light);
+	void setShadowMapBuffer(std::shared_ptr<ShadowMapBuffer> shadowMapBuffer);
 
 	void setupMouse();
 	void setCamera(std::shared_ptr<Camera> camera);
@@ -63,6 +65,7 @@ public:
 	void render(GameObject* excludeFromRendering, glm::vec4 clipPlane);
 	void render_withShader(std::shared_ptr<Shader> shader);
 	void renderOclussion();
+	void renderShadowMap();
 	void setPostProcessor();
 
 	bool isRunning();

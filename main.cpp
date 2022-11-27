@@ -34,7 +34,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(640, 480, "Subnautica", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Subnautica", nullptr, nullptr);
 	if (!window)
 	{
 		glfwTerminate();
@@ -50,8 +50,11 @@ int main()
 	std::shared_ptr<Camera> camera = std::make_shared<Camera>();
 	gameInstance.setCamera(camera);
 
+
 	glfwSetFramebufferSizeCallback(window, resizeWindow);
 	gameInstance.setupMouse();
+
+
 
 	gameInstance.addShader(NORMAL_SHADER, std::make_shared<Shader>(NORMAL_SHADER + ".vert", NORMAL_SHADER + ".frag"));
 	gameInstance.addShader(UI_SHADER, std::make_shared<Shader>(UI_SHADER + ".vert", UI_SHADER + ".frag"));
@@ -60,8 +63,12 @@ int main()
 	gameInstance.addShader(WATER_SHADER_OCCLUSION, std::make_shared<Shader>(NORMAL_SHADER + ".vert", WATER_SHADER_OCCLUSION + ".frag"));
 	gameInstance.addShader(POST_SHADER, std::make_shared<Shader>(POST_SHADER + ".vert", POST_SHADER + ".frag"));
 	gameInstance.addShader(SKY_BOX_SHADER, std::make_shared<Shader>(SKY_BOX_SHADER + ".vert", SKY_BOX_SHADER + ".frag"));
+	gameInstance.addShader(SHADOW_MAP_SHADER, std::make_shared<Shader>(SHADOW_MAP_SHADER + ".vert", SHADOW_MAP_SHADER + ".frag"));
 
-	gameInstance.addLight(std::make_shared<Light>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{0.f, 10.f, 0.f}));
+	std::shared_ptr<ShadowMapBuffer> shadowMapBuffer = std::make_shared<ShadowMapBuffer>(gameInstance.getShader(SHADOW_MAP_SHADER));
+
+	gameInstance.addLight(std::make_shared<Light>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{0.f, 10000.f, 0.f}));
+	gameInstance.setShadowMapBuffer(shadowMapBuffer);
 	
 	gameInstance.addGameObject(std::make_shared<Model>("assets/mar2.gltf"));
 	gameInstance.addGameObject(std::make_shared<Water>());

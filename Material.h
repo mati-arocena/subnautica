@@ -10,7 +10,7 @@ class Material
 {
 private:
 	std::shared_ptr<Shader> shader;
-	std::vector<Texture*> textures;
+	std::vector<std::shared_ptr<Texture>> textures;
 
 	glm::vec3 diffuseColor;
 	glm::vec3 specColor;
@@ -20,7 +20,7 @@ private:
 	glm::ivec3 textureFactor; // (diff, spec, norm) Vector que indica si hay textura o no
 
 public:
-	Material(std::vector<Texture*> textures, std::shared_ptr<Shader> shader, glm::vec3 diffuseColor = glm::vec3(), glm::vec3 specColor = glm::vec3(), float specularStrenght = 0, float specularExponent = 0);
+	Material(std::vector<std::shared_ptr<Texture>> textures, std::shared_ptr<Shader> shader, glm::vec3 diffuseColor = glm::vec3(), glm::vec3 specColor = glm::vec3(), float specularStrenght = 0, float specularExponent = 0);
 	~Material();
 	void use();
 	std::shared_ptr<Shader> getShader();

@@ -5,7 +5,6 @@ layout (location = 2) in vec2 aTexCoord;
 layout (location = 3) in vec3 aTangent;
 layout (location = 4) in vec3 aBitagent;
 
-out vec2 TextCoord;
 out vec4 origin;
 
 out VS_OUT {
@@ -15,6 +14,7 @@ out VS_OUT {
 	vec3 TangentLightPos;
 	vec3 TangentViewPos;
 	vec3 TangentFragPos;
+	vec4 FragPosLightSpace;
 } vs_out;
 
 uniform mat4 model;
@@ -24,6 +24,7 @@ uniform mat4 projection;
 uniform vec4 clippingPlane;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
+uniform mat4 light_space_matrix;
 
 void main()
 {
@@ -32,10 +33,10 @@ void main()
 	gl_ClipDistance[0] = dot(worldPosition, clippingPlane);
 	gl_Position = projection * positionRelativeToCam;
 
-	TextCoord = aTexCoord;
-
 	vs_out.FragPos = vec3(model * vec4(aPos, 1.0));
-	vs_out.TexCoords = TextCoord;
+	vs_out.TexCoords = aTexCoord;
+
+	vs_out.FragPosLightSpace = light_space_matrix * worldPosition;
 	
 	mat3 normalMatrix = transpose(inverse(mat3(model)));
 	vec3 T = normalize(normalMatrix * aTangent);

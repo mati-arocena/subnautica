@@ -111,7 +111,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 {
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-	std::vector<Texture*> textures;
+	std::vector<std::shared_ptr<Texture>> textures;
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
@@ -153,8 +153,10 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 	float specularStrenght, specularExponent;
 	specularStrenght = specularExponent = 0;
 
+	textures.push_back(GameInstance::getInstance().shadowMapBuffer->shadowDepthTexture);
+
 	// 2. specular maps
-	std::vector<Texture*> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, TEXTURE_SPECULAR);
+	std::vector<std::shared_ptr<Texture>> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, TEXTURE_SPECULAR);
 	if (specularMaps.size() == 0)
 	{
 		aiColor3D aiSpecCol;
@@ -170,7 +172,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 	}
 
 	// 1. diffuse maps
-	std::vector<Texture*> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, TEXTURE_DIFFUSE);
+	std::vector<std::shared_ptr<Texture>> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, TEXTURE_DIFFUSE);
 	if (diffuseMaps.size() == 0)
 	{	
 		aiColor3D aiDiff;
@@ -182,11 +184,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 	}
 
-
-
 	
 	// 3. normal maps
-	std::vector<Texture*> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, TEXTURE_NORMAL);
+	std::vector<std::shared_ptr<Texture>> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, TEXTURE_NORMAL);
 	if (normalMaps.size() == 0)
 	{
 		normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, TEXTURE_NORMAL);
@@ -194,17 +194,18 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 
 	textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 	// 4. height maps
-	std::vector<Texture*> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height");
+	std::vector<std::shared_ptr<Texture>> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height");
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+
 
 	Material *m = new Material(textures, GameInstance::getInstance().getShader(NORMAL_SHADER), diffuseColor, specularColor, specularStrenght, specularExponent);
 
 	return Mesh(vertices, indices, m, transformMat);
 }
 
-std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
 {
-	std::vector<Texture*> textures;
+	std::vector<std::shared_ptr<Texture>> textures;
 
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
 	{
@@ -225,7 +226,7 @@ std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType
 		}
 		if (!skip)
 		{   // if texture hasn't been loaded already, load it
-			Texture* texture = new Texture(filename.c_str(), typeName, true, true);
+			std::shared_ptr<Texture> texture = std::make_shared<Texture>(filename.c_str(), typeName, true, true);
 			textures.push_back(texture);
 			textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
 		}

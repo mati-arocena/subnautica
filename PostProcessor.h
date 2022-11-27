@@ -23,7 +23,7 @@ private:
 
 	std::shared_ptr<Shader> occlusionShader, postProcessingShader;
 
-	Texture* occlusion_TX, * scene_TX, * sceneDepth_TX;
+	std::shared_ptr<Texture> occlusion_TX, scene_TX, sceneDepth_TX;
 
 	void initVertexBuffers();
 	void initFrameBuffers();
