@@ -36,6 +36,8 @@ Texture::Texture(int width, int height, int internalFormat, int format, std::str
     this->alpha = false;
     this->minmap = false;
     this->path = "";
+	this->format = format;
+	this->internalFormat = internalFormat;
     
     glGenTextures(1, &ID);
     glBindTexture(GL_TEXTURE_2D, ID);
@@ -57,4 +59,11 @@ void Texture::use(int pos) const
 void Texture::use() const
 {
     Texture::use(0);
+}
+
+void Texture::resize(glm::ivec2 size)
+{
+	glBindTexture(GL_TEXTURE_2D, ID);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, size.x, size.y, 0, format, GL_UNSIGNED_BYTE, NULL);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }

@@ -51,12 +51,12 @@ SIMD_FORCE_INLINE bool TestAabbAgainstAabb2(const btVector3& aabbMin1, const btV
 }
 
 /// conservative test for overlap between triangle and aabb
-SIMD_FORCE_INLINE bool TestTriangleAgainstAabb2(const btVector3* vertices,
+SIMD_FORCE_INLINE bool TestTriangleAgainstAabb2(const btVector3* verticesLOD0,
 												const btVector3& aabbMin, const btVector3& aabbMax)
 {
-	const btVector3& p1 = vertices[0];
-	const btVector3& p2 = vertices[1];
-	const btVector3& p3 = vertices[2];
+	const btVector3& p1 = verticesLOD0[0];
+	const btVector3& p2 = verticesLOD0[1];
+	const btVector3& p3 = verticesLOD0[2];
 
 	if (btMin(btMin(p1[0], p2[0]), p3[0]) > aabbMax[0]) return false;
 	if (btMax(btMax(p1[0], p2[0]), p3[0]) < aabbMin[0]) return false;

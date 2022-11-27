@@ -22,7 +22,7 @@ struct Plane
 
     Plane() = default;
 
-    float getSignedDistanceToPlan(const glm::vec3& point) const
+    inline float getSignedDistanceToPlan(const glm::vec3& point) const
     {
         return glm::dot(normal, point) - distance;
     }
@@ -62,9 +62,11 @@ class Camera
 {
     float height = 480;
     float width = 640;
-    float near = 0.1;
-    float far = 200;
-    Frustum frustum;
+    float near = 0.1f;
+    float far = 200.f;
+    std::shared_ptr<Frustum> frustumLOD0;
+    std::shared_ptr<Frustum> frustumLOD1;
+    std::shared_ptr<Frustum> frustumLOD2;
 public:
     // camera Attributes
     glm::vec3 Position;
@@ -110,7 +112,14 @@ public:
     void ProcessMouseScroll(float yoffset);
     void updateViewMatrix();
 
+	void changeSize(glm::ivec2 size);
+	
+    std::shared_ptr<Frustum> getFrustum(enum class LOD lod);
+
+    void toggleFrustumUpdate();
 private:
+
+    bool shouldFrustumUpdate = true;
 
     void createViewFrustum();
 

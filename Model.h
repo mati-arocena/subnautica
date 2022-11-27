@@ -30,9 +30,11 @@ public:
 
     void clipModel(glm::vec4 plane);
     void update(double DeltaTime) override;
-    void renderLOD(LOD levelOfDetail) override;
+    void render() override;
     void renderOclussion();
     void render_withShader(std::shared_ptr<Shader> shader);
     std::vector<std::shared_ptr<btRigidBody>> getCollisionObject();
+    void move(glm::vec3 movement);
+    void rotate(glm::vec3 rotationAxis, float angle);
 };
 

@@ -6,11 +6,12 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "ConfigManager.h"
 
 void PostProcessor::initVertexBuffers()
 {
     // configure VAO/VBO for postprocessing
-    float vertices[] = {
+    float verticesLOD0[] = {
         // pos        // tex
         -1.0f, -1.0f, 0.0f, 0.0f,
          1.0f,  1.0f, 1.0f, 1.0f,
@@ -24,7 +25,7 @@ void PostProcessor::initVertexBuffers()
     glGenBuffers(1, &VBO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(verticesLOD0), verticesLOD0, GL_STATIC_DRAW);
 
     glBindVertexArray(VAO);
     glEnableVertexAttribArray(0);
@@ -35,11 +36,11 @@ void PostProcessor::initVertexBuffers()
 }
 
 
-
 PostProcessor::PostProcessor()
 {
     // Initialize opengl vertex for postprocessing (Maybe migrate to postprocessing class)
     initVertexBuffers();
+	windowSize = ConfigManager::getInstance().getWindowSize();
 
     occlusion_TX = NULL;
     occlusionShader = GameInstance::getInstance().getShader(OCCLUSION_SHADER);
@@ -55,9 +56,9 @@ PostProcessor::PostProcessor()
     // Scene Buffer
     glGenFramebuffers(1, &scene_FB);
     glBindFramebuffer(GL_FRAMEBUFFER, scene_FB);
-
-    scene_TX = std::make_shared<Texture>(WIDTH, HEIGHT, GL_RGB, GL_RGB, "scene_texture", GL_COLOR_ATTACHMENT0);
-    sceneDepth_TX = std::make_shared<Texture>(WIDTH, HEIGHT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "scene_texture_depth", GL_DEPTH_ATTACHMENT);
+	
+    scene_TX = std::make_shared<Texture>(windowSize.x, windowSize.y, GL_RGB, GL_RGB, "scene_texture", GL_COLOR_ATTACHMENT0);
+    sceneDepth_TX = std::make_shared<Texture>(windowSize.x, windowSize.y, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "scene_texture_depth", GL_DEPTH_ATTACHMENT);
 
     postProcessingShader->setTexture(occlusion_TX, 0);
     postProcessingShader->setTexture(scene_TX, 1);
@@ -66,15 +67,31 @@ PostProcessor::PostProcessor()
 
 void PostProcessor::draw()
 {
+
+	if (windowSize != ConfigManager::getInstance().getWindowSize())
+	{
+		windowSize = ConfigManager::getInstance().getWindowSize();
+		scene_TX->resize(windowSize);
+		sceneDepth_TX->resize(windowSize);
+	}
+
+    if (occlusionMapResolution != ConfigManager::getInstance().getOcclusionMapResolution())
+    {
+		occlusionMapResolution = ConfigManager::getInstance().getOcclusionMapResolution();
+		occlusion_TX->resize(occlusionMapResolution);
+    }
+	
     // RUN
     glEnable(GL_DEPTH_TEST);
     // Render de occlussion
     glBindTexture(GL_TEXTURE_2D, 0);
-    glViewport(0, 0, 200, 150);
+	glViewport(0, 0, occlusionMapResolution.x, occlusionMapResolution.y);
     glBindFramebuffer(GL_FRAMEBUFFER, occlusion_FB);
     GameInstance::getInstance().renderOclussion();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, WIDTH, HEIGHT);
+	
+	glm::ivec2 windowSize = ConfigManager::getInstance().getWindowSize();
+	glViewport(0, 0, windowSize.x, windowSize.y);
 
     // Blend
     postProcessingShader->use();
@@ -87,21 +104,25 @@ void PostProcessor::draw()
     sceneDepth_TX->use(2);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 
-    auto light = GameInstance::getInstance().getLight();
+    auto light = GameInstance::getInstance().getPointLight();
     auto camera = GameInstance::getInstance().getCamera();
 
     glm::mat4 projection = camera->GetProjectionMatrix();
     glm::mat4 view = camera->GetViewMatrix();
     glm::mat4 model = glm::identity<glm::mat4>();
+	
+    glm::vec4 projected = projection * (view * glm::vec4(light->getPosition(), 1));
 
-    glm::vec3 projected = view * glm::vec4(light->getPosition(), 1);// glm::project(light->getPosition(), model, projection, glm::vec4(0.f, 0.f, 200, 150));
-
-    postProcessingShader->setFloat("lightPos_SS", projected.x, projected.y);
+	// Between -1 and 1
+	glm::vec2 sunPos = glm::vec2(projected.x, projected.y) / projected.w * 0.5f + 0.5f;
+	
+	postProcessingShader->setFloat("lightPos_SS", sunPos.x, sunPos.y);
     postProcessingShader->setFloat("time", glfwGetTime());
 
     glBindVertexArray(VAO);
 
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glm::vec3 clearColor = ConfigManager::getInstance().getClearColor();
+	glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);

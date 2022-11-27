@@ -3,6 +3,7 @@
 #include "Model.h"
 #include "Definitions.h"
 #include "Water.h"
+#include "ConfigManager.h"
 
 float GameInstance::mouseLastX = 400;
 float GameInstance::mouseLastY = 300;
@@ -42,11 +43,27 @@ void GameInstance::setupMouse()
 	glfwSetScrollCallback(window, scroll_callback);
 }
 
-void GameInstance::addLight(std::shared_ptr<Light> light)
+void GameInstance::addLight(std::shared_ptr<PointLight> light)
 {
-	this->light = light;
+	pointLight = light;
 }
 
+void GameInstance::addLight(std::shared_ptr<DirectionalLight> light)
+{
+	this->directionalLight = light;
+}
+
+void GameInstance::addSkyBox(std::shared_ptr<SkyBox> skyBox)
+{
+	this->skyBox = skyBox;
+}
+
+
+GameInstance::GameInstance()
+{
+	this->clearColor = ConfigManager::getInstance().getClearColor();
+	this->window = nullptr;
+}
 
 void GameInstance::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
@@ -84,6 +101,18 @@ void GameInstance::setWindow(GLFWwindow* window)
 	this->window = window;
 }
 
+void GameInstance::removeFullscreen()
+{
+	glfwSetWindowMonitor(window, NULL, 100, 100, 800, 600, 0);
+}
+
+void GameInstance::setFullscreen()
+{
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+	glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+}
+
 void GameInstance::processInput(double deltaTime)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -99,12 +128,27 @@ void GameInstance::processInput(double deltaTime)
 		camera->ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera->ProcessKeyboard(RIGHT, deltaTime);
+	// F11 is fullscreen
+	if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS)
+	{
+		if (!fullscreen)
+		{
+			setFullscreen();
+			fullscreen = true;
+		}
+		else
+		{
+			removeFullscreen();
+			fullscreen = false;
+		}
+	}
+	
 	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
 		fPressed = true;
 	if (fPressed && glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE)
 	{
 		fPressed = false;
-		onlyFrustumObjects = !onlyFrustumObjects;
+		camera->toggleFrustumUpdate();
 	}
 }
 
@@ -112,6 +156,7 @@ void GameInstance::update(double deltaTime)
 {
 	camera->updateViewMatrix();
 
+	clearColor = ConfigManager::getInstance().getClearColor();
 	//TODO: light->update(deltaTime);
 
 	for (auto object : objects)
@@ -138,9 +183,15 @@ void GameInstance::render(GameObject* excludeFromRendering, glm::vec4 clipPlane)
 
 	for (auto shader : shaders)
 	{
-
-		shader.second->prerender(camera, light);
+		shader.second->prerender(camera, pointLight);
 	}
+
+	glDisable(GL_DEPTH_TEST);
+	if (skyBox)
+	{
+		skyBox->render();
+	}
+	glEnable(GL_DEPTH_TEST);
 
 	for (auto object : objects)
 	{
@@ -177,18 +228,25 @@ void GameInstance::render()
 	renderShadowMap();
 
 	// Render escena
+	glm::ivec2 windowSize = ConfigManager::getInstance().getWindowSize();
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glViewport(0, 0, WIDTH, HEIGHT);
+	glViewport(0, 0, windowSize.x, windowSize.y);
 	glBindFramebuffer(GL_FRAMEBUFFER, postProcessor->getSceneFB());
 
-	glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
+	glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	for (auto shader : shaders)
 	{
-		shader.second->prerender(camera, light);
+		shader.second->prerender(camera, pointLight);
 	}
 
+	glDisable(GL_DEPTH_TEST);
+	if (skyBox)
+	{
+		skyBox->render();
+	}
+	glEnable(GL_DEPTH_TEST);
 	
 	for (auto object : objects)
 	{
@@ -204,18 +262,29 @@ bool GameInstance::isRunning()
 	return running;
 }
 
-std::shared_ptr<Light> GameInstance::getLight() {
-	return this->light;
+void GameInstance::updateScreenSize(glm::ivec2 size)
+{
+	this->camera->changeSize(size);
+}
+
+std::shared_ptr<PointLight> GameInstance::getPointLight() {
+	return this->pointLight;
 }
 
 void GameInstance::render_withShader(std::shared_ptr<Shader> shader)
 {
 	// Renders a scene with the same shader
-
-	glClearColor(1.f, 1.f, 1.f, 1.0f);
+	glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	shader->prerender(camera, light);
+	shader->prerender(camera, pointLight);
+	
+	glDisable(GL_DEPTH_TEST);
+	if (skyBox)
+	{
+		skyBox->render();
+	}
+	glEnable(GL_DEPTH_TEST);
 
 	for (auto object : objects)
 	{
@@ -232,7 +301,7 @@ void GameInstance::renderOclussion()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	std::shared_ptr<Shader> occShdr = getShader(OCCLUSION_SHADER);
-	occShdr->prerender(camera, light);
+	occShdr->prerender(camera, pointLight);
 
 	if (water != NULL)
 	{

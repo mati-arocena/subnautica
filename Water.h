@@ -20,10 +20,12 @@ private:
 	unsigned int refrFrameBuffer;
 	float moveFactor;
 
+	glm::ivec2 waterReflectionResolution;
+
 public:
 	Water();
 	void update(double deltaTime) override;
-	void renderLOD(LOD levelOfDetail) override;
+	void render() override;
 	void renderOclussion() override;
 
 	void unbindFrameFuffer();

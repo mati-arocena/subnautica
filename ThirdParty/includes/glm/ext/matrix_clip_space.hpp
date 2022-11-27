@@ -208,7 +208,7 @@ namespace glm
 	/// @tparam T A floating-point scalar type
 	/// @see <a href="https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glFrustum.xml">glFrustum man page</a>
 	template<typename T>
-	GLM_FUNC_DECL mat<4, 4, T, defaultp> frustum(
+	GLM_FUNC_DECL mat<4, 4, T, defaultp> frustumLOD0(
 		T left, T right, T bottom, T top, T near, T far);
 
 

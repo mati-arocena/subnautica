@@ -33,9 +33,10 @@ void main()
 	gl_ClipDistance[0] = dot(worldPosition, clippingPlane);
 	gl_Position = projection * positionRelativeToCam;
 
-	vs_out.FragPos = vec3(model * vec4(aPos, 1.0));
-	vs_out.TexCoords = aTexCoord;
+	TextCoord = aTexCoord;
 
+	vs_out.FragPos = vec3(worldPosition);
+	vs_out.TexCoords = TextCoord;
 	vs_out.FragPosLightSpace = light_space_matrix * worldPosition;
 	
 	mat3 normalMatrix = transpose(inverse(mat3(model)));
@@ -43,12 +44,12 @@ void main()
 	vec3 N = normalize(normalMatrix * aNormal);
 	T = normalize(T - dot(T, N) * N);
 	vec3 B = cross(N, T);
-
+	
 	mat3 TBN = transpose(mat3(T, B, N));
 	vs_out.TangentLightPos = TBN * lightPos;
 	vs_out.TangentFragPos = TBN * vs_out.FragPos;
-	vs_out.Normal = TBN * aNormal;
+	// Tangent space normal from local space
+	vs_out.Normal = TBN * N;
 
 	vs_out.TangentViewPos = TBN * viewPos;
-
 }

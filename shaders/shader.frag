@@ -61,7 +61,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
 void main()
 {
     vec3 textNormal = texture(texture_normal, fs_in.TexCoords).rgb;
-    vec3 normal = texture_factor.z * normalize(textNormal * 2.0 - 1.0) + (1 - texture_factor.z) * fs_in.Normal;
+    vec3 normal = texture_factor.z * normalize(textNormal * 2.0 - 1.0) + (1 - texture_factor.z) * fs_in.Normal; 
 
     vec3 color = texture_factor.x * texture(texture_diffuse, fs_in.TexCoords).rgb + (1-texture_factor.x) * difuse_color;
        
@@ -92,7 +92,7 @@ void main()
     float roughness = avg(texture(texture_specular, fs_in.TexCoords).rgb);
     float spec = texture_factor.y * roughnessToSpec(roughness) + (1 - texture_factor.y) * pow(max(dot(viewDir, reflectDir), 0.0), specular_exponent);
 
-
+	
     vec3 specularColor = texture(texture_specular, fs_in.TexCoords).rgb * texture_factor.y + (1 - texture_factor.y) * specular_color;
     
     vec3 specular = specular_strenght * spec * specularColor;

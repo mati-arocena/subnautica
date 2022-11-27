@@ -18,10 +18,14 @@
 
 #include "btBulletDynamicsCommon.h"
 #include "SkyBox.h"
+#include "ConfigManager.h"
+#include <thread>
 
 void resizeWindow(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+	ConfigManager::getInstance().setWindowSize(glm::ivec2(width, height));
+	GameInstance::getInstance().updateScreenSize(glm::ivec2(width, height));
 }
 
 int main()
@@ -34,7 +38,18 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Subnautica", nullptr, nullptr);
+
+	
+	unsigned width, height;
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+	width = mode->width;
+	height = mode->height;
+	ConfigManager::getInstance().setWindowSize(glm::ivec2(width, height));
+	
+	width = ConfigManager::getInstance().getWindowSize().x;
+	height = ConfigManager::getInstance().getWindowSize().y;
+	GLFWwindow* window = glfwCreateWindow(width, height, "Subnautica", monitor, nullptr);
 	if (!window)
 	{
 		glfwTerminate();
@@ -42,11 +57,12 @@ int main()
 	}
 	gameInstance.setWindow(window);
 
+	//glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, mode->refreshRate);
+
 	glfwMakeContextCurrent(window);
 
 	if (glewInit() != GLEW_OK)
 		return -1;
-
 	std::shared_ptr<Camera> camera = std::make_shared<Camera>();
 	gameInstance.setCamera(camera);
 
@@ -67,12 +83,12 @@ int main()
 
 	std::shared_ptr<ShadowMapBuffer> shadowMapBuffer = std::make_shared<ShadowMapBuffer>(gameInstance.getShader(SHADOW_MAP_SHADER));
 
-	gameInstance.addLight(std::make_shared<Light>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{0.f, 10000.f, 0.f}));
+	gameInstance.addLight(std::make_shared<PointLight>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{1000.f, 1000.f, 0.f}));
 	gameInstance.setShadowMapBuffer(shadowMapBuffer);
 	
 	gameInstance.addGameObject(std::make_shared<Model>("assets/mar2.gltf"));
 	gameInstance.addGameObject(std::make_shared<Water>());
-	gameInstance.addGameObject(std::make_shared<SkyBox>());
+	gameInstance.addSkyBox(std::make_shared<SkyBox>());
 	gameInstance.setPostProcessor();
 
 	UIRenderer gui(gameInstance.getShader(UI_SHADER));
@@ -84,14 +100,15 @@ int main()
 		auto current = std::chrono::system_clock::now();
 
 		std::chrono::duration<double> elapsed = current - lastTime;
-
 		gameInstance.processInput(elapsed.count());
+		
 		gameInstance.update(elapsed.count());
 		gameInstance.render();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
+		
 		lastTime = current;
 	}
 
