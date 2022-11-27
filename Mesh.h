@@ -74,8 +74,12 @@ private:
 
     std::shared_ptr<Shader> debugShader; 
     unsigned int debugIndicesSize, debugVao, debugEbo;
-    std::shared_ptr<VBO> debugVBO;
+    VBO* debugVBO;
     float debugAABB = false;
+
+    glm::vec3 minAABB;
+    glm::vec3 maxAABB;
+
 
     glm::vec3 center;
     glm::vec3 extents;
@@ -87,25 +91,6 @@ private:
     void bindToLOD(LOD lod);
     
     LOD getLOD();
-    bool isOnFrustum(glm::vec3 center, glm::vec3 extents, std::shared_ptr<Frustum> frustum);
-    inline bool isOnOrForwardPlane(glm::vec3 AABBcenter, glm::vec3 AABBextents, const Plane& plane) {
-        // Compute the projection interval radius of b onto L(t) = b.c + t * p.n
-        const float r = AABBextents.x * std::abs(plane.normal.x) +
-            AABBextents.y * std::abs(plane.normal.y) + AABBextents.z * std::abs(plane.normal.z);
-
-        
-        return -r * 1.1 <= plane.getSignedDistanceToPlan(AABBcenter);
-#if 0
-        return plane.isPointInHalfspace(glm::vec3(AABBcenter.x + AABBextents.x, AABBcenter.y + AABBextents.y, AABBcenter.z + AABBextents.z)) ||
-               plane.isPointInHalfspace(glm::vec3(AABBcenter.x + AABBextents.x, AABBcenter.y + AABBextents.y, AABBcenter.z - AABBextents.z)) ||
-               plane.isPointInHalfspace(glm::vec3(AABBcenter.x + AABBextents.x, AABBcenter.y - AABBextents.y, AABBcenter.z + AABBextents.z)) ||
-               plane.isPointInHalfspace(glm::vec3(AABBcenter.x + AABBextents.x, AABBcenter.y - AABBextents.y, AABBcenter.z - AABBextents.z)) ||
-               plane.isPointInHalfspace(glm::vec3(AABBcenter.x - AABBextents.x, AABBcenter.y + AABBextents.y, AABBcenter.z + AABBextents.z)) ||
-               plane.isPointInHalfspace(glm::vec3(AABBcenter.x - AABBextents.x, AABBcenter.y + AABBextents.y, AABBcenter.z - AABBextents.z)) ||
-               plane.isPointInHalfspace(glm::vec3(AABBcenter.x - AABBextents.x, AABBcenter.y - AABBextents.y, AABBcenter.z + AABBextents.z)) ||
-               plane.isPointInHalfspace(glm::vec3(AABBcenter.x - AABBextents.x, AABBcenter.y - AABBextents.y, AABBcenter.z - AABBextents.z));
-#endif
-           
-    }
+    bool isOnFrustum(glm::vec3 minAABB, glm::vec3 maxAABB, std::shared_ptr<Frustum> frustum);
 };
 

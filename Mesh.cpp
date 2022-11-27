@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include "Definitions.h"
 
+
 int Vertex::numElementsInVBO = 14;
 
 Mesh::Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLOD0,
@@ -20,8 +21,9 @@ Mesh::Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLO
 	this->material = material;
 	clipPlane = glm::vec4{ 0.f, 0.f, 0.f, 0.f };
 	this->model = modelMat;
-	center = { (max + min) * 0.5f };
-	extents = { max.x - center.x, max.y - center.y, max.z - center.z };
+	
+	minAABB = min;
+	maxAABB = max;
 
 	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
 	frustumLOD0 = camera->getFrustum(LOD::LOD0);
@@ -31,12 +33,16 @@ Mesh::Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLO
 	vboLOD0 = new VBO();
 	vboLOD1 = new VBO();
 	vboLOD2 = new VBO();
+	debugVBO = new VBO();
 
 	setupMesh(verticesLOD0, indicesLOD0, *vboLOD0, vaoLOD0, eboLOD0);
 	setupMesh(verticesLOD1, indicesLOD1, *vboLOD1, vaoLOD1, eboLOD1);
 	setupMesh(verticesLOD2, indicesLOD2, *vboLOD2, vaoLOD2, eboLOD2);
-
+	
 	debugShader = GameInstance::getInstance().getShader(FRUSTUM_SHADER);
+	glm::vec3 center = { (max + min) * 0.5f };
+	glm::vec3 extents = { max.x - center.x, max.y - center.y, max.z - center.z };
+
 	Vertex nbl({ center.x - extents.x, center.y - extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
 	Vertex nbr({ center.x + extents.x, center.y - extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
 	Vertex ntl({ center.x - extents.x, center.y + extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
@@ -66,12 +72,11 @@ Mesh::Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLO
 	glGenVertexArrays(1, &debugVao);
 	glGenBuffers(1, &debugEbo);
 
-	glBindVertexArray(debugVao);
+	glBindVertexArray(debugVao);	
 
-	debugVBO = std::make_unique<VBO>();
 	debugVBO->load(Vertex::toVBO(vertices), vertices.size() * Vertex::numElementsInVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, debugEbo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), VBO::toEBO(indices), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * debugIndicesSize, VBO::toEBO(indices), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -107,13 +112,15 @@ void Mesh::render()
 
 	if (GameInstance::getInstance().isDebugMode())
 	{
-		debugShader->setFloat("color", 0.f, 1.f, 0.f);
+		debugShader->use();
+		debugShader->setFloat("color", 1.f, 0.f, 0.f);
 		debugShader->setMat4("model", model);
 
 		glBindVertexArray(debugVao);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDrawElements(GL_LINES, debugIndicesSize, GL_UNSIGNED_INT, 0);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
+		glDrawElements(GL_LINES, debugIndicesSize, GL_UNSIGNED_INT, 0); // cantidad de indices
 		glBindVertexArray(0);
+
 	}
 }
 
@@ -178,36 +185,15 @@ void Mesh::bindToLOD(LOD lod)
 
 LOD Mesh::getLOD()
 {
-	//Get global scale thanks to our transform
-	const glm::vec3 globalCenter{ model * glm::vec4(center, 1.f) };
-
-	// Scaled orientation
-	const glm::vec3 right = model[0] * extents.x;
-	const glm::vec3 up = model[1] * extents.y;
-	const glm::vec3 forward = -model[2] * extents.z;
-
-	const float newIi = std::abs(glm::dot(glm::vec3{ 1.f, 0.f, 0.f }, right)) +
-		std::abs(glm::dot(glm::vec3{ 1.f, 0.f, 0.f }, up)) +
-		std::abs(glm::dot(glm::vec3{ 1.f, 0.f, 0.f }, forward));
-
-	const float newIj = std::abs(glm::dot(glm::vec3{ 0.f, 1.f, 0.f }, right)) +
-		std::abs(glm::dot(glm::vec3{ 0.f, 1.f, 0.f }, up)) +
-		std::abs(glm::dot(glm::vec3{ 0.f, 1.f, 0.f }, forward));
-
-	const float newIk = std::abs(glm::dot(glm::vec3{ 0.f, 0.f, 1.f }, right)) +
-		std::abs(glm::dot(glm::vec3{ 0.f, 0.f, 1.f }, up)) +
-		std::abs(glm::dot(glm::vec3{ 0.f, 0.f, 1.f }, forward));
-	const glm::vec3 extents = { newIi, newIj, newIk };
-
-	if (isOnFrustum(globalCenter, extents, frustumLOD0))
+	if (isOnFrustum(minAABB, maxAABB, frustumLOD0))
 	{
 		return LOD::LOD0;
 	}
-	else if (isOnFrustum(globalCenter, extents, frustumLOD1))
+	else if (isOnFrustum(minAABB, maxAABB, frustumLOD1))
 	{
 		return LOD::LOD1;
 	}
-	else if (isOnFrustum(globalCenter, extents, frustumLOD2))
+	else if (isOnFrustum(minAABB, maxAABB, frustumLOD2))
 	{
 		return LOD::LOD2;
 	}
@@ -217,24 +203,9 @@ LOD Mesh::getLOD()
 	}
 }
 
-bool Mesh::isOnFrustum(glm::vec3 center, glm::vec3 extents, std::shared_ptr<Frustum> frustum)
+bool Mesh::isOnFrustum(glm::vec3 minAABB, glm::vec3 maxAABB, std::shared_ptr<Frustum> frustum)
 {
-	bool left = isOnOrForwardPlane(center, extents, frustum->leftFace);
-	bool right = isOnOrForwardPlane(center, extents, frustum->rightFace);
-	bool top = isOnOrForwardPlane(center, extents, frustum->topFace);
-	bool bottom = isOnOrForwardPlane(center, extents, frustum->bottomFace);
-	bool near = isOnOrForwardPlane(center, extents, frustum->nearFace);
-	bool far = isOnOrForwardPlane(center, extents, frustum->farFace);
-
-	bool res = left && right && top && bottom && near && far;
-
-
-	return isOnOrForwardPlane(center, extents, frustum->leftFace) &&
-		isOnOrForwardPlane(center, extents, frustum->rightFace) &&
-		isOnOrForwardPlane(center, extents, frustum->topFace) &&
-		isOnOrForwardPlane(center, extents, frustum->bottomFace) &&
-		isOnOrForwardPlane(center, extents, frustum->nearFace) &&
-		isOnOrForwardPlane(center, extents, frustum->farFace);
+	return frustum->IsBoxVisible(minAABB, maxAABB);
 }
 
 float* Vertex::toVBO(std::vector<Vertex> verticesLOD0)

@@ -8,64 +8,60 @@
 #include <vector>
 #include "VBO.h"
 
-struct Plane
+
+class Frustum
 {
-    glm::vec3 normal = { 0.f, 1.f, 0.f };
-    float distance = 0.f;
+// https://gist.github.com/podgorskiy/e698d18879588ada9014768e3e82a644
+public:
+    Frustum(glm::mat4 projection, glm::mat4 view);
+    void update(glm::mat4 projection, glm::mat4 view);
 
-    Plane(const glm::vec3& p1, const glm::vec3& norm)
-        : normal(glm::normalize(norm)),
-        distance(glm::dot(normal, p1))
-    {}
+    // http://iquilezles.org/www/articles/frustumcorrect/frustumcorrect.htm
+    bool IsBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) const;
 
-    Plane() = default;
-
-    inline float getSignedDistanceToPlan(const glm::vec3& point) const
-    {
-        return glm::dot(normal, point) - distance;
-    }
-
-    static glm::vec3 intersectPlanes(const Plane& a, const Plane& b, const Plane& c);
+    void renderDebug();
 private:
-    static void swapRows(glm::mat3x4& A, int i, int j);
-#if 0
-    glm::vec4 planeEquation = {0.f, 0.f, 0.f, 0.f};
-    
-    const float distanceTolerance = 0.01;
-
-    Plane(const glm::vec4& eq) {
-        float magnitude = sqrt(eq.x * eq.x + eq.y * eq.y + eq.z * eq.z);
-        planeEquation.x = eq.x / magnitude;
-        planeEquation.y = eq.y / magnitude;
-        planeEquation.z = eq.z / magnitude;
-        planeEquation.w = eq.w / magnitude;
-    }
-
-    Plane() = default;
-
-    inline float getSignedDistanceToPlan(const glm::vec3& point) const
+    enum Planes
     {
-        return planeEquation.x * point.x + planeEquation.y * point.y + planeEquation.z * point.z + planeEquation.w;
-    }
+        Left = 0,
+        Right,
+        Bottom,
+        Top,
+        Near,
+        Far,
+        Count,
+        Combinations = Count * (Count - 1) / 2
+    };
 
-    inline bool isPointInHalfspace(const glm::vec3& point) const
+    template<Planes i, Planes j>
+    struct ij2k
     {
-        return planeEquation.x * point.x + planeEquation.y * point.y + planeEquation.z * point.z + planeEquation.w <= distanceTolerance;
-    }
-#endif
+        enum { k = i * (9 - i) / 2 + j - 1 };
+    };
+
+    template<Planes a, Planes b, Planes c>
+    glm::vec3 intersection(const glm::vec3* crosses) const;
+
+    glm::vec4   m_planes[Count];
+    glm::vec3   m_points[8];
+
+    std::shared_ptr<class Shader> frustumShader;
+    glm::mat4 frustumModel;
+    unsigned int vao, ebo, indicesSize;
+    VBO* vbo;
+
+    void setupDebug();
 };
 
-struct Frustum
+
+template<Frustum::Planes a, Frustum::Planes b, Frustum::Planes c>
+inline glm::vec3 Frustum::intersection(const glm::vec3* crosses) const
 {
-    Plane topFace;
-    Plane bottomFace;
-
-    Plane rightFace;
-    Plane leftFace;
-
-    Plane farFace;
-    Plane nearFace;
-};
+    float D = glm::dot(glm::vec3(m_planes[a]), crosses[ij2k<b, c>::k]);
+    glm::vec3 res = glm::mat3(crosses[ij2k<b, c>::k], -crosses[ij2k<a, c>::k], crosses[ij2k<a, b>::k]) *
+        glm::vec3(m_planes[a].w, m_planes[b].w, m_planes[c].w);
+    return res * (-1.0f / D);
+}
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
@@ -78,7 +74,7 @@ enum Camera_Movement {
 // Default camera values
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
-const float SPEED = 2.5f;
+const float SPEED = 5.f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
@@ -136,21 +132,16 @@ public:
     void updateViewMatrix();
 
 	void changeSize(glm::ivec2 size);
-	
-    std::shared_ptr<Frustum> getFrustum(enum class LOD lod);
 
+    std::shared_ptr<Frustum> getFrustum(enum class LOD lod);
     void createViewFrustum();
 
     void renderFrustum();
     void toggleFrustumUpdate();
 private:
-    std::shared_ptr<class Shader> frustumShader;
-    glm::mat4 frustumModel;
-    unsigned int vao, ebo, indicesSize;
-    std::unique_ptr<VBO> vbo;
 
-    bool shouldFrustumUpdate = false;
-    void updateViewFrustum();
+    bool shouldFrustumUpdate = true;
 
+    void updateFrustums();
     void updateCameraVectors();
 };
