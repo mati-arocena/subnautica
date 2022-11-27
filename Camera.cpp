@@ -203,8 +203,9 @@ Frustum::Frustum(glm::mat4 projection, glm::mat4 view)
 void Frustum::update(glm::mat4 projection, glm::mat4 view)
 {
     glm::mat4 m = projection * view;
-    frustumModel = m;
     m = glm::transpose(m);
+    glm::vec4 camPosition = GameInstance::getInstance().getCamera()->GetPosition();
+    frustumModel = glm::translate(m, glm::vec3(camPosition.x, camPosition.y, camPosition.z));
     m_planes[Left] = m[3] + m[0];
     m_planes[Right] = m[3] - m[0];
     m_planes[Bottom] = m[3] + m[1];
