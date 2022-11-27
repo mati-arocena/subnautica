@@ -1,5 +1,6 @@
 #pragma once
 #include <gl/glew.h>
+#include <vector>
 
 class VBO
 {
@@ -9,6 +10,8 @@ public:
 	void bind();
 	void destroy();
 	~VBO();
+
+	static unsigned int* toEBO(std::vector<unsigned int> indices); 
 
 private:
 	unsigned int id;

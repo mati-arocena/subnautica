@@ -30,7 +30,8 @@ Water::Water() : GameObject()
 	
 	glm::mat4 model(1.); // TODO: ver despues como hacer esto
 
-	mesh = new Mesh(verticesLOD0, indicesLOD0, verticesLOD0, indicesLOD0, verticesLOD0, indicesLOD0, material, model, glm::vec3(0.f, 0.f, 0.f), glm::vec3(1000.f, 1000.f, 1000.f));
+
+	mesh = new Mesh(verticesLOD0, indicesLOD0, verticesLOD0, indicesLOD0, verticesLOD0, indicesLOD0, material, model, glm::vec3(-1000.f, -1000.f, -3.f), glm::vec3(1000.f, 1000.f, 3.f));
 }
 
 
@@ -162,7 +163,3 @@ void Water::render_withShader(std::shared_ptr<Shader> shader)
 	mesh->render_withShader(shader);
 }
 
-std::vector<std::shared_ptr<btRigidBody>> Water::getCollisionObject()
-{
-	return std::vector<std::shared_ptr<btRigidBody>>();
-}

@@ -16,8 +16,8 @@ private:
 	
 	glm::vec3 clearColor = glm::vec3(0, 0, 0);
 	
-	float far = 1000.f;
-	float near = 0.1f;
+	float far = 10.f;
+	float near = 0.01f;
 	
 	
 

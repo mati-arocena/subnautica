@@ -6,9 +6,7 @@
 
 #include <memory>
 #include <vector>
-#include <btBulletDynamicsCommon.h>
-#include <BulletCollision/CollisionDispatch/btGhostObject.h>
-
+#include "VBO.h"
 
 struct Plane
 {
@@ -26,6 +24,35 @@ struct Plane
     {
         return glm::dot(normal, point) - distance;
     }
+
+    static glm::vec3 intersectPlanes(const Plane& a, const Plane& b, const Plane& c);
+private:
+    static void swapRows(glm::mat3x4& A, int i, int j);
+#if 0
+    glm::vec4 planeEquation = {0.f, 0.f, 0.f, 0.f};
+    
+    const float distanceTolerance = 0.01;
+
+    Plane(const glm::vec4& eq) {
+        float magnitude = sqrt(eq.x * eq.x + eq.y * eq.y + eq.z * eq.z);
+        planeEquation.x = eq.x / magnitude;
+        planeEquation.y = eq.y / magnitude;
+        planeEquation.z = eq.z / magnitude;
+        planeEquation.w = eq.w / magnitude;
+    }
+
+    Plane() = default;
+
+    inline float getSignedDistanceToPlan(const glm::vec3& point) const
+    {
+        return planeEquation.x * point.x + planeEquation.y * point.y + planeEquation.z * point.z + planeEquation.w;
+    }
+
+    inline bool isPointInHalfspace(const glm::vec3& point) const
+    {
+        return planeEquation.x * point.x + planeEquation.y * point.y + planeEquation.z * point.z + planeEquation.w <= distanceTolerance;
+    }
+#endif
 };
 
 struct Frustum
@@ -38,8 +65,6 @@ struct Frustum
 
     Plane farFace;
     Plane nearFace;
-
-  
 };
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
@@ -76,8 +101,6 @@ public:
     glm::vec3 WorldUp;
     glm::mat4 ViewMatrix;
     glm::mat4 ProjectionMatrix;
-
-    btScalar modelViewMatrix[16];
 
     // euler Angles
     float Yaw;
@@ -116,12 +139,18 @@ public:
 	
     std::shared_ptr<Frustum> getFrustum(enum class LOD lod);
 
+    void createViewFrustum();
+
+    void renderFrustum();
     void toggleFrustumUpdate();
 private:
+    std::shared_ptr<class Shader> frustumShader;
+    glm::mat4 frustumModel;
+    unsigned int vao, ebo, indicesSize;
+    std::unique_ptr<VBO> vbo;
 
-    bool shouldFrustumUpdate = true;
-
-    void createViewFrustum();
+    bool shouldFrustumUpdate = false;
+    void updateViewFrustum();
 
     void updateCameraVectors();
 };

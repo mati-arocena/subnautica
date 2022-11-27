@@ -106,7 +106,13 @@ void GameInstance::processInput(double deltaTime)
 	{
 		fPressed = false;
 		camera->toggleFrustumUpdate();
+		debugMode = !debugMode;
 	}
+}
+
+bool GameInstance::isDebugMode()
+{
+	return debugMode;
 }
 
 void GameInstance::update(double deltaTime)
@@ -163,6 +169,7 @@ void GameInstance::render(GameObject* excludeFromRendering, glm::vec4 clipPlane)
 			object->render();
 		}
 	}
+
 }
 
 void GameInstance::render()
@@ -192,6 +199,8 @@ void GameInstance::render()
 	{
 		object->render();
 	}
+
+	camera->renderFrustum();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	postProcessor->draw();

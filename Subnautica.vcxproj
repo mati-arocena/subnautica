@@ -189,6 +189,8 @@
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\frustum.frag" />
+    <None Include="shaders\frustum.vert" />
     <None Include="shaders\occlusion.frag" />
     <None Include="shaders\post.frag" />
     <None Include="shaders\post.vert" />

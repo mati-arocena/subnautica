@@ -31,7 +31,6 @@ public:
 	void unbindFrameFuffer();
 	Material* initializeMaterial();
 	void render_withShader(std::shared_ptr<Shader> shader);
-	std::vector<std::shared_ptr<btRigidBody>> getCollisionObject();
 
 };
 

@@ -26,6 +26,7 @@ struct Vertex {
     glm::vec3 Bitangent;
 
     static float* toVBO(std::vector<Vertex> verticesLOD0);
+    static int numElementsInVBO;
 };
 
 class Mesh
@@ -51,6 +52,7 @@ public:
     glm::vec4 getClipPlane();
     glm::mat4 model;
     void render_withShader(std::shared_ptr<Shader> shader);
+    void toggleDebugAABB();
 
     inline void move(glm::vec3 transform)
     {
@@ -70,24 +72,40 @@ private:
     std::shared_ptr<Frustum> frustumLOD1;
     std::shared_ptr<Frustum> frustumLOD2;
 
+    std::shared_ptr<Shader> debugShader; 
+    unsigned int debugIndicesSize, debugVao, debugEbo;
+    std::shared_ptr<VBO> debugVBO;
+    float debugAABB = false;
+
     glm::vec3 center;
     glm::vec3 extents;
 
     glm::vec3 transform;
     glm::quat rotation;
 
-    void setupMesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, VBO* vbo, unsigned int& vao, unsigned int& ebo);
+    void setupMesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, VBO& vbo, unsigned int& vao, unsigned int& ebo);
     void bindToLOD(LOD lod);
-    unsigned int* ToEBO(std::vector<unsigned int> indices);
     
     LOD getLOD();
     bool isOnFrustum(glm::vec3 center, glm::vec3 extents, std::shared_ptr<Frustum> frustum);
     inline bool isOnOrForwardPlane(glm::vec3 AABBcenter, glm::vec3 AABBextents, const Plane& plane) {
         // Compute the projection interval radius of b onto L(t) = b.c + t * p.n
-        const float r = extents.x * std::abs(plane.normal.x) +
-            extents.y * std::abs(plane.normal.y) + extents.z * std::abs(plane.normal.z);
+        const float r = AABBextents.x * std::abs(plane.normal.x) +
+            AABBextents.y * std::abs(plane.normal.y) + AABBextents.z * std::abs(plane.normal.z);
 
-        return -r <= plane.getSignedDistanceToPlan(center);
+        
+        return -r * 1.1 <= plane.getSignedDistanceToPlan(AABBcenter);
+#if 0
+        return plane.isPointInHalfspace(glm::vec3(AABBcenter.x + AABBextents.x, AABBcenter.y + AABBextents.y, AABBcenter.z + AABBextents.z)) ||
+               plane.isPointInHalfspace(glm::vec3(AABBcenter.x + AABBextents.x, AABBcenter.y + AABBextents.y, AABBcenter.z - AABBextents.z)) ||
+               plane.isPointInHalfspace(glm::vec3(AABBcenter.x + AABBextents.x, AABBcenter.y - AABBextents.y, AABBcenter.z + AABBextents.z)) ||
+               plane.isPointInHalfspace(glm::vec3(AABBcenter.x + AABBextents.x, AABBcenter.y - AABBextents.y, AABBcenter.z - AABBextents.z)) ||
+               plane.isPointInHalfspace(glm::vec3(AABBcenter.x - AABBextents.x, AABBcenter.y + AABBextents.y, AABBcenter.z + AABBextents.z)) ||
+               plane.isPointInHalfspace(glm::vec3(AABBcenter.x - AABBextents.x, AABBcenter.y + AABBextents.y, AABBcenter.z - AABBextents.z)) ||
+               plane.isPointInHalfspace(glm::vec3(AABBcenter.x - AABBextents.x, AABBcenter.y - AABBextents.y, AABBcenter.z + AABBextents.z)) ||
+               plane.isPointInHalfspace(glm::vec3(AABBcenter.x - AABBextents.x, AABBcenter.y - AABBextents.y, AABBcenter.z - AABBextents.z));
+#endif
+           
     }
 };
 

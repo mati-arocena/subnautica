@@ -33,13 +33,14 @@ class GameInstance
 	
 	bool onlyFrustumObjects = false;
 	bool fPressed = false;
+	bool debugMode = false;
 
 	static float mouseLastX;
 	static float mouseLastY;
 	static bool firstMouse;
 	static void mouse_callback(GLFWwindow* window,	double xpos, double ypos);
 	static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-
+	
 	std::shared_ptr<SkyBox> skyBox;
 	glm::vec3 clearColor;
 
@@ -70,6 +71,7 @@ public:
 	void renderOclussion();
 	void setPostProcessor();
 
+	bool isDebugMode();
 	bool isRunning();
 
 	void updateScreenSize(glm::ivec2 size);

@@ -28,3 +28,13 @@ VBO::~VBO()
 	destroy();
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
+
+unsigned int* VBO::toEBO(std::vector<unsigned int> indices)
+{
+	unsigned int* eboBuffer = new unsigned int[indices.size()];
+	for (size_t i = 0; i < indices.size(); ++i)
+	{
+		eboBuffer[i] = indices[i];
+	}
+	return eboBuffer;
+}

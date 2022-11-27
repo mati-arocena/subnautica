@@ -67,12 +67,15 @@ int main()
 	gameInstance.addShader(WATER_SHADER_OCCLUSION, std::make_shared<Shader>(NORMAL_SHADER + ".vert", WATER_SHADER_OCCLUSION + ".frag"));
 	gameInstance.addShader(POST_SHADER, std::make_shared<Shader>(POST_SHADER + ".vert", POST_SHADER + ".frag"));
 	gameInstance.addShader(SKY_BOX_SHADER, std::make_shared<Shader>(SKY_BOX_SHADER + ".vert", SKY_BOX_SHADER + ".frag"));
+	gameInstance.addShader(FRUSTUM_SHADER, std::make_shared<Shader>(FRUSTUM_SHADER + ".vert", FRUSTUM_SHADER + ".frag"));
+
+	camera->createViewFrustum();
 
 	gameInstance.addLight(std::make_shared<PointLight>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{0.f, 10.f, 0.f}));
 	
-	gameInstance.addGameObject(std::make_shared<Model>("assets/mar2.gltf"));
+	gameInstance.addGameObject(std::make_shared<Model>("assets/caja.obj"));
 	gameInstance.addGameObject(std::make_shared<Water>());
-	gameInstance.addSkyBox(std::make_shared<SkyBox>());
+	//gameInstance.addSkyBox(std::make_shared<SkyBox>());
 	gameInstance.setPostProcessor();
 
 	UIRenderer gui(gameInstance.getShader(UI_SHADER));
