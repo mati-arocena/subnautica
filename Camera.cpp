@@ -75,34 +75,6 @@ void Camera::createViewFrustum()
         fbl/*4*/, fbr/*5*/, ftl/*6*/, ftr/*7*/
     };
 
-#if 0
-    std::vector<unsigned int> indices = {
-        /*nbl*/0, /*nbr*/1, /*ntr*/3, /*ntl*/2, //near plane
-        /*fbl*/4, /*fbr*/5, /*ftr*/7, /*ftl*/6, //far plane
-        /*nbr*/1, /*ntr*/3, /*ftr*/7, /*fbr*/5, //right plane
-        /*nbl*/0, /*ntl*/2, /*ftl*/6, /*fbl*/4, //left plane
-        /*ntr*/3, /*ntl*/2, /*ftl*/6, /*ftr*/7, //top plane
-        /*nbr*/1, /*nbl*/0, /*fbl*/4, /*fbr*/5 //bottom plane
-    };
-    /*fbl*/4, /*fbr*/5, /*ftr*/7, //far plane inf
-        /*fbl*/4, /*ftl*/6, /*ftr*/7, //far plane sup
-
-
-    /*ntl*/2, /*ntr*/3, /*ftr*/7, //top plane inf
-        /*ntl*/2, /*ftl*/6, /*ftr*/7, //top plane sup
-
-        /*nbl*/0, /*fbl*/4, /*fbr*/5, //bottom plane inf
-        /*nbl*/0, /*nbr*/1, /*fbr*/5, //bottom plane sup
-
-        /*fbl*/4, /*nbl*/0, /*ntl*/2, //left plane inf
-        /*fbl*/4, /*ftl*/6, /*ntl*/2, //left plane sup
-
-        /*fbr*/5, /*nbr*/1, /*ntr*/3, //right plane inf
-        /*fbr*/5, /*ftr*/7, /*ntr*/3, //right plane sup
-
-
-#endif
-
     std::vector<unsigned int> indices = {
         //near plane
         0, 1, 1, 3, 3, 2, 2, 0,
@@ -157,6 +129,16 @@ void Camera::updateViewFrustum()
     Plane leftFace   = { Position, glm::cross(frontMultFar - Right * halfHSide, Up) };
     Plane topFace    = { Position, glm::cross(Right, frontMultFar - Up * halfVSide) };
     Plane bottomFace = { Position, glm::cross(frontMultFar + Up * halfVSide, Right) };
+   // Plane bottomFace = { Position, glm::cross(Right, frontMultFar + Up * halfVSide) };
+
+    glm::vec3 nearBottomLeft = Plane::intersectPlanes(nearFace, bottomFace, leftFace);
+    glm::vec3 nearBottomRight = Plane::intersectPlanes(nearFace, bottomFace, rightFace);
+    glm::vec3 nearTopLeft = Plane::intersectPlanes(nearFace, topFace, leftFace);
+    glm::vec3 nearTopRight = Plane::intersectPlanes(nearFace, topFace, rightFace);
+    glm::vec3 farBottomLeft = Plane::intersectPlanes(farFace, bottomFace, leftFace);
+    glm::vec3 farBottomRight = Plane::intersectPlanes(farFace, bottomFace, rightFace);
+    glm::vec3 farTopLeft = Plane::intersectPlanes(farFace, topFace, leftFace);
+    glm::vec3 farTopRight = Plane::intersectPlanes(farFace, topFace, rightFace);
 
     frustumLOD0->nearFace = nearFace;
     frustumLOD0->farFace = farFace;
@@ -164,6 +146,15 @@ void Camera::updateViewFrustum()
     frustumLOD0->leftFace = leftFace;
     frustumLOD0->topFace = topFace;
     frustumLOD0->bottomFace = bottomFace;
+
+    frustumLOD0->points[0] = nearBottomLeft;
+    frustumLOD0->points[1] = nearBottomRight;
+    frustumLOD0->points[2] = nearTopLeft;
+    frustumLOD0->points[3] = nearTopRight;
+    frustumLOD0->points[4] = farBottomLeft;
+    frustumLOD0->points[5] = farBottomRight;
+    frustumLOD0->points[6] = farTopLeft;
+    frustumLOD0->points[7] = farTopRight;
 
     frustumLOD1->nearFace = nearFace;
     frustumLOD1->farFace = { Position + frontMultFar, -Front };
@@ -179,44 +170,16 @@ void Camera::updateViewFrustum()
     frustumLOD2->topFace = topFace;
     frustumLOD2->bottomFace = bottomFace;
 
-#if 0
-    
-    glm::mat4 m = ViewMatrix;
-    Plane leftPlane   = { glm::vec4(m[3][0] + m[0][0], m[3][1] + m[0][1], m[3][2] + m[0][2], m[3][3] + m[0][3]) };
-    Plane rightPlane  = { glm::vec4(m[3][0] - m[0][0], m[3][1] - m[0][1], m[3][2] - m[0][2], m[3][3] - m[0][3]) };
-    Plane topPlane    = { glm::vec4(m[3][0] - m[1][0], m[3][1] - m[1][1], m[3][2] - m[1][2], m[3][3] - m[1][3]) };
-    Plane bottomPlane = { glm::vec4(m[3][0] + m[1][0], m[3][1] + m[1][1], m[3][2] + m[1][2], m[3][3] + m[1][3]) };
-    Plane nearPlane   = { glm::vec4(m[3][0] + m[2][0], m[3][1] + m[2][1], m[3][2] + m[2][2], m[3][3] + m[2][3]) };
-    Plane farPlane    = { glm::vec4(m[3][0] - m[2][0], m[3][1] - m[2][1], m[3][2] - m[2][2], m[3][3] - m[2][3]) };
-
-    frustumLOD0->leftFace = std::make_shared<Plane>(leftPlane);
-    frustumLOD0->rightFace = std::make_shared<Plane>(rightPlane);
-    frustumLOD0->topFace = std::make_shared<Plane>(topPlane);
-    frustumLOD0->bottomFace = std::make_shared<Plane>(bottomPlane);
-    frustumLOD0->nearFace = std::make_shared<Plane>(nearPlane);
-    frustumLOD0->farFace = std::make_shared<Plane>(farPlane);
-
-    frustumLOD1->leftFace = std::make_shared<Plane>(leftPlane);
-    frustumLOD1->rightFace = std::make_shared<Plane>(rightPlane);
-    frustumLOD1->topFace = std::make_shared<Plane>(topPlane);
-    frustumLOD1->bottomFace = std::make_shared<Plane>(bottomPlane);
-    frustumLOD1->nearFace = std::make_shared<Plane>(nearPlane);
-    frustumLOD1->farFace = std::make_shared<Plane>(farPlane);
-    
-    frustumLOD2->leftFace = std::make_shared<Plane>(leftPlane);
-    frustumLOD2->rightFace = std::make_shared<Plane>(rightPlane);
-    frustumLOD2->topFace = std::make_shared<Plane>(topPlane);
-    frustumLOD2->bottomFace = std::make_shared<Plane>(bottomPlane);
-    frustumLOD2->nearFace = std::make_shared<Plane>(nearPlane);
-    frustumLOD2->farFace = std::make_shared<Plane>(farPlane);
-#endif
 }
 
 void Camera::updateViewMatrix()
 {
     ViewMatrix = glm::lookAt(Position, Position + Front, Up);
-    if (shouldFrustumUpdate)
-        frustumModel = ViewMatrix;
+    if (shouldFrustumUpdate) 
+    {
+        frustumModel = glm::inverse(ProjectionMatrix * ViewMatrix);
+    }
+        
 }
 
 void Camera::renderFrustum()
@@ -226,12 +189,11 @@ void Camera::renderFrustum()
           
     frustumShader->use();
 
-    frustumShader->setFloat("color", 1.f, 0.f, 0.f);
+    frustumShader->setFloat("color", 0.f, 1.f, 0.f);
     frustumShader->setMat4("model", frustumModel);
 
     glBindVertexArray(vao);
-    //glDrawArrays(GL_LINES, 0, indicesSize); 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_LINES, indicesSize, GL_UNSIGNED_INT, 0); 
     glBindVertexArray(0);
 }
@@ -376,90 +338,5 @@ glm::vec3 Plane::intersectPlanes(const Plane& a, const Plane& b, const Plane& c)
 
     glm::vec3 vec = { v1.x + v2.x + v3.x, v1.y + v2.y + v3.y, v1.z + v2.z + v3.z };
     return vec / f;
-#if 0
-    glm::mat3x4 A = {
-        a.normal.x , a.normal.y, a.normal.z, a.distance,
-        b.normal.x , b.normal.y, b.normal.z, b.distance,
-        c.normal.x , c.normal.y, c.normal.z, c.distance
-    };
-
-    /* Forward elimination */
-    for (int k = 0; k < 3; k++)
-    {
-        // Initialize maximum value and index for pivot
-        int i_max = k;
-        int v_max = A[i_max][k];
-
-        /* find greater amplitude for pivot if any */
-        for (int i = k + 1; i < 3; i++)
-            if (abs(A[i][k]) > v_max)
-                v_max = A[i][k], i_max = i;
-
-        /* if a principal diagonal element  is zero,
-         * it denotes that matrix is singular, and
-         * will lead to a division-by-zero later. */
-
-        if (!A[k][i_max])
-            return glm::vec3(); // Matrix is singular
-
-        /* Swap the greatest value row with current row */
-        if (i_max != k)
-            Plane::swapRows(A, k, i_max);
-
-
-        for (int i = k + 1; i < 3; i++)
-        {
-            /* factor f to set current row kth element to 0,
-             * and subsequently remaining kth column to 0 */
-            double f = A[i][k] / A[k][k];
-
-            /* subtract fth multiple of corresponding kth
-               row element*/
-            for (int j = k + 1; j <= 3; j++)
-                A[i][j] -= A[k][j] * f;
-
-            /* filling lower triangular matrix with zeros*/
-            A[i][k] = 0;
-        }
-
-    }
-
-    /* Backward sustitution */
-    glm::vec3 x;
-
-    /* Start calculating from last equation up to the
-       first */
-    for (int i = 3 - 1; i >= 0; i--)
-    {
-        /* start with the RHS of the equation */
-        x[i] = A[i][3];
-
-        /* Initialize j to i+1 since matrix is upper
-           triangular*/
-        for (int j = i + 1; j < 3; j++)
-        {
-            /* subtract all the lhs values
-             * except the coefficient of the variable
-             * whose value is being calculated */
-            x[i] -= A[i][j] * x[j];
-        }
-
-        /* divide the RHS by the coefficient of the
-           unknown being calculated */
-        x[i] = x[i] / A[i][i];
-    }
-
-    return x;
-#endif
 }
 
-void Plane::swapRows(glm::mat3x4& A, int i, int j)
-{
-
-    for (int k = 0; k <= 3; k++)
-    {
-        double temp = A[i][k];
-        A[i][k] = A[j][k];
-        A[j][k] = temp;
-    }
-}

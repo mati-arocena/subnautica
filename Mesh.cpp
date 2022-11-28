@@ -22,6 +22,8 @@ Mesh::Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLO
 	this->model = modelMat;
 	center = { (max + min) * 0.5f };
 	extents = { max.x - center.x, max.y - center.y, max.z - center.z };
+	minAABB = min;
+	maxAABB = max;
 
 	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
 	frustumLOD0 = camera->getFrustum(LOD::LOD0);
@@ -31,12 +33,17 @@ Mesh::Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLO
 	vboLOD0 = new VBO();
 	vboLOD1 = new VBO();
 	vboLOD2 = new VBO();
+	debugVBO = new VBO();
 
 	setupMesh(verticesLOD0, indicesLOD0, *vboLOD0, vaoLOD0, eboLOD0);
 	setupMesh(verticesLOD1, indicesLOD1, *vboLOD1, vaoLOD1, eboLOD1);
 	setupMesh(verticesLOD2, indicesLOD2, *vboLOD2, vaoLOD2, eboLOD2);
 
+
 	debugShader = GameInstance::getInstance().getShader(FRUSTUM_SHADER);
+	glm::vec3 center = { (max + min) * 0.5f };
+	glm::vec3 extents = { max.x - center.x, max.y - center.y, max.z - center.z };
+
 	Vertex nbl({ center.x - extents.x, center.y - extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
 	Vertex nbr({ center.x + extents.x, center.y - extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
 	Vertex ntl({ center.x - extents.x, center.y + extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
@@ -68,10 +75,9 @@ Mesh::Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLO
 
 	glBindVertexArray(debugVao);
 
-	debugVBO = std::make_unique<VBO>();
 	debugVBO->load(Vertex::toVBO(vertices), vertices.size() * Vertex::numElementsInVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, debugEbo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), VBO::toEBO(indices), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * debugIndicesSize, VBO::toEBO(indices), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -91,6 +97,20 @@ Mesh::Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLO
 
 void Mesh::render()
 {
+
+	if (GameInstance::getInstance().isDebugMode())
+	{
+		debugShader->use();
+		debugShader->setFloat("color", 1.f, 0.f, 0.f);
+		debugShader->setMat4("model", model);
+
+		glBindVertexArray(debugVao);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
+		glDrawElements(GL_LINES, debugIndicesSize, GL_UNSIGNED_INT, 0); // cantidad de indices
+		glBindVertexArray(0);
+
+	}
+
 	LOD lod = getLOD();
 	if (lod == LOD::NotInFrustum)
 		return;
@@ -105,16 +125,7 @@ void Mesh::render()
 
 	bindToLOD(lod);
 
-	if (GameInstance::getInstance().isDebugMode())
-	{
-		debugShader->setFloat("color", 0.f, 1.f, 0.f);
-		debugShader->setMat4("model", model);
 
-		glBindVertexArray(debugVao);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDrawElements(GL_LINES, debugIndicesSize, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-	}
 }
 
 void Mesh::setupMesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, VBO& vbo, unsigned int& vao, unsigned int& ebo)
@@ -219,6 +230,9 @@ LOD Mesh::getLOD()
 
 bool Mesh::isOnFrustum(glm::vec3 center, glm::vec3 extents, std::shared_ptr<Frustum> frustum)
 {
+	return frustum->isBoxVisible(center - extents, center + extents);
+
+#if 0
 	bool left = isOnOrForwardPlane(center, extents, frustum->leftFace);
 	bool right = isOnOrForwardPlane(center, extents, frustum->rightFace);
 	bool top = isOnOrForwardPlane(center, extents, frustum->topFace);
@@ -235,6 +249,7 @@ bool Mesh::isOnFrustum(glm::vec3 center, glm::vec3 extents, std::shared_ptr<Frus
 		isOnOrForwardPlane(center, extents, frustum->bottomFace) &&
 		isOnOrForwardPlane(center, extents, frustum->nearFace) &&
 		isOnOrForwardPlane(center, extents, frustum->farFace);
+#endif
 }
 
 float* Vertex::toVBO(std::vector<Vertex> verticesLOD0)
@@ -291,6 +306,10 @@ void Mesh::render_withShader(std::shared_ptr<Shader> shader)
 void Mesh::toggleDebugAABB()
 {
 	debugAABB = !debugAABB;
+}
+
+void Mesh::toggleDebugWireframe()
+{
 }
 
 

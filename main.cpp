@@ -73,9 +73,10 @@ int main()
 
 	gameInstance.addLight(std::make_shared<PointLight>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{0.f, 10.f, 0.f}));
 	
+	//	gameInstance.addGameObject(std::make_shared<Model>("assets/mar2.gltf"));
 	gameInstance.addGameObject(std::make_shared<Model>("assets/caja.obj"));
 	gameInstance.addGameObject(std::make_shared<Water>());
-	//gameInstance.addSkyBox(std::make_shared<SkyBox>());
+	gameInstance.addSkyBox(std::make_shared<SkyBox>());
 	gameInstance.setPostProcessor();
 
 	UIRenderer gui(gameInstance.getShader(UI_SHADER));

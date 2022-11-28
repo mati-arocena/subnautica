@@ -53,6 +53,7 @@ public:
     glm::mat4 model;
     void render_withShader(std::shared_ptr<Shader> shader);
     void toggleDebugAABB();
+    void toggleDebugWireframe();
 
     inline void move(glm::vec3 transform)
     {
@@ -72,13 +73,17 @@ private:
     std::shared_ptr<Frustum> frustumLOD1;
     std::shared_ptr<Frustum> frustumLOD2;
 
-    std::shared_ptr<Shader> debugShader; 
+    std::shared_ptr<Shader> debugShader;
     unsigned int debugIndicesSize, debugVao, debugEbo;
-    std::shared_ptr<VBO> debugVBO;
-    float debugAABB = false;
+    VBO* debugVBO;
+    bool debugAABB = false;
+    bool debugWireframe = false;
 
     glm::vec3 center;
     glm::vec3 extents;
+    glm::vec3 minAABB;
+    glm::vec3 maxAABB;
+
 
     glm::vec3 transform;
     glm::quat rotation;
@@ -94,17 +99,7 @@ private:
             AABBextents.y * std::abs(plane.normal.y) + AABBextents.z * std::abs(plane.normal.z);
 
         
-        return -r * 1.1 <= plane.getSignedDistanceToPlan(AABBcenter);
-#if 0
-        return plane.isPointInHalfspace(glm::vec3(AABBcenter.x + AABBextents.x, AABBcenter.y + AABBextents.y, AABBcenter.z + AABBextents.z)) ||
-               plane.isPointInHalfspace(glm::vec3(AABBcenter.x + AABBextents.x, AABBcenter.y + AABBextents.y, AABBcenter.z - AABBextents.z)) ||
-               plane.isPointInHalfspace(glm::vec3(AABBcenter.x + AABBextents.x, AABBcenter.y - AABBextents.y, AABBcenter.z + AABBextents.z)) ||
-               plane.isPointInHalfspace(glm::vec3(AABBcenter.x + AABBextents.x, AABBcenter.y - AABBextents.y, AABBcenter.z - AABBextents.z)) ||
-               plane.isPointInHalfspace(glm::vec3(AABBcenter.x - AABBextents.x, AABBcenter.y + AABBextents.y, AABBcenter.z + AABBextents.z)) ||
-               plane.isPointInHalfspace(glm::vec3(AABBcenter.x - AABBextents.x, AABBcenter.y + AABBextents.y, AABBcenter.z - AABBextents.z)) ||
-               plane.isPointInHalfspace(glm::vec3(AABBcenter.x - AABBextents.x, AABBcenter.y - AABBextents.y, AABBcenter.z + AABBextents.z)) ||
-               plane.isPointInHalfspace(glm::vec3(AABBcenter.x - AABBextents.x, AABBcenter.y - AABBextents.y, AABBcenter.z - AABBextents.z));
-#endif
+        return -r <= plane.getSignedDistanceToPlan(AABBcenter);
            
     }
 };

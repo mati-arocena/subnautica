@@ -12,60 +12,127 @@ struct Plane
 {
     glm::vec3 normal = { 0.f, 1.f, 0.f };
     float distance = 0.f;
+    glm::vec3 point = { 0.f, 0.f, 0.f };
 
     Plane(const glm::vec3& p1, const glm::vec3& norm)
         : normal(glm::normalize(norm)),
-        distance(glm::dot(normal, p1))
+        distance(glm::dot(normal, p1)),
+        point(p1)
     {}
 
     Plane() = default;
 
+    inline glm::vec4 equation() 
+    {
+        return { normal, distance };
+    }
+
     inline float getSignedDistanceToPlan(const glm::vec3& point) const
     {
-        return glm::dot(normal, point) - distance;
+        return glm::dot(normal, point - this->point);
+//        return glm::dot(normal, point) - distance;
     }
 
     static glm::vec3 intersectPlanes(const Plane& a, const Plane& b, const Plane& c);
-private:
-    static void swapRows(glm::mat3x4& A, int i, int j);
-#if 0
-    glm::vec4 planeEquation = {0.f, 0.f, 0.f, 0.f};
-    
-    const float distanceTolerance = 0.01;
 
-    Plane(const glm::vec4& eq) {
-        float magnitude = sqrt(eq.x * eq.x + eq.y * eq.y + eq.z * eq.z);
-        planeEquation.x = eq.x / magnitude;
-        planeEquation.y = eq.y / magnitude;
-        planeEquation.z = eq.z / magnitude;
-        planeEquation.w = eq.w / magnitude;
-    }
-
-    Plane() = default;
-
-    inline float getSignedDistanceToPlan(const glm::vec3& point) const
-    {
-        return planeEquation.x * point.x + planeEquation.y * point.y + planeEquation.z * point.z + planeEquation.w;
-    }
-
-    inline bool isPointInHalfspace(const glm::vec3& point) const
-    {
-        return planeEquation.x * point.x + planeEquation.y * point.y + planeEquation.z * point.z + planeEquation.w <= distanceTolerance;
-    }
-#endif
 };
 
 struct Frustum
 {
     Plane topFace;
     Plane bottomFace;
-
     Plane rightFace;
     Plane leftFace;
-
     Plane farFace;
     Plane nearFace;
+
+    glm::vec3 points[8];
+    bool isBoxVisible(const glm::vec3& minp, const glm::vec3& maxp);
+    
 };
+
+inline bool Frustum::isBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) 
+{
+    // check box outside/inside of frustum
+    if ((glm::dot(topFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f))    > 0.4) &&
+        (glm::dot(topFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f))    > 0.4) &&
+        (glm::dot(topFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f))    > 0.4) &&
+        (glm::dot(topFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f))    > 0.4) &&
+        (glm::dot(topFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f))    > 0.4) &&
+        (glm::dot(topFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f))    > 0.4) &&
+        (glm::dot(topFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f))    > 0.4) &&
+        (glm::dot(topFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f))    > 0.4))
+    {
+        return false;
+    }
+    if ((glm::dot(bottomFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f)) > 0.4) &&
+        (glm::dot(bottomFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) > 0.4) &&
+        (glm::dot(bottomFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) > 0.4) &&
+        (glm::dot(bottomFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f)) > 0.4) &&
+        (glm::dot(bottomFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f)) > 0.4) &&
+        (glm::dot(bottomFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f)) > 0.4) &&
+        (glm::dot(bottomFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f)) > 0.4) &&
+        (glm::dot(bottomFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f)) > 0.4))
+    {
+        return false;
+    }
+    if ((glm::dot(rightFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f))  > 0.4) &&
+        (glm::dot(rightFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f))  > 0.4) &&
+        (glm::dot(rightFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f))  > 0.4) &&
+        (glm::dot(rightFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f))  > 0.4) &&
+        (glm::dot(rightFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f))  > 0.4) &&
+        (glm::dot(rightFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f))  > 0.4) &&
+        (glm::dot(rightFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f))  > 0.4) &&
+        (glm::dot(rightFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f))  > 0.4))
+    {
+        return false;
+    }
+    if ((glm::dot(leftFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f))   > 0.4) &&
+        (glm::dot(leftFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f))   > 0.4) &&
+        (glm::dot(leftFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f))   > 0.4) &&
+        (glm::dot(leftFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f))   > 0.4) &&
+        (glm::dot(leftFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f))   > 0.4) &&
+        (glm::dot(leftFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f))   > 0.4) &&
+        (glm::dot(leftFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f))   > 0.4) &&
+        (glm::dot(leftFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f))   > 0.4))
+    {
+        return false;
+    }
+    if ((glm::dot(farFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f))    > 0.4) &&
+        (glm::dot(farFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f))    > 0.4) &&
+        (glm::dot(farFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f))    > 0.4) &&
+        (glm::dot(farFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f))    > 0.4) &&
+        (glm::dot(farFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f))    > 0.4) &&
+        (glm::dot(farFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f))    > 0.4) &&
+        (glm::dot(farFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f))    > 0.4) &&
+        (glm::dot(farFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f))    > 0.4))
+    {
+        return false;
+    }
+    if ((glm::dot(nearFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f))   > 0.4) &&
+        (glm::dot(nearFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f))   > 0.4) &&
+        (glm::dot(nearFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f))   > 0.4) &&
+        (glm::dot(nearFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f))   > 0.4) &&
+        (glm::dot(nearFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f))   > 0.4) &&
+        (glm::dot(nearFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f))   > 0.4) &&
+        (glm::dot(nearFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f))   > 0.4) &&
+        (glm::dot(nearFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f))   > 0.4))
+    {
+        return false;
+    }
+
+
+    // check frustum outside/inside box
+    int out;
+    out = 0; for (int i = 0; i < 8; i++) out += ((points[i].x > maxp.x) ? 1 : 0); if (out == 8) return false;
+    out = 0; for (int i = 0; i < 8; i++) out += ((points[i].x < minp.x) ? 1 : 0); if (out == 8) return false;
+    out = 0; for (int i = 0; i < 8; i++) out += ((points[i].y > maxp.y) ? 1 : 0); if (out == 8) return false;
+    out = 0; for (int i = 0; i < 8; i++) out += ((points[i].y < minp.y) ? 1 : 0); if (out == 8) return false;
+    out = 0; for (int i = 0; i < 8; i++) out += ((points[i].z > maxp.z) ? 1 : 0); if (out == 8) return false;
+    out = 0; for (int i = 0; i < 8; i++) out += ((points[i].z < minp.z) ? 1 : 0); if (out == 8) return false;
+
+    return true;
+}
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
@@ -145,7 +212,7 @@ public:
     void toggleFrustumUpdate();
 private:
     std::shared_ptr<class Shader> frustumShader;
-    glm::mat4 frustumModel;
+    glm::mat4 frustumModel = glm::identity<glm::mat4>();
     unsigned int vao, ebo, indicesSize;
     std::unique_ptr<VBO> vbo;
 
