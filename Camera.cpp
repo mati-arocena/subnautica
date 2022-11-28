@@ -16,10 +16,11 @@ Camera::Camera(
     WorldUp = up;
     Yaw = yaw;
     Pitch = pitch;
-    
 
     updateCameraVectors();
-    ProjectionMatrix = glm::perspective(glm::radians(Zoom), width / height, near, far);
+	float aspect = (float)width / (float)height;
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, near, far);
+
 }
 
 Camera::Camera(
@@ -33,9 +34,12 @@ Camera::Camera(
     Yaw = yaw;
     Pitch = pitch;
 
+    
     updateCameraVectors();
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), width / height , near, far);
 
+	float aspect = float(width) / float(height);
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, near, far);
 }
 
 void Camera::createViewFrustum()
@@ -202,7 +206,6 @@ void Camera::toggleFrustumUpdate()
 {
     shouldFrustumUpdate = !shouldFrustumUpdate;
 }
-
 std::shared_ptr<Frustum> Camera::getFrustum(LOD lod)
 {
     if (lod == LOD::LOD0)
@@ -296,14 +299,13 @@ void Camera::ProcessMouseScroll(float yoffset)
         Zoom = 1.0f;
     if (Zoom > 90.0f)
         Zoom = 90.0f;
-	float aspect = width / height;
+	float aspect = float(width) / float(height);
 	
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, 0.1f, 100.0f);
 
     updateViewFrustum();
 
 }
-
 
 void Camera::updateCameraVectors()
 {

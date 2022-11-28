@@ -145,7 +145,7 @@ enum Camera_Movement {
 // Default camera values
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
-const float SPEED = 2.5f;
+const float SPEED = 5.f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
@@ -154,8 +154,8 @@ class Camera
 {
     float height = 480;
     float width = 640;
-    float near = 0.1;
-    float far = 200;
+    float near = 0.1f;
+    float far = 200.f;
     std::shared_ptr<Frustum> frustumLOD0;
     std::shared_ptr<Frustum> frustumLOD1;
     std::shared_ptr<Frustum> frustumLOD2;
@@ -203,9 +203,8 @@ public:
     void updateViewMatrix();
 
 	void changeSize(glm::ivec2 size);
-	
-    std::shared_ptr<Frustum> getFrustum(enum class LOD lod);
 
+    std::shared_ptr<Frustum> getFrustum(enum class LOD lod);
     void createViewFrustum();
 
     void renderFrustum();

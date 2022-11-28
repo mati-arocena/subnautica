@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include "Definitions.h"
 
+
 int Vertex::numElementsInVBO = 14;
 
 Mesh::Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLOD0,
@@ -73,7 +74,7 @@ Mesh::Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLO
 	glGenVertexArrays(1, &debugVao);
 	glGenBuffers(1, &debugEbo);
 
-	glBindVertexArray(debugVao);
+	glBindVertexArray(debugVao);	
 
 	debugVBO->load(Vertex::toVBO(vertices), vertices.size() * Vertex::numElementsInVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, debugEbo);
@@ -311,5 +312,7 @@ void Mesh::toggleDebugAABB()
 void Mesh::toggleDebugWireframe()
 {
 }
+
+
 
 

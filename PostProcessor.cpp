@@ -104,16 +104,19 @@ void PostProcessor::draw()
     sceneDepth_TX->use(2);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 
-    auto light = GameInstance::getInstance().getLight();
+    auto light = GameInstance::getInstance().getPointLight();
     auto camera = GameInstance::getInstance().getCamera();
 
     glm::mat4 projection = camera->GetProjectionMatrix();
     glm::mat4 view = camera->GetViewMatrix();
     glm::mat4 model = glm::identity<glm::mat4>();
+	
+    glm::vec4 projected = projection * (view * glm::vec4(light->getPosition(), 1));
 
-    glm::vec3 projected = view * glm::vec4(light->getPosition(), 1);// glm::project(light->getPosition(), model, projection, glm::vec4(0.f, 0.f, 200, 150));
-
-    postProcessingShader->setFloat("lightPos_SS", projected.x, projected.y);
+	// Between -1 and 1
+	glm::vec2 sunPos = glm::vec2(projected.x, projected.y) / projected.w * 0.5f + 0.5f;
+	
+	postProcessingShader->setFloat("lightPos_SS", sunPos.x, sunPos.y);
     postProcessingShader->setFloat("time", glfwGetTime());
 
     glBindVertexArray(VAO);

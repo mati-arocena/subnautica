@@ -104,6 +104,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -145,6 +146,7 @@
       <AdditionalDependencies>glew32s.lib;opengl32.lib;glfw3.lib;assimp-vc143-mt.lib;BulletCollision_vs2010_x64_release.lib;BulletDynamics_vs2010_x64_release.lib;LinearMath_vs2010_x64_release.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <AdditionalLibraryDirectories>$(SolutionDir)ThirdParty\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <Profile>true</Profile>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)ThirdParty\dlls\*" "$(TargetDir)"</Command>
@@ -153,6 +155,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ConfigManager.cpp" />
+    <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="GameInstance.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Light.cpp" />
@@ -173,6 +176,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ConfigManager.h" />
     <ClInclude Include="Definitions.h" />
+    <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="GameInstance.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Light.h" />
