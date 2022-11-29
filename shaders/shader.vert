@@ -49,6 +49,7 @@ void main()
         vec3 localNormal = mat3(finalBonesMatrices[boneIds[i]]) * aNormal;
     }
 
+	//vec4 worldPosition = model * vec4(aPos,1.0f);
 	vec4 worldPosition = model * totalPosition;
 	vec4 positionRelativeToCam = view * worldPosition;
 	gl_ClipDistance[0] = dot(worldPosition, clippingPlane);

@@ -159,5 +159,6 @@
     <None Include="shaders\water_occlusion.frag" />
     <None Include="shaders\frustum.frag" />
     <None Include="shaders\frustum.vert" />
+    <None Include="shaders\water_occlusion.vert" />
   </ItemGroup>
 </Project>
