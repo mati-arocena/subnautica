@@ -35,6 +35,9 @@ public:
 
     const std::map<std::string, BoneInfo>& getBoneIDMap();
 
+
+	
+
 private:
     void readMissingBones(const aiAnimation* animation, Model& model);
 
@@ -44,4 +47,5 @@ private:
     std::vector<Bone> m_Bones;
     AssimpNodeData m_RootNode;
     std::map<std::string, BoneInfo> m_BoneInfoMap;
+
 };

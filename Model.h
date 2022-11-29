@@ -54,5 +54,7 @@ public:
     void rotate(glm::vec3 rotationAxis, float angle);
     std::map < std::string, BoneInfo>& getBoneInfoMap();
     int& getBoneCount();
+
+    void setIsAnimation(bool isAnimation);
 };
 

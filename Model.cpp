@@ -19,6 +19,14 @@ int& Model::getBoneCount()
 	return m_BoneCounter;
 }
 
+void Model::setIsAnimation(bool isAnimation)
+{
+	for (auto &mesh : meshes)
+	{
+		mesh.setHasAnimation(isAnimation);
+	}
+}
+
 Model::Model(std::string path) : GameObject()
 {
 	loadModel(path);

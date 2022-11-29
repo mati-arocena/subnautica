@@ -5,10 +5,15 @@ Animation::Animation(const std::string& animationPath, std::shared_ptr<Model> mo
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate);
     assert(scene && scene->mRootNode);
+	
     auto animation = scene->mAnimations[0];
+	
     m_Duration = animation->mDuration;
     m_TicksPerSecond = animation->mTicksPerSecond;
     readHeirarchyData(m_RootNode, scene->mRootNode);
+
+    model->setIsAnimation(true);
+	
     readMissingBones(animation, *model);
 }
 

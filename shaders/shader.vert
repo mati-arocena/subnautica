@@ -31,23 +31,32 @@ uniform mat4 projection;
 uniform vec4 clippingPlane;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
+uniform bool has_animation;
 
 void main()
-{
+{	
 	vec4 totalPosition = vec4(0.0f);
-    for(int i = 0 ; i < MAX_BONE_INFLUENCE ; i++)
-    {
-        if(boneIds[i] == -1) 
-            continue;
-        if(boneIds[i] >=MAX_BONES) 
-        {
-            totalPosition = vec4(aPos,1.0f);
-            break;
-        }
-        vec4 localPosition = finalBonesMatrices[boneIds[i]] * vec4(aPos,1.0f);
-        totalPosition += localPosition * weights[i];
-        vec3 localNormal = mat3(finalBonesMatrices[boneIds[i]]) * aNormal;
-    }
+	if (has_animation)
+	{
+		for(int i = 0 ; i < MAX_BONE_INFLUENCE ; i++)
+		{
+			if(boneIds[i] == -1) 
+				continue;
+			if(boneIds[i] >=MAX_BONES) 
+			{
+				totalPosition = vec4(aPos,1.0f);
+				break;
+			}
+			vec4 localPosition = finalBonesMatrices[boneIds[i]] * vec4(aPos,1.0f);
+			totalPosition += localPosition * weights[i];
+			vec3 localNormal = mat3(finalBonesMatrices[boneIds[i]]) * aNormal;
+		}
+	} 
+	else
+	{
+		totalPosition = vec4(aPos,1.);
+	}
+	
 
 	//vec4 worldPosition = model * vec4(aPos,1.0f);
 	vec4 worldPosition = model * totalPosition;
