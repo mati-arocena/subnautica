@@ -5,31 +5,13 @@
 #include "Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
 
+
 enum class LOD
 {
     LOD0,
     LOD1,
     LOD2,
     NotInFrustum
-};
-
-struct Vertex {
-    Vertex(glm::vec3 Position, glm::vec3 Normal, glm::vec2 TexCoords) {
-        this->Position = Position;
-        this->Normal = Normal;
-        this->TexCoords = TexCoords;
-
-        this->Bitangent = glm::vec3(0.0f, 0.0f, 0.0f);
-        this->Tangent = glm::vec3(0.0f, 0.0f, 0.0f);
-    }
-    glm::vec3 Position;
-    glm::vec3 Normal;
-    glm::vec2 TexCoords;
-    glm::vec3 Tangent;
-	glm::vec3 Bitangent;
-
-    static float* toVBO(std::vector<Vertex> verticesLOD0);
-    static int numElementsInVBO;
 };
 
 class Mesh

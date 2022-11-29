@@ -2,6 +2,7 @@
 #include "GameInstance.h"
 #include <GLFW/glfw3.h>
 #include "Definitions.h"
+#include "Animator.h"
 
 
 int Vertex::numElementsInVBO = 14;
@@ -74,24 +75,33 @@ Mesh::Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLO
 
 	glBindVertexArray(debugVao);	
 
-	debugVBO->load(Vertex::toVBO(vertices), vertices.size() * Vertex::numElementsInVBO);
+	debugVBO->load(vertices, vertices.size() * Vertex::numElementsInVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, debugEbo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * debugIndicesSize, VBO::toEBO(indices), GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
 	glEnableVertexAttribArray(1);
 
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(6 * sizeof(float)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
 	glEnableVertexAttribArray(2);
 
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(8 * sizeof(float)));
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
 	glEnableVertexAttribArray(3);
 
-	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(11 * sizeof(float)));
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
 	glEnableVertexAttribArray(4);
+
+	// Bone ids
+	glVertexAttribIPointer(5, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, m_BoneIDs));
+	glEnableVertexAttribArray(5);
+	// Bone weights
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_Weights));
+	glEnableVertexAttribArray(6);
+	
+	
 }
 
 void Mesh::render()
@@ -107,6 +117,14 @@ void Mesh::render()
 	//esto es por ahora 
 	shader->setFloat("clippingPlane", clipPlane.x, clipPlane.y, clipPlane.z, clipPlane.w);
 	shader->setMat4("model", model);
+
+
+	GameInstance& gameInstance = GameInstance::getInstance();
+	std::shared_ptr<Animator> animator = gameInstance.getAnimator();
+
+	auto transforms = animator->getFinalBoneMatrices();
+	for (int i = 0; i < transforms.size(); ++i)
+		shader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
 
 	bindToLOD(lod);
 
@@ -132,26 +150,34 @@ void Mesh::setupMesh(std::vector<Vertex> vertices, std::vector<unsigned int> ind
 	// 1. bind Vertex Array Object
 	glBindVertexArray(vao);
 	// 2. copy our vertices array in a vertex buffer for OpenGL to use
-	vbo.load(Vertex::toVBO(vertices), vertices.size() * Vertex::numElementsInVBO); // Vertices and qty
+	vbo.load(vertices, vertices.size() * Vertex::numElementsInVBO); // Vertices and qty
 	// 3. copy our index array in a element buffer for OpenGL to use
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), VBO::toEBO(indices), GL_STATIC_DRAW);
 	
+	
 	// 4. then set the vertex attributes pointers
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)0);
+	// Vertex
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(3 * sizeof(float)));
+	// Normal
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
 	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(6 * sizeof(float)));
+	// TexCoords
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
 	glEnableVertexAttribArray(2);
-
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(8 * sizeof(float)));
+	// Tangent
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
 	glEnableVertexAttribArray(3);
-
-	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(11 * sizeof(float)));
+	// Bitangent
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
 	glEnableVertexAttribArray(4);
+	// Bone ids
+	glEnableVertexAttribArray(5);
+	glVertexAttribIPointer(5, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, m_BoneIDs));
+	// Bone weights
+	glEnableVertexAttribArray(6);
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_Weights));
 
 }
 
@@ -211,7 +237,6 @@ bool Mesh::isOnFrustum(glm::vec3 minAABB, glm::vec3 maxAABB, std::shared_ptr<Fru
 float* Vertex::toVBO(std::vector<Vertex> verticesLOD0)
 {
 	float* vboLOD1 = new float[verticesLOD0.size() * Vertex::numElementsInVBO];
-	
 	for (size_t i = 0; i < verticesLOD0.size(); ++i)
 	{
 		vboLOD1[i * Vertex::numElementsInVBO     ] = verticesLOD0[i].Position.x;

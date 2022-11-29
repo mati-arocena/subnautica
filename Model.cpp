@@ -3,9 +3,21 @@
 #include "Utils.h"
 
 
+
 #include "GameInstance.h"
 #include "Definitions.h"
+#include "Animator.h"
 
+
+std::map<std::string,BoneInfo>& Model::getBoneInfoMap()
+{
+	return this->m_BoneInfoMap;
+}
+
+int& Model::getBoneCount()
+{
+	return m_BoneCounter;
+}
 
 Model::Model(std::string path) : GameObject()
 {
@@ -18,6 +30,7 @@ Model::~Model()
 
 void Model::render()
 {
+	
 	for (Mesh mesh : meshes)
 	{
 		mesh.render();
@@ -101,6 +114,52 @@ void Model::processNode(aiNode* node, const aiScene* scene, glm::mat4 transformM
 	}
 }
 
+void setVertexBoneData(Vertex& vertex, int boneID, float weight)
+{
+	for (int i = 0; i < MAX_BONE_INFLUENCE; ++i)
+	{
+		if (vertex.m_BoneIDs[i] < 0)
+		{
+			vertex.m_Weights[i] = weight;
+			vertex.m_BoneIDs[i] = boneID;
+			break;
+		}
+	}
+}
+
+void Model::extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene)
+{
+	for (int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
+	{
+		int boneID = -1;
+		std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();
+		if (m_BoneInfoMap.find(boneName) == m_BoneInfoMap.end())
+		{
+			BoneInfo newBoneInfo;
+			newBoneInfo.id = m_BoneCounter;
+			newBoneInfo.offset = convertMatrix(mesh->mBones[boneIndex]->mOffsetMatrix);
+			m_BoneInfoMap[boneName] = newBoneInfo;
+			boneID = m_BoneCounter;
+			m_BoneCounter++;
+		}
+		else
+		{
+			boneID = m_BoneInfoMap[boneName].id;
+		}
+		assert(boneID != -1);
+		auto weights = mesh->mBones[boneIndex]->mWeights;
+		int numWeights = mesh->mBones[boneIndex]->mNumWeights;
+
+		for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex)
+		{
+			int vertexId = weights[weightIndex].mVertexId;
+			float weight = weights[weightIndex].mWeight;
+			assert(vertexId <= vertices.size());
+			setVertexBoneData(vertices[vertexId], boneID, weight);
+		}
+	}
+}
+
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformMat)
 {
 	std::vector<Vertex> verticesLOD0;
@@ -109,7 +168,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
-		Vertex vertex({ 0, 0, 0 }, { 0, 0, 0 }, { 0, 0 });
+		Vertex vertex;
 		// process vertex positions, normals and texture coordinates
 		vertex.Position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 		vertex.Normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
@@ -132,6 +191,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
 			indicesLOD0.push_back(face.mIndices[j]);
 	}
+
+	extractBoneWeightForVertices(verticesLOD0, mesh, scene);
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	// we assume a convention for sampler names in the shaders. Each diffuse texture should be named

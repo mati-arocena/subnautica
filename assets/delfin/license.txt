@@ -1,0 +1,11 @@
+Model Information:
+* title:	Model 61A - Bottlenose Dolphin
+* source:	https://sketchfab.com/3d-models/model-61a-bottlenose-dolphin-2ec20f15b08c4c2fb16e4df5d837b893
+* author:	DigitalLife3D (https://sketchfab.com/DigitalLife3D)
+
+Model License:
+* license type:	CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+* requirements:	Author must be credited. No commercial use.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Model 61A - Bottlenose Dolphin" (https://sketchfab.com/3d-models/model-61a-bottlenose-dolphin-2ec20f15b08c4c2fb16e4df5d837b893) by DigitalLife3D (https://sketchfab.com/DigitalLife3D) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)

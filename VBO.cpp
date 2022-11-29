@@ -4,15 +4,22 @@ VBO::VBO()
 {
 	glGenBuffers(1, &id);
 	this->lenght = 0;
-	this->verticesLOD0 = nullptr;
+	this->verticesLOD0_f = nullptr;
 }
 
-void VBO::load(float* verticesLOD0, size_t lenght)
+void VBO::load(std::vector<Vertex> verticesLOD0, size_t lenght)
+{
+	bind();
+	this->verticesLOD0_v = verticesLOD0;
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * verticesLOD0_v.size(), &verticesLOD0_v[0], GL_STATIC_DRAW);
+}
+
+void VBO::load(float* verticesLOD0, size_t lenght) 
 {
 	bind();
 	this->lenght = lenght;
-	this->verticesLOD0 = verticesLOD0;
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * lenght, this->verticesLOD0, GL_STATIC_DRAW);
+	this->verticesLOD0_f = verticesLOD0;
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * lenght, this->verticesLOD0_f, GL_STATIC_DRAW);
 }
 
 void VBO::bind()
@@ -22,7 +29,7 @@ void VBO::bind()
 
 void VBO::destroy()
 {
-	glDeleteBuffers(lenght * sizeof(float), &id);
+	glDeleteBuffers(sizeof(Vertex) * verticesLOD0_v.size(), &id);
 }
 
 VBO::~VBO()

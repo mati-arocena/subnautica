@@ -4,7 +4,7 @@
 #include <assimp/types.h>
 
 // Converts an assimp 4x4 matrix to a glm matrix
-glm::mat4 convertMatrix(const aiMatrix4x4 &assMap)
+static inline glm::mat4 convertMatrix(const aiMatrix4x4 &assMap)
 {
 	return {
 		assMap.a1, assMap.b1, assMap.c1, assMap.d1,
@@ -14,7 +14,17 @@ glm::mat4 convertMatrix(const aiMatrix4x4 &assMap)
 	};
 }
 
-glm::vec3 toVec3(const aiColor3D& vec)
+static inline glm::quat toQuat(const aiQuaternion& pOrientation)
+{
+	return glm::quat(pOrientation.w, pOrientation.x, pOrientation.y, pOrientation.z);
+}
+
+static inline glm::vec3 toVec3(const aiVector3D& vec)
+{
+	return glm::vec3(vec.x, vec.y, vec.z);
+}
+
+static inline glm::vec3 toVec3(const aiColor3D& vec)
 {
 	return {
 		vec.r, vec.g, vec.b

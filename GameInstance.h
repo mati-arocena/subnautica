@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "Camera.h"
+#include "Animator.h"
 #include "GameObject.h"
 #include "Shader.h"
 #include "Light.h"
@@ -34,6 +35,8 @@ class GameInstance
 
 	std::map<std::string, std::shared_ptr<Shader>> shaders;
 	std::shared_ptr<PostProcessor> postProcessor;
+
+	std::shared_ptr<Animator> animator;
 	
 	bool onlyFrustumObjects = false;
 	bool fPressed = false;
@@ -60,6 +63,9 @@ public:
 	void addLight(std::shared_ptr<PointLight> light);
 	void addLight(std::shared_ptr<DirectionalLight> light);
 	void addSkyBox(std::shared_ptr<SkyBox> skyBox);
+
+	void setAnimator(std::shared_ptr<Animator> animator);
+	std::shared_ptr<Animator> getAnimator();
 
 	void setupMouse();
 	void setCamera(std::shared_ptr<Camera> camera);
