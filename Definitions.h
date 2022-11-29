@@ -12,3 +12,4 @@ static const std::string OCCLUSION_SHADER = "shaders/occlusion";
 static const std::string POST_SHADER = "shaders/post"; 
 static const std::string SKY_BOX_SHADER = "shaders/skybox";
 static const std::string SKY_BOX_TEXT_PATH = "assets/skybox/";
+static const std::string LOD_SUFFIX = "_LOD";

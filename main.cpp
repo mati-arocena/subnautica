@@ -23,6 +23,8 @@
 
 void resizeWindow(GLFWwindow* window, int width, int height)
 {
+	if (width == 0 || height == 0)
+		return;
 	glViewport(0, 0, width, height);
 	ConfigManager::getInstance().setWindowSize(glm::ivec2(width, height));
 	GameInstance::getInstance().updateScreenSize(glm::ivec2(width, height));
@@ -37,8 +39,6 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-
 	
 	unsigned width, height;
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -82,8 +82,7 @@ int main()
 
 	gameInstance.addLight(std::make_shared<PointLight>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{1000.f, 1000.f, 0.f}));
 	
-	//	gameInstance.addGameObject(std::make_shared<Model>("assets/mar2.gltf"));
-	gameInstance.addGameObject(std::make_shared<Model>("assets/caja.obj"));
+	gameInstance.addGameObject(std::make_shared<Model>("assets/caja","obj"));
 //	gameInstance.addGameObject(std::make_shared<Model>("assets/mar2.gltf"));
 	gameInstance.addGameObject(std::make_shared<Water>());
 	gameInstance.addSkyBox(std::make_shared<SkyBox>());

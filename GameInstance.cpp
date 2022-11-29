@@ -144,14 +144,28 @@ void GameInstance::processInput(double deltaTime)
 	{
 		fPressed = false;
 		camera->toggleFrustumUpdate();
-		debugMode = !debugMode;
+		renderFrustum = !renderFrustum;
 	}
+
+	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+		lPressed = true;
+	if (lPressed && glfwGetKey(window, GLFW_KEY_L) == GLFW_RELEASE)
+	{
+		lPressed = false;
+		renderWireframe = !renderWireframe;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+		cPressed = true;
+	if (cPressed && glfwGetKey(window, GLFW_KEY_C) == GLFW_RELEASE)
+	{
+		cPressed = false;
+		renderAABB = !renderAABB;
+	}
+
+
 }
 
-bool GameInstance::isDebugMode()
-{
-	return debugMode;
-}
 
 void GameInstance::update(double deltaTime)
 {
@@ -232,12 +246,30 @@ void GameInstance::render()
 	}
 	glEnable(GL_DEPTH_TEST);
 	
-	for (auto object : objects)
+	if (renderAABB) 
 	{
-		object->render();
+		for (auto object : objects)
+		{
+			object->renderAABB();
+		}
+	}
+	if (renderWireframe)
+	{
+		for (auto object : objects)
+		{
+			object->renderWireframe();
+		}
+	}
+	else
+	{
+		for (auto object : objects)
+		{
+			object->render();
+		}
 	}
 
-	camera->renderFrustum();
+	if (renderFrustum)
+		camera->renderFrustum();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	postProcessor->draw();

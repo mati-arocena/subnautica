@@ -6,17 +6,11 @@
 
 int Vertex::numElementsInVBO = 14;
 
-Mesh::Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLOD0,
-	std::vector<Vertex> verticesLOD1, std::vector<unsigned int> indicesLOD1,
-	std::vector<Vertex> verticesLOD2, std::vector<unsigned int> indicesLOD2,
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
 	Material* material, glm::mat4 modelMat, glm::vec3 min, glm::vec3 max)
 {
-	this->verticesLOD0 = verticesLOD0;
-	this->indicesLOD0 = indicesLOD0;
-	this->verticesLOD1 = verticesLOD1;
-	this->indicesLOD1 = indicesLOD1;
-	this->verticesLOD2 = verticesLOD2;
-	this->indicesLOD2 = indicesLOD2;
+	this->vertices = vertices;
+	this->indices = indices;
 
 	this->material = material;
 	clipPlane = glm::vec4{ 0.f, 0.f, 0.f, 0.f };
@@ -26,20 +20,11 @@ Mesh::Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLO
 	minAABB = min;
 	maxAABB = max;
 
-	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
-	frustumLOD0 = camera->getFrustum(LOD::LOD0);
-	frustumLOD1 = camera->getFrustum(LOD::LOD1);
-	frustumLOD2 = camera->getFrustum(LOD::LOD2);
 
-	vboLOD0 = new VBO();
-	vboLOD1 = new VBO();
-	vboLOD2 = new VBO();
+	vbo = new VBO();
 	debugVBO = new VBO();
 
-	setupMesh(verticesLOD0, indicesLOD0, *vboLOD0, vaoLOD0, eboLOD0);
-	setupMesh(verticesLOD1, indicesLOD1, *vboLOD1, vaoLOD1, eboLOD1);
-	setupMesh(verticesLOD2, indicesLOD2, *vboLOD2, vaoLOD2, eboLOD2);
-
+	setupMesh(vertices, indices, *vbo, vao, ebo);
 
 	debugShader = GameInstance::getInstance().getShader(FRUSTUM_SHADER);
 	glm::vec3 center = { (max + min) * 0.5f };
@@ -54,11 +39,11 @@ Mesh::Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLO
 	Vertex ftl({ center.x - extents.x, center.y + extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
 	Vertex ftr({ center.x + extents.x, center.y + extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
 
-	std::vector<Vertex> vertices = {
+	std::vector<Vertex> verticesAABB = {
 		nbl/*0*/, nbr/*1*/, ntl/*2*/, ntr/*3*/,
 		fbl/*4*/, fbr/*5*/, ftl/*6*/, ftr/*7*/
 	};
-	std::vector<unsigned int> indices = {
+	std::vector<unsigned int> indicesAABB = {
 		//near plane
 		0, 1, 1, 3, 3, 2, 2, 0,
 		//far plane
@@ -69,16 +54,16 @@ Mesh::Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLO
 		2, 3, 3, 7, 7, 6, 6, 2
 	};
 
-	debugIndicesSize = indices.size();
+	debugIndicesSize = indicesAABB.size();
 
 	glGenVertexArrays(1, &debugVao);
 	glGenBuffers(1, &debugEbo);
 
 	glBindVertexArray(debugVao);	
 
-	debugVBO->load(Vertex::toVBO(vertices), vertices.size() * Vertex::numElementsInVBO);
+	debugVBO->load(Vertex::toVBO(verticesAABB), verticesAABB.size() * Vertex::numElementsInVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, debugEbo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * debugIndicesSize, VBO::toEBO(indices), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * debugIndicesSize, VBO::toEBO(indicesAABB), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -98,24 +83,6 @@ Mesh::Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLO
 
 void Mesh::render()
 {
-
-	if (GameInstance::getInstance().isDebugMode())
-	{
-		debugShader->use();
-		debugShader->setFloat("color", 1.f, 0.f, 0.f);
-		debugShader->setMat4("model", model);
-
-		glBindVertexArray(debugVao);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
-		glDrawElements(GL_LINES, debugIndicesSize, GL_UNSIGNED_INT, 0); // cantidad de indices
-		glBindVertexArray(0);
-
-	}
-
-	LOD lod = getLOD();
-	if (lod == LOD::NotInFrustum)
-		return;
-
 	material->use();
 
 	std::shared_ptr<Shader> shader = material->getShader();
@@ -124,9 +91,7 @@ void Mesh::render()
 	shader->setFloat("clippingPlane", clipPlane.x, clipPlane.y, clipPlane.z, clipPlane.w);
 	shader->setMat4("model", model);
 
-	bindToLOD(lod);
-
-
+	bind(GL_FILL);
 }
 
 void Mesh::setupMesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, VBO& vbo, unsigned int& vao, unsigned int& ebo)
@@ -160,35 +125,17 @@ void Mesh::setupMesh(std::vector<Vertex> vertices, std::vector<unsigned int> ind
 
 }
 
-void Mesh::bindToLOD(LOD lod)
+void Mesh::bind(GLenum polygonMode)
 {
-	if (lod == LOD::LOD0)
-	{
-		glBindVertexArray(vaoLOD0);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glDrawElements(GL_TRIANGLES, indicesLOD0.size(), GL_UNSIGNED_INT, 0); // cantidad de indices
-		glBindVertexArray(0);
-	}
-	else if (lod == LOD::LOD1)
-	{
-		glBindVertexArray(vaoLOD1);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glDrawElements(GL_TRIANGLES, indicesLOD1.size(), GL_UNSIGNED_INT, 0); // cantidad de indices
-		glBindVertexArray(0);
-	}
-	else 
-	{
-		glBindVertexArray(vaoLOD2);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glDrawElements(GL_TRIANGLES, indicesLOD2.size(), GL_UNSIGNED_INT, 0); // cantidad de indices
-		glBindVertexArray(0);
-	}
-	
+	glBindVertexArray(vao);
+	glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0); // cantidad de indices
+	glBindVertexArray(0);
 }
 
 
 
-LOD Mesh::getLOD()
+bool Mesh::isOnFrustum(std::shared_ptr<Frustum> frustum)
 {
 	//Get global scale thanks to our transform
 	const glm::vec3 globalCenter{ model * glm::vec4(center, 1.f) };
@@ -211,22 +158,7 @@ LOD Mesh::getLOD()
 		std::abs(glm::dot(glm::vec3{ 0.f, 0.f, 1.f }, forward));
 	const glm::vec3 extents = { newIi, newIj, newIk };
 
-	if (isOnFrustum(globalCenter, extents, frustumLOD0))
-	{
-		return LOD::LOD0;
-	}
-	else if (isOnFrustum(globalCenter, extents, frustumLOD1))
-	{
-		return LOD::LOD1;
-	}
-	else if (isOnFrustum(globalCenter, extents, frustumLOD2))
-	{
-		return LOD::LOD2;
-	}
-	else
-	{
-		return LOD::NotInFrustum;
-	}
+	return isOnFrustum(globalCenter, extents, frustum);
 }
 
 bool Mesh::isOnFrustum(glm::vec3 center, glm::vec3 extents, std::shared_ptr<Frustum> frustum)
@@ -253,26 +185,26 @@ bool Mesh::isOnFrustum(glm::vec3 center, glm::vec3 extents, std::shared_ptr<Frus
 #endif
 }
 
-float* Vertex::toVBO(std::vector<Vertex> verticesLOD0)
+float* Vertex::toVBO(std::vector<Vertex> vertices)
 {
-	float* vboLOD1 = new float[verticesLOD0.size() * Vertex::numElementsInVBO];
+	float* vboLOD1 = new float[vertices.size() * Vertex::numElementsInVBO];
 	
-	for (size_t i = 0; i < verticesLOD0.size(); ++i)
+	for (size_t i = 0; i < vertices.size(); ++i)
 	{
-		vboLOD1[i * Vertex::numElementsInVBO     ] = verticesLOD0[i].Position.x;
-		vboLOD1[i * Vertex::numElementsInVBO +  1] = verticesLOD0[i].Position.y;
-		vboLOD1[i * Vertex::numElementsInVBO +  2] = verticesLOD0[i].Position.z;
-		vboLOD1[i * Vertex::numElementsInVBO +  3] = verticesLOD0[i].Normal.x;
-		vboLOD1[i * Vertex::numElementsInVBO +  4] = verticesLOD0[i].Normal.y;
-		vboLOD1[i * Vertex::numElementsInVBO +  5] = verticesLOD0[i].Normal.z;
-		vboLOD1[i * Vertex::numElementsInVBO +  6] = verticesLOD0[i].TexCoords.x;
-		vboLOD1[i * Vertex::numElementsInVBO +  7] = verticesLOD0[i].TexCoords.y;
-		vboLOD1[i * Vertex::numElementsInVBO +  8] = verticesLOD0[i].Tangent.x;
-		vboLOD1[i * Vertex::numElementsInVBO +  9] = verticesLOD0[i].Tangent.y;
-		vboLOD1[i * Vertex::numElementsInVBO + 10] = verticesLOD0[i].Tangent.z;
-		vboLOD1[i * Vertex::numElementsInVBO + 11] = verticesLOD0[i].Bitangent.x;
-		vboLOD1[i * Vertex::numElementsInVBO + 12] = verticesLOD0[i].Bitangent.y;
-		vboLOD1[i * Vertex::numElementsInVBO + 13] = verticesLOD0[i].Bitangent.z;
+		vboLOD1[i * Vertex::numElementsInVBO     ] = vertices[i].Position.x;
+		vboLOD1[i * Vertex::numElementsInVBO +  1] = vertices[i].Position.y;
+		vboLOD1[i * Vertex::numElementsInVBO +  2] = vertices[i].Position.z;
+		vboLOD1[i * Vertex::numElementsInVBO +  3] = vertices[i].Normal.x;
+		vboLOD1[i * Vertex::numElementsInVBO +  4] = vertices[i].Normal.y;
+		vboLOD1[i * Vertex::numElementsInVBO +  5] = vertices[i].Normal.z;
+		vboLOD1[i * Vertex::numElementsInVBO +  6] = vertices[i].TexCoords.x;
+		vboLOD1[i * Vertex::numElementsInVBO +  7] = vertices[i].TexCoords.y;
+		vboLOD1[i * Vertex::numElementsInVBO +  8] = vertices[i].Tangent.x;
+		vboLOD1[i * Vertex::numElementsInVBO +  9] = vertices[i].Tangent.y;
+		vboLOD1[i * Vertex::numElementsInVBO + 10] = vertices[i].Tangent.z;
+		vboLOD1[i * Vertex::numElementsInVBO + 11] = vertices[i].Bitangent.x;
+		vboLOD1[i * Vertex::numElementsInVBO + 12] = vertices[i].Bitangent.y;
+		vboLOD1[i * Vertex::numElementsInVBO + 13] = vertices[i].Bitangent.z;
 
 	}
 
@@ -291,27 +223,36 @@ glm::vec4 Mesh::getClipPlane()
 
 void Mesh::render_withShader(std::shared_ptr<Shader> shader)
 {
-	LOD lod = getLOD();
-	if (lod == LOD::NotInFrustum)
-		return;
-
 	shader->use();
 	shader->setFloat("clippingPlane", clipPlane.x, clipPlane.y, clipPlane.z, clipPlane.w);
 
 	shader->setMat4("model", model);
 
-	bindToLOD(lod);
+	bind(GL_FILL);
 
 }
 
-void Mesh::toggleDebugAABB()
+void Mesh::renderAABB()
 {
-	debugAABB = !debugAABB;
+	debugShader->use();
+	debugShader->setFloat("color", 1.f, 0.f, 0.f);
+	debugShader->setMat4("model", model);
+
+	glBindVertexArray(debugVao);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
+	glDrawElements(GL_LINES, debugIndicesSize, GL_UNSIGNED_INT, 0); // cantidad de indices
+	glBindVertexArray(0);
 }
 
-void Mesh::toggleDebugWireframe()
+void Mesh::renderWireframe()
 {
+	debugShader->use();
+	debugShader->setFloat("color", 0.f, 0.f, 1.f);
+	debugShader->setMat4("model", model);
+
+	bind(GL_LINE);
 }
+
 
 
 

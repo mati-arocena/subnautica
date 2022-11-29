@@ -35,10 +35,14 @@ class GameInstance
 	std::map<std::string, std::shared_ptr<Shader>> shaders;
 	std::shared_ptr<PostProcessor> postProcessor;
 	
-	bool onlyFrustumObjects = false;
 	bool fPressed = false;
+	bool lPressed = false;
+	bool cPressed = false;
+
 	bool fullscreen = true;
-	bool debugMode = false;
+	bool renderFrustum = false;
+	bool renderWireframe = false;
+	bool renderAABB = false;
 
 	static float mouseLastX;
 	static float mouseLastY;
@@ -80,7 +84,6 @@ public:
 	void removeFullscreen();
 	void setFullscreen();
 	
-	bool isDebugMode();
 	bool isRunning();
 
 	void updateScreenSize(glm::ivec2 size);

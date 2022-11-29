@@ -6,7 +6,7 @@ class VBO
 {
 public:
 	VBO();
-	void load(float* verticesLOD0, size_t lenght);
+	void load(float* vertices, size_t lenght);
 	void bind();
 	void destroy();
 	~VBO();
@@ -16,6 +16,6 @@ public:
 private:
 	unsigned int id;
 	size_t lenght;
-	float* verticesLOD0;
+	float* vertices;
 
 };

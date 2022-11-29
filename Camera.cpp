@@ -126,6 +126,7 @@ void Camera::updateViewFrustum()
     const float halfVSide = far * std::tanf(glm::radians(Zoom) * .5f);
     const float halfHSide = halfVSide * (width / height);
     const glm::vec3 frontMultFar = far * Front;
+    //const glm::vec3 frontMultFar = 10.f * Front;
 
     Plane nearFace   = { Position + near *  Front, Front};
     Plane farFace    = { Position + frontMultFar, -Front };
@@ -145,7 +146,7 @@ void Camera::updateViewFrustum()
     glm::vec3 farTopRight = Plane::intersectPlanes(farFace, topFace, rightFace);
 
     frustumLOD0->nearFace = nearFace;
-    frustumLOD0->farFace = farFace;
+    frustumLOD0->farFace = { Position + frontMultFar * .68f, -Front };
     frustumLOD0->rightFace = rightFace;
     frustumLOD0->leftFace = leftFace;
     frustumLOD0->topFace = topFace;
@@ -161,7 +162,7 @@ void Camera::updateViewFrustum()
     frustumLOD0->points[7] = farTopRight;
 
     frustumLOD1->nearFace = nearFace;
-    frustumLOD1->farFace = { Position + frontMultFar, -Front };
+    frustumLOD1->farFace = { Position + frontMultFar * .95f, -Front };
     frustumLOD1->rightFace = rightFace;
     frustumLOD1->leftFace = leftFace;
     frustumLOD1->topFace = topFace;
