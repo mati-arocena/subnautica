@@ -90,7 +90,7 @@ void PostProcessor::draw()
     GameInstance::getInstance().renderOclussion();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
-	glm::ivec2 windowSize = ConfigManager::getInstance().getWindowSize();
+	windowSize = ConfigManager::getInstance().getWindowSize();
 	glViewport(0, 0, windowSize.x, windowSize.y);
 
     // Blend
@@ -117,7 +117,7 @@ void PostProcessor::draw()
 	glm::vec2 sunPos = glm::vec2(projected.x, projected.y) / projected.w * 0.5f + 0.5f;
 	
 	postProcessingShader->setFloat("lightPos_SS", sunPos.x, sunPos.y);
-    postProcessingShader->setFloat("time", glfwGetTime());
+    postProcessingShader->setFloat("time", static_cast<float>(glfwGetTime()));
 
     glBindVertexArray(VAO);
 

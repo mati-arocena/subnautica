@@ -22,7 +22,7 @@ void VBO::bind()
 
 void VBO::destroy()
 {
-	glDeleteBuffers(lenght * sizeof(float), &id);
+	glDeleteBuffers(static_cast<GLsizei>(lenght * sizeof(float)), &id);
 }
 
 VBO::~VBO()
@@ -31,7 +31,7 @@ VBO::~VBO()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-unsigned int* VBO::toEBO(std::vector<unsigned int> indices)
+unsigned int* VBO::toEBO(const std::vector<unsigned int>& indices)
 {
 	unsigned int* eboBuffer = new unsigned int[indices.size()];
 	for (size_t i = 0; i < indices.size(); ++i)

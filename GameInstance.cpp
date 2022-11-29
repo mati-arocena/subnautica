@@ -26,9 +26,9 @@ void GameInstance::addGameObject(std::shared_ptr<GameObject> gameObject)
 	}
 }
 
-void GameInstance::addShader(std::string name, std::shared_ptr<Shader> shader)
+void GameInstance::addShader(const std::string& name, std::shared_ptr<Shader> shader)
 {
-	shaders[name] = shader;
+	shaders[name] = std::move(shader);
 }
 
 void GameInstance::setupMouse()
@@ -40,17 +40,17 @@ void GameInstance::setupMouse()
 
 void GameInstance::addLight(std::shared_ptr<PointLight> light)
 {
-	pointLight = light;
+	pointLight = std::move(light);
 }
 
 void GameInstance::addLight(std::shared_ptr<DirectionalLight> light)
 {
-	this->directionalLight = light;
+	this->directionalLight = std::move(light);
 }
 
 void GameInstance::addSkyBox(std::shared_ptr<SkyBox> skyBox)
 {
-	this->skyBox = skyBox;
+	this->skyBox = std::move(skyBox);
 }
 
 
@@ -64,21 +64,21 @@ void GameInstance::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	if (firstMouse) // initially set to true
 	{
-		mouseLastX = xpos;
-		mouseLastY = ypos;
+		mouseLastX = static_cast<float>(xpos);
+		mouseLastY = static_cast<float>(ypos);
 		firstMouse = false;
 	}
 
-	float xoffset = xpos - mouseLastX;
-	float yoffset = mouseLastY - ypos; // reversed since y-coordinates range from bottom to top
-	mouseLastX = xpos;
-	mouseLastY = ypos;
+	float xoffset = static_cast<float>(xpos - mouseLastX);
+	float yoffset = static_cast<float>(mouseLastY - ypos); // reversed since y-coordinates range from bottom to top
+	mouseLastX = static_cast<float>(xpos);
+	mouseLastY = static_cast<float>(ypos);
 	getInstance().camera->ProcessMouseMovement(xoffset, yoffset);
 }
 
 void GameInstance::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	getInstance().camera->ProcessMouseScroll(yoffset);
+	getInstance().camera->ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 std::shared_ptr<Camera> GameInstance::getCamera() 
@@ -88,7 +88,7 @@ std::shared_ptr<Camera> GameInstance::getCamera()
 
 void GameInstance::setCamera(std::shared_ptr<Camera> camera)
 {
-	this->camera = camera;
+	this->camera = std::move(camera);
 }
 
 void GameInstance::setWindow(GLFWwindow* window)
@@ -112,17 +112,17 @@ void GameInstance::processInput(double deltaTime)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
-		glfwSetWindowShouldClose(window, true);
+		glfwSetWindowShouldClose(window, static_cast<int>(true));
 		running = false;
 	}
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera->ProcessKeyboard(FORWARD, deltaTime);
+		camera->ProcessKeyboard(FORWARD, static_cast<float>(deltaTime));
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera->ProcessKeyboard(BACKWARD, deltaTime);
+		camera->ProcessKeyboard(BACKWARD, static_cast<float>(deltaTime));
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera->ProcessKeyboard(LEFT, deltaTime);
+		camera->ProcessKeyboard(LEFT, static_cast<float>(deltaTime));
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera->ProcessKeyboard(RIGHT, deltaTime);
+		camera->ProcessKeyboard(RIGHT, static_cast<float>(deltaTime));
 	// F11 is fullscreen
 	if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS)
 	{
@@ -181,7 +181,7 @@ void GameInstance::update(double deltaTime)
 
 }
 
-std::shared_ptr<Shader> GameInstance::getShader(std::string name)
+std::shared_ptr<Shader> GameInstance::getShader(const std::string& name)
 {
 	if (shaders.find(name) == shaders.end()) {
 		return std::shared_ptr<Shader>();
@@ -191,7 +191,7 @@ std::shared_ptr<Shader> GameInstance::getShader(std::string name)
 	}
 }
 
-void GameInstance::render(GameObject* excludeFromRendering, glm::vec4 clipPlane)
+void GameInstance::render(GameObject* excludeFromRendering, const glm::vec4& clipPlane)
 {
 	glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -280,7 +280,7 @@ bool GameInstance::isRunning()
 	return running;
 }
 
-void GameInstance::updateScreenSize(glm::ivec2 size)
+void GameInstance::updateScreenSize(const glm::ivec2& size)
 {
 	this->camera->changeSize(size);
 }

@@ -60,7 +60,6 @@ private:
 
 public:
 	SkyBox();
-	~SkyBox();
 
 	void update(double DeltaTime);
 	void render();

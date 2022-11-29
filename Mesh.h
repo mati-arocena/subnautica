@@ -28,9 +28,18 @@ struct Vertex {
     glm::vec3 Tangent;
 	glm::vec3 Bitangent;
 
-    static float* toVBO(std::vector<Vertex> vertices);
+    static float* toVBO(const std::vector<Vertex>& vertices);
     static int numElementsInVBO;
+    static void setVertexAttribute(int id, int stride);
+    static void setVertexAttributes();
 };
+
+inline void Vertex::setVertexAttribute(int id, int stride)
+{
+    glVertexAttribPointer(id, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(stride * sizeof(float)));
+    glEnableVertexAttribArray(id);
+
+}
 
 class Mesh
 {
@@ -48,17 +57,17 @@ public:
     void renderAABB();
     void renderWireframe();
 
-    void setClipPlane(glm::vec4 plane);
+    void setClipPlane(const glm::vec4& plane);
     glm::vec4 getClipPlane();
     glm::mat4 model;
     void render_withShader(std::shared_ptr<Shader> shader);
 
-    inline void move(glm::vec3 transform)
+    inline void move(const glm::vec3& translate)
     {
-        model = glm::translate(model, transform);
+        model = glm::translate(model, translate);
     }
 
-    inline void rotate(glm::vec3 rotationAxis, float angle)
+    inline void rotate(const glm::vec3& rotationAxis, float angle)
     {
         model = glm::rotate(model, angle, rotationAxis);
     }
@@ -78,14 +87,14 @@ private:
     glm::vec3 minAABB;
     glm::vec3 maxAABB;
 
-    glm::vec3 transform;
+    glm::vec3 translation;
     glm::quat rotation;
 
-    void setupMesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, VBO& vbo, unsigned int& vao, unsigned int& ebo);
+    void setupMesh();
     void bind(GLenum polygonMode);
     
     bool isOnFrustum(glm::vec3 center, glm::vec3 extents, std::shared_ptr<Frustum> frustum);
-    inline bool isOnOrForwardPlane(glm::vec3 AABBcenter, glm::vec3 AABBextents, const Plane& plane) {
+    inline bool isOnOrForwardPlane(const glm::vec3& AABBcenter, const glm::vec3& AABBextents, const Plane& plane) {
         // Compute the projection interval radius of b onto L(t) = b.c + t * p.n
         const float r = AABBextents.x * std::abs(plane.normal.x) +
             AABBextents.y * std::abs(plane.normal.y) + AABBextents.z * std::abs(plane.normal.z);

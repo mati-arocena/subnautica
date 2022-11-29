@@ -1,5 +1,4 @@
 #include "Camera.h"
-#include "btBulletDynamicsCommon.h"
 #include "ConfigManager.h"
 #include "Mesh.h"
 #include "Definitions.h"
@@ -90,7 +89,7 @@ void Camera::createViewFrustum()
         2, 3, 3, 7, 7, 6, 6, 2
 
     };
-    indicesSize = indices.size();
+    indicesSize = static_cast<unsigned int>(indices.size());
 
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &ebo);
@@ -101,21 +100,8 @@ void Camera::createViewFrustum()
     vbo->load(Vertex::toVBO(vertices), vertices.size() * Vertex::numElementsInVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), VBO::toEBO(indices), GL_STATIC_DRAW);
-   
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(8 * sizeof(float)));
-    glEnableVertexAttribArray(3);
-
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(11 * sizeof(float)));
-    glEnableVertexAttribArray(4);
+    Vertex::setVertexAttributes();
 }
 
 void Camera::updateViewFrustum()
@@ -223,10 +209,10 @@ std::shared_ptr<Frustum> Camera::getFrustum(LOD lod)
     }
 }
 
-void Camera::changeSize(glm::ivec2 size)
+void Camera::changeSize(const glm::ivec2& size)
 {
-    this->width  = size.x;
-    this->height = size.y;
+    this->width  = static_cast<float>(size.x);
+    this->height = static_cast<float>(size.y);
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), width / height, near, far);
     updateViewFrustum();
 }
@@ -247,7 +233,7 @@ glm::vec4 Camera::GetPosition() const
     return glm::vec4(Position, 1.f);
 }
 
-void Camera::SetPosition(glm::vec3 position) 
+void Camera::SetPosition(const glm::vec3& position) 
 {
     this->Position = position;
 }

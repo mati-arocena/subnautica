@@ -18,7 +18,6 @@ private:
 	Texture* dudv_texture;
 	unsigned int reflFrameBuffer;
 	unsigned int refrFrameBuffer;
-	float moveFactor;
 
 	glm::ivec2 waterReflectionResolution;
 

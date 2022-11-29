@@ -60,7 +60,7 @@ public:
 	void operator=(GameInstance const&) = delete;
 
 	void addGameObject(std::shared_ptr<GameObject> gameObject);
-	void addShader(std::string name, std::shared_ptr<Shader> shader);
+	void addShader(const std::string& name, std::shared_ptr<Shader> shader);
 	void addLight(std::shared_ptr<PointLight> light);
 	void addLight(std::shared_ptr<DirectionalLight> light);
 	void addSkyBox(std::shared_ptr<SkyBox> skyBox);
@@ -71,12 +71,12 @@ public:
 	void setWindow(GLFWwindow* window);
 
 	std::shared_ptr<PointLight> getPointLight();
-	std::shared_ptr<Shader> getShader(std::string name);
+	std::shared_ptr<Shader> getShader(const std::string& name);
 
 	void processInput(double deltaTime);
 	void update(double deltaTime);
 	void render();
-	void render(GameObject* excludeFromRendering, glm::vec4 clipPlane);
+	void render(GameObject* excludeFromRendering, const glm::vec4& clipPlane);
 	void render_withShader(std::shared_ptr<Shader> shader);
 	void renderOclussion();
 	void setPostProcessor();
@@ -86,6 +86,6 @@ public:
 	
 	bool isRunning();
 
-	void updateScreenSize(glm::ivec2 size);
+	void updateScreenSize(const glm::ivec2& size);
 };
 

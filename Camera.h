@@ -190,7 +190,7 @@ public:
     );
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix() const;
-    void SetPosition(glm::vec3 position);
+    void SetPosition(const glm::vec3& position);
     void InvertPitch();
     glm::mat4 GetProjectionMatrix() const;
     glm::vec4 GetPosition() const; 
@@ -202,7 +202,7 @@ public:
     void ProcessMouseScroll(float yoffset);
     void updateViewMatrix();
 
-	void changeSize(glm::ivec2 size);
+	void changeSize(const glm::ivec2& size);
 
     std::shared_ptr<Frustum> getFrustum(enum class LOD lod);
     void createViewFrustum();

@@ -19,10 +19,6 @@ Model::Model(std::string path, std::string extension) : GameObject()
 	loadModel(path + LOD_SUFFIX + "2." + extension, LOD::LOD2);
 }
 
-Model::~Model()
-{
-}
-
 void Model::render()
 {
 	for (Mesh mesh : meshesLOD0)
@@ -80,7 +76,7 @@ void Model::update(double DeltaTime)
 	// TODO: Hacer
 }
 
-void Model::loadModel(std::string path, LOD lod)
+void Model::loadModel(const std::string& path, LOD lod)
 {
 	Assimp::Importer import;
 	import.SetPropertyFloat("PP_GSN_MAX_SMOOTHING_ANGLE", 90);
@@ -106,12 +102,10 @@ void Model::loadModel(std::string path, LOD lod)
 	processNode(scene->mRootNode, scene, transformMat, lod);
 }
 
-void Model::processNode(aiNode* node, const aiScene* scene, glm::mat4 transformMat, LOD lod)
+void Model::processNode(aiNode* node, const aiScene* scene, const glm::mat4& transformMat, LOD lod)
 {
 	// Combined transformations applied
 	const glm::mat4 node_transformMat = transformMat * convertMatrix(node->mTransformation);
-	glm::vec3 pos;
-	glm::quat rot;
 
 	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -125,13 +119,13 @@ void Model::processNode(aiNode* node, const aiScene* scene, glm::mat4 transformM
 		switch (lod)
 		{
 		case LOD::LOD0:
-			meshesLOD0.push_back(processMesh(mesh, scene, node_transformMat));
+			meshesLOD0.emplace_back(processMesh(mesh, scene, node_transformMat));
 			break;
 		case LOD::LOD1:
-			meshesLOD1.push_back(processMesh(mesh, scene, node_transformMat));
+			meshesLOD1.emplace_back(processMesh(mesh, scene, node_transformMat));
 			break;
 		case LOD::LOD2:
-			meshesLOD2.push_back(processMesh(mesh, scene, node_transformMat));
+			meshesLOD2.emplace_back(processMesh(mesh, scene, node_transformMat));
 			break;
 		default:
 			break;
@@ -144,7 +138,7 @@ void Model::processNode(aiNode* node, const aiScene* scene, glm::mat4 transformM
 	}
 }
 
-Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformMat)
+Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& transformMat)
 {
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -238,7 +232,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 	return Mesh(vertices, indices, m, transformMat, AABBmin, AABBmax);
 }
 
-std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName)
 {
 	std::vector<Texture*> textures;
 
@@ -271,7 +265,7 @@ std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType
 
 }
 
-void Model::clipModel(glm::vec4 plane)
+void Model::clipModel(const glm::vec4& plane)
 {
 	for (Mesh &m : meshesLOD0)
 	{
@@ -294,7 +288,7 @@ void Model::renderOclussion()
 
 
 
-void Model::move(glm::vec3 movement)
+void Model::move(const glm::vec3& movement)
 {
 	for (auto mesh : meshesLOD0)
 	{
@@ -310,7 +304,7 @@ void Model::move(glm::vec3 movement)
 	}
 }
 
-void Model::rotate(glm::vec3 rotationAxis, float angle)
+void Model::rotate(const glm::vec3& rotationAxis, float angle)
 {
 	for (auto mesh : meshesLOD0)
 	{

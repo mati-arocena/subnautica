@@ -1,14 +1,10 @@
 #include "Texture.h"
 
-Texture::Texture(const char* texturePath, std::string name, bool alpha, bool minmap)
+Texture::Texture(const char* texturePath, std::string name, bool alpha, bool minmap) 
+    : name(name), path (texturePath), alpha(alpha), minmap(minmap)
 {
     ID = NULL; // Initialization
     unsigned char* data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
-
-    this->alpha = alpha;
-    this->minmap = minmap;
-    this->name = name;
-    this->path = texturePath;
 
     if (data)
     {
@@ -31,13 +27,12 @@ Texture::Texture(const char* texturePath, std::string name, bool alpha, bool min
 }
 
 Texture::Texture(int width, int height, int internalFormat, int format, std::string name, int attachment)
+    : name(name), width(width), height(height), internalFormat(internalFormat), format(format)
 {
-    this->name = name;
     this->alpha = false;
     this->minmap = false;
-    this->path = "";
-	this->format = format;
-	this->internalFormat = internalFormat;
+    this->path.clear();
+    this->nrChannels = 4;
     
     glGenTextures(1, &ID);
     glBindTexture(GL_TEXTURE_2D, ID);
@@ -61,7 +56,7 @@ void Texture::use() const
     Texture::use(0);
 }
 
-void Texture::resize(glm::ivec2 size)
+void Texture::resize(const glm::ivec2& size)
 {
 	glBindTexture(GL_TEXTURE_2D, ID);
 	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, size.x, size.y, 0, format, GL_UNSIGNED_BYTE, NULL);

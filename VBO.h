@@ -11,11 +11,11 @@ public:
 	void destroy();
 	~VBO();
 
-	static unsigned int* toEBO(std::vector<unsigned int> indices); 
-
+	static unsigned int* toEBO(const std::vector<unsigned int>& indices); 
 private:
 	unsigned int id;
 	size_t lenght;
 	float* vertices;
-
+	void setVertexAttribute(int id, int stride);
 };
+

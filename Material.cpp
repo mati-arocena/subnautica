@@ -1,6 +1,5 @@
 #include "Material.h"
 
-
 Material::Material(
 	std::vector<Texture*> textures, 
 	std::shared_ptr<Shader> shader, 
@@ -9,11 +8,10 @@ Material::Material(
 	float specularStrenght,
 	float specularExponent
 )
+	:textures(textures), shader(shader), diffuseColor(diffuseColor), specColor(specColor), specularStrenght(specularStrenght), specularExponent(specularExponent)
 {
-	this->shader = shader;
 	this->textureFactor = glm::ivec3(0);
 
-	this->textures = textures;
 	for (unsigned int x = 0; x < textures.size(); x++)
 	{
 		if (textures[x]->name == TEXTURE_DIFFUSE)
@@ -30,16 +28,6 @@ Material::Material(
 		}
 		shader->setTexture(textures[x], x);
 	}
-
-	this->diffuseColor = diffuseColor;
-	this->specColor = specColor;
-	this->specularStrenght = specularStrenght;
-	this->specularExponent = specularExponent;
-}
-
-
-Material::~Material()
-{
 }
 
 void Material::use()
@@ -55,7 +43,7 @@ void Material::use()
 	shader->setFloat("specular_color", specColor.r, specColor.g, specColor.b);
 	shader->setFloat("specular_strenght", specularStrenght);
 	shader->setFloat("specular_exponent", specularExponent);
-	shader->setFloat("texture_factor", textureFactor.x, textureFactor.y, textureFactor.z);
+	shader->setFloat("texture_factor", static_cast<float>(textureFactor.x), static_cast<float>(textureFactor.y), static_cast<float>(textureFactor.z));
 }
 
 std::shared_ptr<Shader> Material::getShader()
@@ -63,9 +51,9 @@ std::shared_ptr<Shader> Material::getShader()
 	return shader;
 }
 
-std::shared_ptr<Shader> Material::changeShader(std::shared_ptr<Shader> shader)
+std::shared_ptr<Shader> Material::changeShader(std::shared_ptr<Shader> newShader)
 {
 	std::shared_ptr<Shader> previousShrd = this->shader;
-	this->shader = shader;
+	this->shader = std::move(newShader);
 	return previousShrd;
 }

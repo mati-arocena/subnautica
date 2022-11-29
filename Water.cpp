@@ -37,7 +37,7 @@ Water::Water() : GameObject()
 
 Material* Water::initializeMaterial() 
 {
-	std::vector<Texture*> textures;
+	std::vector<Texture*> textures; //-V827
 
 	glGenFramebuffers(1, &reflFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, reflFrameBuffer);

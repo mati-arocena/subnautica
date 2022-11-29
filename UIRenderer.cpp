@@ -2,7 +2,7 @@
 
 UIRenderer::UIRenderer(std::shared_ptr<Shader> shader)
 {
-    this->shader = shader;
+    this->shader = std::move(shader);
     this->initRenderData();
 }
 
@@ -11,7 +11,7 @@ UIRenderer::~UIRenderer()
     glDeleteVertexArrays(1, &this->quadVAO);
 }
 
-void UIRenderer::draw(Texture* texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
+void UIRenderer::draw(Texture* texture, const glm::vec2& position, const glm::vec2& size, float rotate, const glm::vec3& color)
 {
     // prepare transformations
     shader->use();
