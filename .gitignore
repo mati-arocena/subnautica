@@ -2,3 +2,5 @@
 x64
 Debug
 Release
+/Subnautica_solution_suppressions.cfg
+/Subnautica_project_suppressions.cfg

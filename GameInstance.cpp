@@ -53,6 +53,11 @@ void GameInstance::addSkyBox(std::shared_ptr<SkyBox> skyBox)
 	this->skyBox = std::move(skyBox);
 }
 
+void GameInstance::setPlayer(std::shared_ptr<Player> player)
+{
+	this->player = std::move(player);
+}
+
 
 GameInstance::GameInstance()
 {
@@ -163,7 +168,35 @@ void GameInstance::processInput(double deltaTime)
 		renderAABB = !renderAABB;
 	}
 
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		player->move(Movement::FORWARD);
+	}
 
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
+		player->move(Movement::BACKWARD);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	{
+		player->move(Movement::RIGHT);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	{
+		player->move(Movement::LEFT);
+	}
+	
+	if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
+	{
+		player->move(Movement::UP);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
+	{
+		player->move(Movement::DOWN);
+	}
 }
 
 
@@ -173,8 +206,9 @@ void GameInstance::update(double deltaTime)
 
 	clearColor = ConfigManager::getInstance().getClearColor();
 	//TODO: light->update(deltaTime);
+	player->update(deltaTime);
 
-	for (auto object : objects)
+	for (auto& object : objects)
 	{
 		object->update(deltaTime);
 	}
@@ -196,7 +230,7 @@ void GameInstance::render(GameObject* excludeFromRendering, const glm::vec4& cli
 	glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	for (auto shader : shaders)
+	for (auto& shader : shaders)
 	{
 		shader.second->prerender(camera, pointLight);
 	}
@@ -208,7 +242,7 @@ void GameInstance::render(GameObject* excludeFromRendering, const glm::vec4& cli
 	}
 	glEnable(GL_DEPTH_TEST);
 
-	for (auto object : objects)
+	for (auto& object : objects)
 	{
 		if (auto m = dynamic_cast<Model*>(object.get()))
 		{
@@ -245,24 +279,27 @@ void GameInstance::render()
 		skyBox->render();
 	}
 	glEnable(GL_DEPTH_TEST);
-	
+
 	if (renderAABB) 
 	{
-		for (auto object : objects)
+		player->renderAABB();
+		for (auto& object : objects)
 		{
 			object->renderAABB();
 		}
 	}
 	if (renderWireframe)
 	{
-		for (auto object : objects)
+		player->renderWireframe();
+		for (auto& object : objects)
 		{
 			object->renderWireframe();
 		}
 	}
 	else
 	{
-		for (auto object : objects)
+		player->render();
+		for (auto& object : objects)
 		{
 			object->render();
 		}

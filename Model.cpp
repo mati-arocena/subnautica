@@ -287,35 +287,3 @@ void Model::renderOclussion()
 }
 
 
-
-void Model::move(const glm::vec3& movement)
-{
-	for (auto mesh : meshesLOD0)
-	{
-		mesh.move(movement);
-	}
-	for (auto mesh : meshesLOD1)
-	{
-		mesh.move(movement);
-	}
-	for (auto mesh : meshesLOD2)
-	{
-		mesh.move(movement);
-	}
-}
-
-void Model::rotate(const glm::vec3& rotationAxis, float angle)
-{
-	for (auto mesh : meshesLOD0)
-	{
-		mesh.rotate(rotationAxis, angle);
-	}
-	for (auto mesh : meshesLOD1)
-	{
-		mesh.rotate(rotationAxis, angle);
-	}
-	for (auto mesh : meshesLOD2)
-	{
-		mesh.rotate(rotationAxis, angle);
-	}
-}

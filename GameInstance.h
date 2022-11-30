@@ -14,6 +14,7 @@
 #include "PostProcessor.h"
 #include "SkyBox.h"
 #include "DirectionalLight.h"
+#include "Player.h"
 
 class GameInstance
 {
@@ -29,7 +30,8 @@ class GameInstance
 	std::shared_ptr<Water> water;
 	
 	std::shared_ptr<PointLight> pointLight;
-	
+	std::shared_ptr<Player> player;
+
 	std::shared_ptr<DirectionalLight> directionalLight;
 
 	std::map<std::string, std::shared_ptr<Shader>> shaders;
@@ -64,6 +66,7 @@ public:
 	void addLight(std::shared_ptr<PointLight> light);
 	void addLight(std::shared_ptr<DirectionalLight> light);
 	void addSkyBox(std::shared_ptr<SkyBox> skyBox);
+	void setPlayer(std::shared_ptr<Player> player);
 
 	void setupMouse();
 	void setCamera(std::shared_ptr<Camera> camera);

@@ -13,7 +13,7 @@
 class Model : public GameObject
 {
 
-private:
+protected:
     std::shared_ptr<Frustum> frustumLOD0;
     std::shared_ptr<Frustum> frustumLOD1;
     std::shared_ptr<Frustum> frustumLOD2;

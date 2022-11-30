@@ -12,12 +12,12 @@ struct Plane
 {
     glm::vec3 normal = { 0.f, 1.f, 0.f };
     float distance = 0.f;
-    glm::vec3 point = { 0.f, 0.f, 0.f };
+    glm::vec3 m_point = { 0.f, 0.f, 0.f };
 
     Plane(const glm::vec3& p1, const glm::vec3& norm)
         : normal(glm::normalize(norm)),
         distance(glm::dot(normal, p1)),
-        point(p1)
+        m_point(p1)
     {}
 
     Plane() = default;
@@ -29,7 +29,7 @@ struct Plane
 
     inline float getSignedDistanceToPlan(const glm::vec3& point) const
     {
-        return glm::dot(normal, point - this->point);
+        return glm::dot(normal, point - this->m_point);
 //        return glm::dot(normal, point) - distance;
     }
 

@@ -4,6 +4,7 @@
 #include "VBO.h"
 #include "Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 enum class LOD
 {
@@ -69,7 +70,12 @@ public:
 
     inline void rotate(const glm::vec3& rotationAxis, float angle)
     {
-        model = glm::rotate(model, angle, rotationAxis);
+        //model = glm::rotate(model, glm::radians(angle), rotationAxis);
+        model *= glm::eulerAngleYXZ(
+            glm::radians(0.f),
+            glm::radians(angle),
+            glm::radians(0.f));
+
     }
 
     bool isOnFrustum(std::shared_ptr<Frustum> frustum);
@@ -88,7 +94,7 @@ private:
     glm::vec3 maxAABB;
 
     glm::vec3 translation;
-    glm::quat rotation;
+    glm::vec3 rotation;
 
     void setupMesh();
     void bind(GLenum polygonMode);
