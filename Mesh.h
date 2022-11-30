@@ -5,6 +5,8 @@
 #include "Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Animator.h"
+
 
 enum class LOD
 {
@@ -49,8 +51,8 @@ public:
         model = glm::rotate(model, angle, rotationAxis);
     }
 
-    void setHasAnimation(bool hasAnimation);
-    bool getHasAnimation();
+	void setAnimator(std::shared_ptr<Animator> animator);
+	
 private:
     VBO* vboLOD0, *vboLOD1, *vboLOD2;
     unsigned int vaoLOD0, eboLOD0, vaoLOD1, eboLOD1, vaoLOD2, eboLOD2;
@@ -74,7 +76,7 @@ private:
     glm::vec3 transform;
     glm::quat rotation;
 
-    bool hasAnimation;
+	std::shared_ptr<Animator> animator;
 
     void setupMesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, VBO& vbo, unsigned int& vao, unsigned int& ebo);
     void bindToLOD(LOD lod);

@@ -1,6 +1,6 @@
 #include "Animator.h"
 
-Animator::Animator(Animation* animation)
+Animator::Animator(std::shared_ptr<Animation> animation)
 {
 	m_CurrentTime = 0.0;
 	m_CurrentAnimation = animation;
@@ -22,7 +22,7 @@ void Animator::updateAnimation(float dt)
     }
 }
 
-void Animator::playAnimation(Animation* pAnimation)
+void Animator::playAnimation(std::shared_ptr<Animation> pAnimation)
 {
     m_CurrentAnimation = pAnimation;
     m_CurrentTime = 0.0f;

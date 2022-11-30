@@ -1,20 +1,10 @@
 #include "Animation.h"
 
-Animation::Animation(const std::string& animationPath, std::shared_ptr<Model> model)
+Animation::Animation(aiNode* mRootNode, aiAnimation* animationNode)
 {
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate);
-    assert(scene && scene->mRootNode);
-	
-    auto animation = scene->mAnimations[0];
-	
-    m_Duration = animation->mDuration;
-    m_TicksPerSecond = animation->mTicksPerSecond;
-    readHeirarchyData(m_RootNode, scene->mRootNode);
-
-    model->setIsAnimation(true);
-	
-    readMissingBones(animation, *model);
+    m_Duration = animationNode->mDuration;
+    m_TicksPerSecond = animationNode->mTicksPerSecond;
+    readHeirarchyData(m_RootNode, mRootNode);
 }
 
 Animation::~Animation()
@@ -50,32 +40,18 @@ const AssimpNodeData& Animation::getRootNode()
 
 const std::map<std::string, BoneInfo>& Animation::getBoneIDMap()
 {
-	return m_BoneInfoMap;
+	return *m_BoneInfoMap;
 }
 
-void Animation::readMissingBones(const aiAnimation* animation, Model& model)
+
+void Animation::addBone(std::shared_ptr<Bone> bone)
 {
-    int size = animation->mNumChannels;
+	m_Bones.push_back(*bone);
+}
 
-    auto& boneInfoMap = model.getBoneInfoMap(); //getting m_BoneInfoMap from Model class
-    int& boneCount = model.getBoneCount(); //getting the m_BoneCounter from Model class
-
-    //reading channels(bones engaged in an animation and their keyframes)
-    for (int i = 0; i < size; i++)
-    {
-        auto channel = animation->mChannels[i];
-        std::string boneName = channel->mNodeName.data;
-
-        if (boneInfoMap.find(boneName) == boneInfoMap.end())
-        {
-            boneInfoMap[boneName].id = boneCount;
-            boneCount++;
-        }
-        m_Bones.push_back(Bone(channel->mNodeName.data,
-            boneInfoMap[channel->mNodeName.data].id, channel));
-    }
-
-    m_BoneInfoMap = boneInfoMap;
+void Animation::setBoneInfoMap(std::shared_ptr<std::map<std::string, BoneInfo>> m_BoneInfoMap)
+{
+    this->m_BoneInfoMap = m_BoneInfoMap;
 }
 
 void Animation::readHeirarchyData(AssimpNodeData& dest, const aiNode* src)

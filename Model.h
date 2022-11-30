@@ -11,15 +11,10 @@
 #include "Texture.h"
 #include "Mesh.h"
 
-struct BoneInfo
-{
-    /*id is index in finalBoneMatrices*/
-    int id;
+#include "BoneInfo.h"
 
-    /*offset matrix transforms vertex from model space to bone space*/
-    glm::mat4 offset;
+#include "Animator.h"
 
-};
 
 class Model : public GameObject
 {
@@ -30,19 +25,26 @@ private:
     std::vector<Texture*> textures_loaded;
     
     void loadModel(std::string path);
+    void loadAnimations(std::string path);
+	
+    void readMissingBones(const aiAnimation* assimpAnim, std::shared_ptr<Animation> animation);
+	
     void processNode(aiNode* node, const aiScene* scene, glm::mat4 transformMat);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformMat);
     std::vector<Texture*> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
 
-    
+    std::shared_ptr<Animator> animator;
+    std::vector<std::shared_ptr<Animation>> animations;
+
     int m_BoneCounter = 0;
-    std::map<std::string, BoneInfo> m_BoneInfoMap;
+    std::shared_ptr<std::map<std::string, BoneInfo>> m_BoneInfoMap;
 
     void extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene);
 	
 
 public:
     Model(std::string path);
+    Model(std::string path, std::string animationPath);
     ~Model();
 
     void clipModel(glm::vec4 plane);
@@ -52,9 +54,8 @@ public:
     void render_withShader(std::shared_ptr<Shader> shader);
     void move(glm::vec3 movement);
     void rotate(glm::vec3 rotationAxis, float angle);
-    std::map < std::string, BoneInfo>& getBoneInfoMap();
     int& getBoneCount();
 
-    void setIsAnimation(bool isAnimation);
+    void setAnimator(std::shared_ptr<Animator> animator);
 };
 

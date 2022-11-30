@@ -6,30 +6,37 @@
 
 #include "GameInstance.h"
 #include "Definitions.h"
-#include "Animator.h"
-
-
-std::map<std::string,BoneInfo>& Model::getBoneInfoMap()
-{
-	return this->m_BoneInfoMap;
-}
+#include "GameInstance.h"
 
 int& Model::getBoneCount()
 {
 	return m_BoneCounter;
 }
 
-void Model::setIsAnimation(bool isAnimation)
+void Model::setAnimator(std::shared_ptr<Animator> animator)
 {
+	this->animator = animator;
 	for (auto &mesh : meshes)
 	{
-		mesh.setHasAnimation(isAnimation);
+		mesh.setAnimator(animator);
 	}
 }
 
 Model::Model(std::string path) : GameObject()
 {
 	loadModel(path);
+	this->animator = nullptr;
+}
+
+Model::Model(std::string path, std::string animationPath) : GameObject()
+{
+
+	this->m_BoneInfoMap = std::make_shared<std::map<std::string, BoneInfo>>();
+
+	loadModel(path);
+	loadAnimations(animationPath);
+	auto animation = this->animations[0];
+	this->setAnimator(std::make_shared<Animator>(animation));
 }
 
 Model::~Model()
@@ -38,7 +45,6 @@ Model::~Model()
 
 void Model::render()
 {
-	
 	for (Mesh mesh : meshes)
 	{
 		mesh.render();
@@ -47,7 +53,31 @@ void Model::render()
 
 void Model::update(double DeltaTime)
 {
-	// TODO: Hacer
+	if (this->animator != nullptr)
+		this->animator->updateAnimation(DeltaTime);
+}
+
+void Model::readMissingBones(const aiAnimation* assimpAnim, std::shared_ptr<Animation> animation)
+{
+	int size = assimpAnim->mNumChannels;
+	
+	int& boneCount = this->getBoneCount(); //getting the m_BoneCounter from Model class
+
+	//reading channels(bones engaged in an animation and their keyframes)
+	for (int i = 0; i < size; i++)
+	{
+		auto channel = assimpAnim->mChannels[i];
+		std::string boneName = channel->mNodeName.data;
+
+		if (this->m_BoneInfoMap->find(boneName) == this->m_BoneInfoMap->end())
+		{
+			this->m_BoneInfoMap->at(boneName).id = boneCount;
+			boneCount++;
+		}
+		animation->addBone(std::make_shared<Bone>(channel->mNodeName.data, this->m_BoneInfoMap->at(channel->mNodeName.data).id, channel));
+
+		animation->setBoneInfoMap(this->m_BoneInfoMap);
+	}
 }
 
 void Model::loadModel(std::string path)
@@ -74,6 +104,21 @@ void Model::loadModel(std::string path)
 	glm::mat4 transformMat = glm::identity<glm::mat4>();
 
 	processNode(scene->mRootNode, scene, transformMat);
+}
+
+void Model::loadAnimations(std::string path)
+{
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
+	assert(scene && scene->mRootNode);
+
+	for (size_t animation_c = 0; animation_c < scene->mNumAnimations; animation_c++)
+	{
+		auto animation_node = scene->mAnimations[animation_c];
+		auto animation = std::make_shared<Animation>(scene->mRootNode, animation_node);
+		readMissingBones(animation_node, animation);
+		this->animations.push_back(animation);
+	}
 }
 
 void Model::processNode(aiNode* node, const aiScene* scene, glm::mat4 transformMat)
@@ -141,18 +186,18 @@ void Model::extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* 
 	{
 		int boneID = -1;
 		std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();
-		if (m_BoneInfoMap.find(boneName) == m_BoneInfoMap.end())
+		if (m_BoneInfoMap->find(boneName) == m_BoneInfoMap->end())
 		{
 			BoneInfo newBoneInfo;
 			newBoneInfo.id = m_BoneCounter;
 			newBoneInfo.offset = convertMatrix(mesh->mBones[boneIndex]->mOffsetMatrix);
-			m_BoneInfoMap[boneName] = newBoneInfo;
+			m_BoneInfoMap->insert({ boneName, newBoneInfo });
 			boneID = m_BoneCounter;
 			m_BoneCounter++;
 		}
 		else
 		{
-			boneID = m_BoneInfoMap[boneName].id;
+			boneID = m_BoneInfoMap->at(boneName).id;
 		}
 		assert(boneID != -1);
 		auto weights = mesh->mBones[boneIndex]->mWeights;

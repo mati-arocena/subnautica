@@ -20,8 +20,6 @@
 #include "SkyBox.h"
 #include "ConfigManager.h"
 #include <thread>
-#include "Animation.h"
-#include "Animator.h"
 
 void resizeWindow(GLFWwindow* window, int width, int height)
 {
@@ -91,12 +89,12 @@ int main()
 	//gameInstance.addGameObject(std::make_shared<Model>("assets/caja.obj"));
 	//gameInstance.addGameObject(std::make_shared<Model>("assets/mar2.gltf"));
 
-	auto model = std::make_shared<Model>("assets/delfin/scene.gltf");
+	auto model = std::make_shared<Model>("assets/delfin/scene.gltf", "assets/delfin/scene.gltf");
 	gameInstance.addGameObject(model);
 	// TODO: REFACTOR
-	Animation animation = Animation("assets/delfin/scene.gltf", model);
-	std::shared_ptr<Animator> animator = std::make_shared<Animator>(&animation);
-	gameInstance.setAnimator(animator);
+	//Animation animation = Animation("assets/delfin/scene.gltf", model);
+	//std::shared_ptr<Animator> animator = std::make_shared<Animator>(&animation);
+	//gameInstance.setAnimator(animator);
 	
 	gameInstance.addGameObject(std::make_shared<Water>());
 	gameInstance.addSkyBox(std::make_shared<SkyBox>());
@@ -113,7 +111,6 @@ int main()
 		std::chrono::duration<double> elapsed = current - lastTime;
 		gameInstance.processInput(elapsed.count());
 		
-		animator->updateAnimation(elapsed.count());
 		gameInstance.update(elapsed.count());
 		gameInstance.render();
 

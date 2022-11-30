@@ -19,8 +19,6 @@ Mesh::Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLO
 	this->verticesLOD2 = verticesLOD2;
 	this->indicesLOD2 = indicesLOD2;
 
-	this->hasAnimation = false;
-
 	this->material = material;
 	clipPlane = glm::vec4{ 0.f, 0.f, 0.f, 0.f };
 	this->model = modelMat;
@@ -116,18 +114,18 @@ void Mesh::render()
 
 	std::shared_ptr<Shader> shader = material->getShader();
 	shader->setFloat("time", glfwGetTime());
-	//esto es por ahora 
+	//esto es por ahora - Narrador: Esto quedará acá para siempre
 	shader->setFloat("clippingPlane", clipPlane.x, clipPlane.y, clipPlane.z, clipPlane.w);
 	shader->setMat4("model", model);
 
-
-	shader->setBool("has_animation", hasAnimation);
-	GameInstance& gameInstance = GameInstance::getInstance();
-	std::shared_ptr<Animator> animator = gameInstance.getAnimator();
-
-	auto transforms = animator->getFinalBoneMatrices();
-	for (int i = 0; i < transforms->size(); ++i)
-		shader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms->at(i));
+	
+	shader->setBool("has_animation", this->animator != nullptr);
+	if (this->animator != nullptr)
+	{
+		auto transforms = animator->getFinalBoneMatrices();
+		for (int i = 0; i < transforms->size(); ++i)
+			shader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms->at(i));
+	}
 
 	bindToLOD(lod);
 
@@ -145,14 +143,9 @@ void Mesh::render()
 	}
 }
 
-void Mesh::setHasAnimation(bool hasAnimation)
+void Mesh::setAnimator(std::shared_ptr<Animator> animator)
 {
-	this->hasAnimation = hasAnimation;
-}
-
-bool Mesh::getHasAnimation()
-{
-	return this->hasAnimation;
+	this->animator = animator;
 }
 
 void Mesh::setupMesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, VBO& vbo, unsigned int& vao, unsigned int& ebo)
@@ -219,8 +212,6 @@ void Mesh::bindToLOD(LOD lod)
 	}
 	
 }
-
-
 
 LOD Mesh::getLOD()
 {

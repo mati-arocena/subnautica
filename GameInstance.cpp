@@ -4,7 +4,6 @@
 #include "Definitions.h"
 #include "Water.h"
 #include "ConfigManager.h"
-#include "Animator.h"
 
 float GameInstance::mouseLastX = 400;
 float GameInstance::mouseLastY = 300;
@@ -53,17 +52,6 @@ void GameInstance::addSkyBox(std::shared_ptr<SkyBox> skyBox)
 {
 	this->skyBox = skyBox;
 }
-
-void GameInstance::setAnimator(std::shared_ptr<Animator> animator)
-{
-	this->animator = animator;
-}
-
-std::shared_ptr<Animator> GameInstance::getAnimator()
-{
-	return this->animator;
-}
-
 
 GameInstance::GameInstance()
 {
