@@ -168,6 +168,9 @@ void Model::processNode(aiNode* node, const aiScene* scene, glm::mat4 transformM
 }
 
 void setVertexBoneData(Vertex& vertex, int boneID, float weight)
+/*
+	Set a bone that will influence a vertex
+*/
 {
 	for (int i = 0; i < MAX_BONE_INFLUENCE; ++i)
 	{
@@ -180,7 +183,10 @@ void setVertexBoneData(Vertex& vertex, int boneID, float weight)
 	}
 }
 
-void Model::extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene)
+void Model::extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh)
+/*
+	Attach the bones to the vertices, using the assimp mesh data
+*/
 {
 	for (int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
 	{
@@ -203,6 +209,7 @@ void Model::extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* 
 		auto weights = mesh->mBones[boneIndex]->mWeights;
 		int numWeights = mesh->mBones[boneIndex]->mNumWeights;
 
+		// Attach the bones to the vertices
 		for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex)
 		{
 			int vertexId = weights[weightIndex].mVertexId;
@@ -245,7 +252,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 			indicesLOD0.push_back(face.mIndices[j]);
 	}
 
-	extractBoneWeightForVertices(verticesLOD0, mesh, scene);
+	extractBoneWeightForVertices(verticesLOD0, mesh);
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	// we assume a convention for sampler names in the shaders. Each diffuse texture should be named

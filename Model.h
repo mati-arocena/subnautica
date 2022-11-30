@@ -39,7 +39,7 @@ private:
     int m_BoneCounter = 0;
     std::shared_ptr<std::map<std::string, BoneInfo>> m_BoneInfoMap;
 
-    void extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene);
+    void extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh);
 	
 
 public:
