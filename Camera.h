@@ -53,6 +53,7 @@ struct Frustum
 
 inline bool Frustum::isBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) 
 {
+    return true;
     // check box outside/inside of frustum
     if ((glm::dot(topFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f))    > 0.4) &&
         (glm::dot(topFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f))    > 0.4) &&

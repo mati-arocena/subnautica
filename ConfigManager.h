@@ -10,13 +10,13 @@ class ConfigManager
 {
 private:
 	ConfigManager();
-	glm::ivec2 windowSize = glm::ivec2(800,600);
+	glm::ivec2 windowSize = glm::ivec2(1080,720);
 	glm::ivec2 occlusionMapResolution = glm::ivec2(200, 150);
 	glm::ivec2 waterReflectionResolution = glm::ivec2(200, 150);
 	
 	glm::vec3 clearColor = glm::vec3(0, 0, 0);
 	
-	float far = 10.f;
+	float far = 100.f;
 	float near = 0.01f;
 	
 	

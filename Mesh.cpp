@@ -69,7 +69,6 @@ void Mesh::render()
 	shader->setFloat("time", static_cast<float>(glfwGetTime()));
 	//esto es por ahora 
 	shader->setFloat("clippingPlane", clipPlane.x, clipPlane.y, clipPlane.z, clipPlane.w);
-	
 	shader->setMat4("model", model);
 
 	bind(GL_FILL);
