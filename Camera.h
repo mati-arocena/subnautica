@@ -8,60 +8,130 @@
 #include <vector>
 #include "VBO.h"
 
-
-class Frustum
+struct Plane
 {
-// https://gist.github.com/podgorskiy/e698d18879588ada9014768e3e82a644
-public:
-    Frustum(glm::mat4 projection, glm::mat4 view);
-    void update(glm::mat4 projection, glm::mat4 view);
+    glm::vec3 normal = { 0.f, 1.f, 0.f };
+    float distance = 0.f;
+    glm::vec3 m_point = { 0.f, 0.f, 0.f };
 
-    // http://iquilezles.org/www/articles/frustumcorrect/frustumcorrect.htm
-    bool IsBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) const;
+    Plane(const glm::vec3& p1, const glm::vec3& norm)
+        : normal(glm::normalize(norm)),
+        distance(glm::dot(normal, p1)),
+        m_point(p1)
+    {}
 
-    void renderDebug();
-    glm::vec3* getPoint();
-private:
-    enum Planes
+    Plane() = default;
+
+    inline glm::vec4 equation() 
     {
-        Left = 0,
-        Right,
-        Bottom,
-        Top,
-        Near,
-        Far,
-        Count,
-        Combinations = Count * (Count - 1) / 2
-    };
+        return { normal, distance };
+    }
 
-    template<Planes i, Planes j>
-    struct ij2k
+    inline float getSignedDistanceToPlan(const glm::vec3& point) const
     {
-        enum { k = i * (9 - i) / 2 + j - 1 };
-    };
+        return glm::dot(normal, point - this->m_point);
+//        return glm::dot(normal, point) - distance;
+    }
 
-    template<Planes a, Planes b, Planes c>
-    glm::vec3 intersection(const glm::vec3* crosses) const;
+    static glm::vec3 intersectPlanes(const Plane& a, const Plane& b, const Plane& c);
 
-    glm::vec4   m_planes[Count];
-    glm::vec3   m_points[8];
-
-    std::shared_ptr<class Shader> frustumShader;
-    glm::mat4 frustumModel;
-    unsigned int vao, ebo, indicesSize;
-    VBO* vbo;
-
-    void setupDebug();
 };
 
-
-template<Frustum::Planes a, Frustum::Planes b, Frustum::Planes c>
-inline glm::vec3 Frustum::intersection(const glm::vec3* crosses) const
+struct Frustum
 {
-    float D = glm::dot(glm::vec3(m_planes[a]), crosses[ij2k<b, c>::k]);
-    glm::vec3 res = glm::mat3(crosses[ij2k<b, c>::k], -crosses[ij2k<a, c>::k], crosses[ij2k<a, b>::k]) *
-        glm::vec3(m_planes[a].w, m_planes[b].w, m_planes[c].w);
-    return res * (-1.0f / D);
+    Plane topFace;
+    Plane bottomFace;
+    Plane rightFace;
+    Plane leftFace;
+    Plane farFace;
+    Plane nearFace;
+
+    glm::vec3 points[8];
+    bool isBoxVisible(const glm::vec3& minp, const glm::vec3& maxp);
+    
+};
+
+inline bool Frustum::isBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) 
+{
+    // check box outside/inside of frustum
+    if ((glm::dot(topFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f))    > 0.4) &&
+        (glm::dot(topFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f))    > 0.4) &&
+        (glm::dot(topFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f))    > 0.4) &&
+        (glm::dot(topFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f))    > 0.4) &&
+        (glm::dot(topFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f))    > 0.4) &&
+        (glm::dot(topFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f))    > 0.4) &&
+        (glm::dot(topFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f))    > 0.4) &&
+        (glm::dot(topFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f))    > 0.4))
+    {
+        return false;
+    }
+    if ((glm::dot(bottomFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f)) > 0.4) &&
+        (glm::dot(bottomFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) > 0.4) &&
+        (glm::dot(bottomFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) > 0.4) &&
+        (glm::dot(bottomFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f)) > 0.4) &&
+        (glm::dot(bottomFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f)) > 0.4) &&
+        (glm::dot(bottomFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f)) > 0.4) &&
+        (glm::dot(bottomFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f)) > 0.4) &&
+        (glm::dot(bottomFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f)) > 0.4))
+    {
+        return false;
+    }
+    if ((glm::dot(rightFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f))  > 0.4) &&
+        (glm::dot(rightFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f))  > 0.4) &&
+        (glm::dot(rightFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f))  > 0.4) &&
+        (glm::dot(rightFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f))  > 0.4) &&
+        (glm::dot(rightFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f))  > 0.4) &&
+        (glm::dot(rightFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f))  > 0.4) &&
+        (glm::dot(rightFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f))  > 0.4) &&
+        (glm::dot(rightFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f))  > 0.4))
+    {
+        return false;
+    }
+    if ((glm::dot(leftFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f))   > 0.4) &&
+        (glm::dot(leftFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f))   > 0.4) &&
+        (glm::dot(leftFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f))   > 0.4) &&
+        (glm::dot(leftFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f))   > 0.4) &&
+        (glm::dot(leftFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f))   > 0.4) &&
+        (glm::dot(leftFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f))   > 0.4) &&
+        (glm::dot(leftFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f))   > 0.4) &&
+        (glm::dot(leftFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f))   > 0.4))
+    {
+        return false;
+    }
+    if ((glm::dot(farFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f))    > 0.4) &&
+        (glm::dot(farFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f))    > 0.4) &&
+        (glm::dot(farFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f))    > 0.4) &&
+        (glm::dot(farFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f))    > 0.4) &&
+        (glm::dot(farFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f))    > 0.4) &&
+        (glm::dot(farFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f))    > 0.4) &&
+        (glm::dot(farFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f))    > 0.4) &&
+        (glm::dot(farFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f))    > 0.4))
+    {
+        return false;
+    }
+    if ((glm::dot(nearFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f))   > 0.4) &&
+        (glm::dot(nearFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f))   > 0.4) &&
+        (glm::dot(nearFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f))   > 0.4) &&
+        (glm::dot(nearFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f))   > 0.4) &&
+        (glm::dot(nearFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f))   > 0.4) &&
+        (glm::dot(nearFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f))   > 0.4) &&
+        (glm::dot(nearFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f))   > 0.4) &&
+        (glm::dot(nearFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f))   > 0.4))
+    {
+        return false;
+    }
+
+
+    // check frustum outside/inside box
+    int out;
+    out = 0; for (int i = 0; i < 8; i++) out += ((points[i].x > maxp.x) ? 1 : 0); if (out == 8) return false;
+    out = 0; for (int i = 0; i < 8; i++) out += ((points[i].x < minp.x) ? 1 : 0); if (out == 8) return false;
+    out = 0; for (int i = 0; i < 8; i++) out += ((points[i].y > maxp.y) ? 1 : 0); if (out == 8) return false;
+    out = 0; for (int i = 0; i < 8; i++) out += ((points[i].y < minp.y) ? 1 : 0); if (out == 8) return false;
+    out = 0; for (int i = 0; i < 8; i++) out += ((points[i].z > maxp.z) ? 1 : 0); if (out == 8) return false;
+    out = 0; for (int i = 0; i < 8; i++) out += ((points[i].z < minp.z) ? 1 : 0); if (out == 8) return false;
+
+    return true;
 }
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
@@ -120,7 +190,7 @@ public:
     );
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix() const;
-    void SetPosition(glm::vec3 position);
+    void SetPosition(const glm::vec3& position);
     void InvertPitch();
     glm::mat4 GetProjectionMatrix() const;
     glm::vec4 GetPosition() const; 
@@ -132,7 +202,7 @@ public:
     void ProcessMouseScroll(float yoffset);
     void updateViewMatrix();
 
-	void changeSize(glm::ivec2 size);
+	void changeSize(const glm::ivec2& size);
 
     std::shared_ptr<Frustum> getFrustum(enum class LOD lod);
     void createViewFrustum();
@@ -140,9 +210,13 @@ public:
     void renderFrustum();
     void toggleFrustumUpdate();
 private:
+    std::shared_ptr<class Shader> frustumShader;
+    glm::mat4 frustumModel = glm::identity<glm::mat4>();
+    unsigned int vao, ebo, indicesSize;
+    std::unique_ptr<VBO> vbo;
 
-    bool shouldFrustumUpdate = true;
+    bool shouldFrustumUpdate = false;
+    void updateViewFrustum();
 
-    void updateFrustums();
     void updateCameraVectors();
 };

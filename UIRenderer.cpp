@@ -2,7 +2,7 @@
 
 UIRenderer::UIRenderer(std::shared_ptr<Shader> shader)
 {
-    this->shader = shader;
+    this->shader = std::move(shader);
     this->initRenderData();
 }
 
@@ -11,7 +11,7 @@ UIRenderer::~UIRenderer()
     glDeleteVertexArrays(1, &this->quadVAO);
 }
 
-void UIRenderer::draw(Texture* texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
+void UIRenderer::draw(Texture* texture, const glm::vec2& position, const glm::vec2& size, float rotate, const glm::vec3& color)
 {
     // prepare transformations
     shader->use();
@@ -45,7 +45,7 @@ void UIRenderer::initRenderData()
 {
     // configure VAO/VBO
     unsigned int VBO;
-    float verticesLOD0[] = {
+    float vertices[] = {
         // pos      // tex
         0.0f, 1.0f, 0.0f, 1.0f,
         1.0f, 0.0f, 1.0f, 0.0f,
@@ -60,7 +60,7 @@ void UIRenderer::initRenderData()
     glGenBuffers(1, &VBO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verticesLOD0), verticesLOD0, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     glBindVertexArray(this->quadVAO);
     glEnableVertexAttribArray(0);

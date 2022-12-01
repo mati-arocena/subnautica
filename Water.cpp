@@ -15,9 +15,9 @@ Water::Water() : GameObject()
 	Vertex v2({ -1000.f, 0.f, 1000.f }, { 0.f,1000.f,0.f }, { 0.f, 500.f });
 	Vertex v3({ -1000.f, 0.f, -1000.f }, { 0.f,1000.f,0.f }, { 0.f, 0.f });
 	Vertex v4({ 1000.f, 0.f, -1000.f }, { 0.f,1000.f,0.f }, { 500.f, 0.f });
-	std::vector<Vertex> verticesLOD0 = { v1,v2,v3,v4 };
+	std::vector<Vertex> vertices = { v1,v2,v3,v4 };
 
-	std::vector<unsigned> indicesLOD0 = {
+	std::vector<unsigned> indices = {
 			0, 1, 3,
 			1, 2, 3
 	};
@@ -31,13 +31,13 @@ Water::Water() : GameObject()
 	glm::mat4 model(1.); // TODO: ver despues como hacer esto
 
 
-	mesh = new Mesh(verticesLOD0, indicesLOD0, verticesLOD0, indicesLOD0, verticesLOD0, indicesLOD0, material, model, glm::vec3(-1000.f, -1000.f, -3.f), glm::vec3(1000.f, 1000.f, 3.f));
+	mesh = new Mesh(vertices, indices, material, model, glm::vec3(-1000.f, -1000.f, -3.f), glm::vec3(1000.f, 1000.f, 3.f));
 }
 
 
 Material* Water::initializeMaterial() 
 {
-	std::vector<Texture*> textures;
+	std::vector<Texture*> textures; //-V827
 
 	glGenFramebuffers(1, &reflFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, reflFrameBuffer);

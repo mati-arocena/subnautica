@@ -24,9 +24,9 @@ Shader::Shader(std::string vertexPath, std::string fragmentPath)
 		vertexCode = vShaderStream.str();
 		fragmentCode = fShaderStream.str();
 	}
-	catch (std::ifstream::failure e)
+	catch (const std::ifstream::failure& e)
 	{
-		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ:" << e.what() << std::endl;
 	}
 	const char* vShaderCode = vertexCode.c_str();
 	const char* fShaderCode = fragmentCode.c_str();
@@ -135,8 +135,11 @@ void Shader::prerender(std::shared_ptr<Camera> camera, std::shared_ptr<PointLigh
 	glGetIntegerv(GL_CURRENT_PROGRAM, &currentPorgramId);
 
 	use();
-	setFloat("lightPos", light->getPosition().x, light->getPosition().y, light->getPosition().z);
-	setFloat("lightColor", light->getColor().x, light->getColor().y, light->getColor().z);
+	const glm::vec3& lightPos = light->getPosition();
+	setFloat("lightPos", lightPos.x, lightPos.y, lightPos.z);
+
+	const glm::vec3& lightColor = light->getColor();
+	setFloat("lightColor", lightColor.x, lightColor.y, lightColor.z);
 	
 	glm::mat4 view = camera->GetViewMatrix();
 	glm::mat4 projection = camera->GetProjectionMatrix();

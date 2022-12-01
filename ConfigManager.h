@@ -27,11 +27,11 @@ public:
 	void operator=(ConfigManager const&) = delete;
 	ConfigManager(ConfigManager const&) = delete;
 
-	void setWindowSize(glm::ivec2 windowSize);
-	void setOcclusionMapResolution(glm::ivec2 occlusionMapResolution);
-	void setWaterReflectionResolution(glm::ivec2 waterReflectionResolution);
+	void setWindowSize(const glm::ivec2& windowSize);
+	void setOcclusionMapResolution(const glm::ivec2& occlusionMapResolution);
+	void setWaterReflectionResolution(const glm::ivec2& waterReflectionResolution);
 
-	void setClearColor(glm::vec3 clearColor);
+	void setClearColor(const glm::vec3& clearColor);
 	
 	void setFar(float far);
 	void setNear(float near);

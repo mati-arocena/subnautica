@@ -1,5 +1,4 @@
 #include "Camera.h"
-#include "btBulletDynamicsCommon.h"
 #include "ConfigManager.h"
 #include "Mesh.h"
 #include "Definitions.h"
@@ -44,16 +43,134 @@ Camera::Camera(
 
 void Camera::createViewFrustum()
 {
-    updateFrustums();
+    shouldFrustumUpdate = true;
+
+    frustumLOD0 = std::make_shared<Frustum>();
+    frustumLOD1 = std::make_shared<Frustum>();
+    frustumLOD2 = std::make_shared<Frustum>();
+
+    updateViewFrustum();
+
+    frustumShader = GameInstance::getInstance().getShader(FRUSTUM_SHADER);
+
+    Frustum f = *frustumLOD0; //frustum to debug
+
+    glm::vec3 nearBottomLeft = Plane::intersectPlanes(f.nearFace, f.bottomFace, f.leftFace);
+    glm::vec3 nearBottomRight = Plane::intersectPlanes(f.nearFace, f.bottomFace, f.rightFace);
+    glm::vec3 nearTopLeft = Plane::intersectPlanes(f.nearFace, f.topFace, f.leftFace);
+    glm::vec3 nearTopRight = Plane::intersectPlanes(f.nearFace, f.topFace, f.rightFace);
+    glm::vec3 farBottomLeft = Plane::intersectPlanes(f.farFace, f.bottomFace, f.leftFace);
+    glm::vec3 farBottomRight = Plane::intersectPlanes(f.farFace, f.bottomFace, f.rightFace);
+    glm::vec3 farTopLeft = Plane::intersectPlanes(f.farFace, f.topFace, f.leftFace);
+    glm::vec3 farTopRight = Plane::intersectPlanes(f.farFace, f.topFace, f.rightFace);
+
+    Vertex nbl(nearBottomLeft, nearBottomLeft, { 0.f, 1.f });
+    Vertex nbr(nearBottomRight, nearBottomRight, { 0.f, 1.f });
+    Vertex ntl(nearTopLeft, nearTopLeft, { 0.f, 1.f });
+    Vertex ntr(nearTopRight, nearTopRight, { 0.f, 1.f });
+    Vertex fbl(farBottomLeft, farBottomLeft, { 0.f, 1.f });
+    Vertex fbr(farBottomRight, farBottomRight, { 0.f, 1.f });
+    Vertex ftl(farTopLeft, farTopLeft, { 0.f, 1.f });
+    Vertex ftr(farTopRight, farTopRight, { 0.f, 1.f });
+  
+    std::vector<Vertex> vertices = {
+        nbl/*0*/, nbr/*1*/, ntl/*2*/, ntr/*3*/, 
+        fbl/*4*/, fbr/*5*/, ftl/*6*/, ftr/*7*/
+    };
+
+    std::vector<unsigned int> indices = {
+        //near plane
+        0, 1, 1, 3, 3, 2, 2, 0,
+        //far plane
+        4, 5, 5, 7, 7, 6, 6, 4,
+        //bottom plane
+        0, 4, 4, 5, 5, 1, 1, 0,
+        //top plane
+        2, 3, 3, 7, 7, 6, 6, 2
+
+    };
+    indicesSize = static_cast<unsigned int>(indices.size());
+
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &ebo);
+
+    glBindVertexArray(vao);
+
+    vbo = std::make_unique<VBO>();
+    vbo->load(Vertex::toVBO(vertices), vertices.size() * Vertex::numElementsInVBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), VBO::toEBO(indices), GL_STATIC_DRAW);
+
+    Vertex::setVertexAttributes();
+}
+
+void Camera::updateViewFrustum()
+{
+    if (!shouldFrustumUpdate)
+        return;
+    
+    const float halfVSide = far * std::tanf(glm::radians(Zoom) * .5f);
+    const float halfHSide = halfVSide * (width / height);
+    const glm::vec3 frontMultFar = far * Front;
+    //const glm::vec3 frontMultFar = 10.f * Front;
+
+    Plane nearFace   = { Position + near *  Front, Front};
+    Plane farFace    = { Position + frontMultFar, -Front };
+    Plane rightFace  = { Position, glm::cross(Up,frontMultFar + Right * halfHSide) };
+    Plane leftFace   = { Position, glm::cross(frontMultFar - Right * halfHSide, Up) };
+    Plane topFace    = { Position, glm::cross(Right, frontMultFar - Up * halfVSide) };
+    Plane bottomFace = { Position, glm::cross(frontMultFar + Up * halfVSide, Right) };
+   // Plane bottomFace = { Position, glm::cross(Right, frontMultFar + Up * halfVSide) };
+
+    glm::vec3 nearBottomLeft = Plane::intersectPlanes(nearFace, bottomFace, leftFace);
+    glm::vec3 nearBottomRight = Plane::intersectPlanes(nearFace, bottomFace, rightFace);
+    glm::vec3 nearTopLeft = Plane::intersectPlanes(nearFace, topFace, leftFace);
+    glm::vec3 nearTopRight = Plane::intersectPlanes(nearFace, topFace, rightFace);
+    glm::vec3 farBottomLeft = Plane::intersectPlanes(farFace, bottomFace, leftFace);
+    glm::vec3 farBottomRight = Plane::intersectPlanes(farFace, bottomFace, rightFace);
+    glm::vec3 farTopLeft = Plane::intersectPlanes(farFace, topFace, leftFace);
+    glm::vec3 farTopRight = Plane::intersectPlanes(farFace, topFace, rightFace);
+
+    frustumLOD0->nearFace = nearFace;
+    frustumLOD0->farFace = { Position + frontMultFar * .68f, -Front };
+    frustumLOD0->rightFace = rightFace;
+    frustumLOD0->leftFace = leftFace;
+    frustumLOD0->topFace = topFace;
+    frustumLOD0->bottomFace = bottomFace;
+
+    frustumLOD0->points[0] = nearBottomLeft;
+    frustumLOD0->points[1] = nearBottomRight;
+    frustumLOD0->points[2] = nearTopLeft;
+    frustumLOD0->points[3] = nearTopRight;
+    frustumLOD0->points[4] = farBottomLeft;
+    frustumLOD0->points[5] = farBottomRight;
+    frustumLOD0->points[6] = farTopLeft;
+    frustumLOD0->points[7] = farTopRight;
+
+    frustumLOD1->nearFace = nearFace;
+    frustumLOD1->farFace = { Position + frontMultFar * .95f, -Front };
+    frustumLOD1->rightFace = rightFace;
+    frustumLOD1->leftFace = leftFace;
+    frustumLOD1->topFace = topFace;
+    frustumLOD1->bottomFace = bottomFace;
+
+    frustumLOD2->nearFace = nearFace;
+    frustumLOD2->farFace = { Position + frontMultFar, -Front };
+    frustumLOD2->rightFace = rightFace;
+    frustumLOD2->leftFace = leftFace;
+    frustumLOD2->topFace = topFace;
+    frustumLOD2->bottomFace = bottomFace;
+
 }
 
 void Camera::updateViewMatrix()
 {
     ViewMatrix = glm::lookAt(Position, Position + Front, Up);
-    if (shouldFrustumUpdate)
+    if (shouldFrustumUpdate) 
     {
-        updateFrustums();
+        frustumModel = glm::inverse(ProjectionMatrix * ViewMatrix);
     }
+        
 }
 
 void Camera::renderFrustum()
@@ -61,7 +178,15 @@ void Camera::renderFrustum()
     if (shouldFrustumUpdate)
         return;
           
-    frustumLOD0->renderDebug();
+    frustumShader->use();
+
+    frustumShader->setFloat("color", 0.f, 1.f, 0.f);
+    frustumShader->setMat4("model", frustumModel);
+
+    glBindVertexArray(vao);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glDrawElements(GL_LINES, indicesSize, GL_UNSIGNED_INT, 0); 
+    glBindVertexArray(0);
 }
 
 void Camera::toggleFrustumUpdate()
@@ -84,17 +209,12 @@ std::shared_ptr<Frustum> Camera::getFrustum(LOD lod)
     }
 }
 
-void Camera::changeSize(glm::ivec2 size)
+void Camera::changeSize(const glm::ivec2& size)
 {
-    this->width  = size.x;
-    this->height = size.y;
-    float aspect = float(width) / float(height);
-    ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, near, far);
-
-    if (shouldFrustumUpdate)
-    {
-        updateFrustums();
-    }
+    this->width  = static_cast<float>(size.x);
+    this->height = static_cast<float>(size.y);
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), width / height, near, far);
+    updateViewFrustum();
 }
 
 
@@ -113,7 +233,7 @@ glm::vec4 Camera::GetPosition() const
     return glm::vec4(Position, 1.f);
 }
 
-void Camera::SetPosition(glm::vec3 position) 
+void Camera::SetPosition(const glm::vec3& position) 
 {
     this->Position = position;
 }
@@ -169,21 +289,9 @@ void Camera::ProcessMouseScroll(float yoffset)
 	float aspect = float(width) / float(height);
 	
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, 0.1f, 100.0f);
-    
-    if (shouldFrustumUpdate) 
-    {
-        updateFrustums();
-    }
-}
 
+    updateViewFrustum();
 
-void Camera::updateFrustums()
-{
-    glm::mat4 pm0 = glm::perspective(glm::radians(Zoom), width / height, near, far * 0.68f);
-    frustumLOD0 = std::make_shared<Frustum>(pm0, ViewMatrix);
-    glm::mat4 pm1 = glm::perspective(glm::radians(Zoom), width / height, near, far * 0.95f);
-    frustumLOD1 = std::make_shared<Frustum>(pm1, ViewMatrix);
-    frustumLOD2 = std::make_shared<Frustum>(ProjectionMatrix, ViewMatrix);
 }
 
 void Camera::updateCameraVectors()
@@ -197,164 +305,27 @@ void Camera::updateCameraVectors()
     // also re-calculate the Right and Up vector
     Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
     Up = glm::normalize(glm::cross(Right, Front));
-}
+    
+    updateViewFrustum();
+} 
 
-Frustum::Frustum(glm::mat4 projection, glm::mat4 view)
+glm::vec3 Plane::intersectPlanes(const Plane& a, const Plane& b, const Plane& c)
 {
-    update(projection, view);
-    setupDebug();
+    // Formula used
+    //                d1 ( N2 * N3 ) + d2 ( N3 * N1 ) + d3 ( N1 * N2 )
+    //P =   ---------------------------------------------------------------------
+    //                             N1 . ( N2 * N3 )
+    //
+    // Note: N refers to the normal, d refers to the displacement. '.' means dot product. '*' means cross product
+
+    glm::vec3 v1, v2, v3;
+    float f = -glm::dot(a.normal, glm::cross(b.normal, c.normal));
+
+    v1 = (a.distance * (glm::cross(b.normal, c.normal)));
+    v2 = (b.distance * (glm::cross(c.normal, a.normal)));
+    v3 = (c.distance * (glm::cross(a.normal, b.normal)));
+
+    glm::vec3 vec = { v1.x + v2.x + v3.x, v1.y + v2.y + v3.y, v1.z + v2.z + v3.z };
+    return vec / f;
 }
 
-void Frustum::update(glm::mat4 projection, glm::mat4 view)
-{
-    glm::mat4 m = projection * view;
-    m = glm::transpose(m);
-    glm::vec4 camPosition = GameInstance::getInstance().getCamera()->GetPosition();
-    frustumModel = glm::translate(m, glm::vec3(camPosition.x, camPosition.y, camPosition.z));
-    m_planes[Left] = m[3] + m[0];
-    m_planes[Right] = m[3] - m[0];
-    m_planes[Bottom] = m[3] + m[1];
-    m_planes[Top] = m[3] - m[1];
-    m_planes[Near] = m[3] + m[2];
-    m_planes[Far] = m[3] - m[2];
-
-    glm::vec3 crosses[Combinations] = {
-        glm::cross(glm::vec3(m_planes[Left]),   glm::vec3(m_planes[Right])),
-        glm::cross(glm::vec3(m_planes[Left]),   glm::vec3(m_planes[Bottom])),
-        glm::cross(glm::vec3(m_planes[Left]),   glm::vec3(m_planes[Top])),
-        glm::cross(glm::vec3(m_planes[Left]),   glm::vec3(m_planes[Near])),
-        glm::cross(glm::vec3(m_planes[Left]),   glm::vec3(m_planes[Far])),
-        glm::cross(glm::vec3(m_planes[Right]),  glm::vec3(m_planes[Bottom])),
-        glm::cross(glm::vec3(m_planes[Right]),  glm::vec3(m_planes[Top])),
-        glm::cross(glm::vec3(m_planes[Right]),  glm::vec3(m_planes[Near])),
-        glm::cross(glm::vec3(m_planes[Right]),  glm::vec3(m_planes[Far])),
-        glm::cross(glm::vec3(m_planes[Bottom]), glm::vec3(m_planes[Top])),
-        glm::cross(glm::vec3(m_planes[Bottom]), glm::vec3(m_planes[Near])),
-        glm::cross(glm::vec3(m_planes[Bottom]), glm::vec3(m_planes[Far])),
-        glm::cross(glm::vec3(m_planes[Top]),    glm::vec3(m_planes[Near])),
-        glm::cross(glm::vec3(m_planes[Top]),    glm::vec3(m_planes[Far])),
-        glm::cross(glm::vec3(m_planes[Near]),   glm::vec3(m_planes[Far]))
-    };
-
-    m_points[0] = intersection<Left, Bottom, Near>(crosses);
-    m_points[1] = intersection<Left, Top, Near>(crosses);
-    m_points[2] = intersection<Right, Bottom, Near>(crosses);
-    m_points[3] = intersection<Right, Top, Near>(crosses);
-    m_points[4] = intersection<Left, Bottom, Far>(crosses);
-    m_points[5] = intersection<Left, Top, Far>(crosses);
-    m_points[6] = intersection<Right, Bottom, Far>(crosses);
-    m_points[7] = intersection<Right, Top, Far>(crosses);
-}
-
-bool Frustum::IsBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) const
-{
-    // check box outside/inside of frustum
-    for (int i = 0; i < Count; i++)
-    {
-        if ((glm::dot(m_planes[i], glm::vec4(minp.x, minp.y, minp.z, 1.0f)) < 0.0) &&
-            (glm::dot(m_planes[i], glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) < 0.0) &&
-            (glm::dot(m_planes[i], glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) < 0.0) &&
-            (glm::dot(m_planes[i], glm::vec4(maxp.x, maxp.y, minp.z, 1.0f)) < 0.0) &&
-            (glm::dot(m_planes[i], glm::vec4(minp.x, minp.y, maxp.z, 1.0f)) < 0.0) &&
-            (glm::dot(m_planes[i], glm::vec4(maxp.x, minp.y, maxp.z, 1.0f)) < 0.0) &&
-            (glm::dot(m_planes[i], glm::vec4(minp.x, maxp.y, maxp.z, 1.0f)) < 0.0) &&
-            (glm::dot(m_planes[i], glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f)) < 0.0))
-        {
-            return false;
-        }
-    }
-
-    // check frustum outside/inside box
-    int out;
-    out = 0; for (int i = 0; i < 8; i++) out += ((m_points[i].x > maxp.x) ? 1 : 0); if (out == 8) return false;
-    out = 0; for (int i = 0; i < 8; i++) out += ((m_points[i].x < minp.x) ? 1 : 0); if (out == 8) return false;
-    out = 0; for (int i = 0; i < 8; i++) out += ((m_points[i].y > maxp.y) ? 1 : 0); if (out == 8) return false;
-    out = 0; for (int i = 0; i < 8; i++) out += ((m_points[i].y < minp.y) ? 1 : 0); if (out == 8) return false;
-    out = 0; for (int i = 0; i < 8; i++) out += ((m_points[i].z > maxp.z) ? 1 : 0); if (out == 8) return false;
-    out = 0; for (int i = 0; i < 8; i++) out += ((m_points[i].z < minp.z) ? 1 : 0); if (out == 8) return false;
-
-    return true;
-}
-
-void Frustum::renderDebug()
-{
-    frustumShader->use();
-
-    frustumShader->setFloat("color", 0.f, 1.f, 0.f);
-    frustumShader->setMat4("model", frustumModel);
-
-    glBindVertexArray(vao);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glDrawElements(GL_LINES, indicesSize, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-}
-
-glm::vec3* Frustum::getPoint()
-{
-    //m_points[0] = intersection<Left, Bottom, Near>(crosses);
-    //m_points[1] = intersection<Left, Top, Near>(crosses);
-    //m_points[2] = intersection<Right, Bottom, Near>(crosses);
-    //m_points[3] = intersection<Right, Top, Near>(crosses);
-    //m_points[4] = intersection<Left, Bottom, Far>(crosses);
-    //m_points[5] = intersection<Left, Top, Far>(crosses);
-    //m_points[6] = intersection<Right, Bottom, Far>(crosses);
-    //m_points[7] = intersection<Right, Top, Far>(crosses);
-    return m_points;
-}
-
-void Frustum::setupDebug()
-{
-    frustumShader = GameInstance::getInstance().getShader(FRUSTUM_SHADER);
-
-    Vertex nblV(m_points[0], m_points[0], {0.f, 1.f});
-    Vertex nbrV(m_points[2], m_points[2], {0.f, 1.f});
-    Vertex ntlV(m_points[1], m_points[1], {0.f, 1.f});
-    Vertex ntrV(m_points[3], m_points[3], {0.f, 1.f});
-    Vertex fblV(m_points[4], m_points[4], {0.f, 1.f});
-    Vertex fbrV(m_points[6], m_points[6], { 0.f, 1.f });
-    Vertex ftlV(m_points[5], m_points[5], { 0.f, 1.f });
-    Vertex ftrV(m_points[7], m_points[7], { 0.f, 1.f });
-
-    std::vector<Vertex> vertices = {
-        nblV/*0*/, nbrV/*1*/, ntlV/*2*/, ntrV/*3*/,
-        fblV/*4*/, fbrV/*5*/, ftlV/*6*/, ftrV/*7*/
-    };
-
-    std::vector<unsigned int> indices = {
-        //near plane
-        0, 1, 1, 3, 3, 2, 2, 0,
-        //far plane
-        4, 5, 5, 7, 7, 6, 6, 4,
-        //bottom plane
-        0, 4, 4, 5, 5, 1, 1, 0,
-        //top plane
-        2, 3, 3, 7, 7, 6, 6, 2
-
-    };
-    indicesSize = indices.size();
-
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &ebo);
-
-    glBindVertexArray(vao);
-
-    vbo = new VBO();
-    vbo->load(vertices, vertices.size() * Vertex::numElementsInVBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), VBO::toEBO(indices), GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(8 * sizeof(float)));
-    glEnableVertexAttribArray(3);
-
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(11 * sizeof(float)));
-    glEnableVertexAttribArray(4);
-}

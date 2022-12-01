@@ -4,6 +4,7 @@
 #include "VBO.h"
 #include "Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 #include "Animator.h"
 
@@ -16,72 +17,102 @@ enum class LOD
     NotInFrustum
 };
 
+struct Vertex {
+    Vertex(glm::vec3 Position, glm::vec3 Normal, glm::vec2 TexCoords) {
+        this->Position = Position;
+        this->Normal = Normal;
+        this->TexCoords = TexCoords;
+
+        this->Bitangent = glm::vec3(0.0f, 0.0f, 0.0f);
+        this->Tangent = glm::vec3(0.0f, 0.0f, 0.0f);
+    }
+    glm::vec3 Position;
+    glm::vec3 Normal;
+    glm::vec2 TexCoords;
+    glm::vec3 Tangent;
+	glm::vec3 Bitangent;
+
+    static float* toVBO(const std::vector<Vertex>& vertices);
+    static int numElementsInVBO;
+    static void setVertexAttribute(int id, int stride);
+    static void setVertexAttributes();
+};
+
+inline void Vertex::setVertexAttribute(int id, int stride)
+{
+    glVertexAttribPointer(id, 3, GL_FLOAT, GL_FALSE, Vertex::numElementsInVBO * sizeof(float), (void*)(stride * sizeof(float)));
+    glEnableVertexAttribArray(id);
+
+}
+
 class Mesh
 {
 
 public:
     // mesh data
-    std::vector<Vertex> verticesLOD0;
-    std::vector<unsigned int> indicesLOD0;
-    std::vector<Vertex> verticesLOD1;
-    std::vector<unsigned int> indicesLOD1;
-    std::vector<Vertex> verticesLOD2;
-    std::vector<unsigned int> indicesLOD2;
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
     Material* material;
 
 
-    Mesh(std::vector<Vertex> verticesLOD0, std::vector<unsigned int> indicesLOD0, 
-        std::vector<Vertex> verticesLOD1, std::vector<unsigned int> indicesLOD1,
-        std::vector<Vertex> verticesLOD2, std::vector<unsigned int> indicesLOD2,
+    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, 
         Material* material, glm::mat4 modelMat, glm::vec3 AABBmin, glm::vec3 AABBmax);
     void render();
-    void setClipPlane(glm::vec4 plane);
+    void renderAABB();
+    void renderWireframe();
+
+    void setClipPlane(const glm::vec4& plane);
     glm::vec4 getClipPlane();
     glm::mat4 model;
     void render_withShader(std::shared_ptr<Shader> shader);
-    void toggleDebugAABB();
 
-    inline void move(glm::vec3 transform)
+    inline void move(const glm::vec3& translate)
     {
-        model = glm::translate(model, transform);
+        model = glm::translate(model, translate);
     }
 
-    inline void rotate(glm::vec3 rotationAxis, float angle)
+    inline void rotate(const glm::vec3& rotationAxis, float angle)
     {
-        model = glm::rotate(model, angle, rotationAxis);
+        //model = glm::rotate(model, glm::radians(angle), rotationAxis);
+        model *= glm::eulerAngleYXZ(
+            glm::radians(0.f),
+            glm::radians(angle),
+            glm::radians(0.f));
+
     }
 
-	void setAnimator(std::shared_ptr<Animator> animator);
-	
+    bool isOnFrustum(std::shared_ptr<Frustum> frustum);
+    void setAnimator(std::shared_ptr<Animator> animator);
 private:
-    VBO* vboLOD0, *vboLOD1, *vboLOD2;
-    unsigned int vaoLOD0, eboLOD0, vaoLOD1, eboLOD1, vaoLOD2, eboLOD2;
+    VBO* vbo;
+    unsigned int vao, ebo;
     glm::vec4 clipPlane;
 
-    std::shared_ptr<Frustum> frustumLOD0;
-    std::shared_ptr<Frustum> frustumLOD1;
-    std::shared_ptr<Frustum> frustumLOD2;
-
-    std::shared_ptr<Shader> debugShader; 
+    std::shared_ptr<Shader> debugShader;
     unsigned int debugIndicesSize, debugVao, debugEbo;
     VBO* debugVBO;
-    float debugAABB = false;
-
-    glm::vec3 minAABB;
-    glm::vec3 maxAABB;
 
     glm::vec3 center;
     glm::vec3 extents;
+    glm::vec3 minAABB;
+    glm::vec3 maxAABB;
 
-    glm::vec3 transform;
-    glm::quat rotation;
+    glm::vec3 translation;
+    glm::vec3 rotation;
 
-	std::shared_ptr<Animator> animator;
-
-    void setupMesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, VBO& vbo, unsigned int& vao, unsigned int& ebo);
-    void bindToLOD(LOD lod);
+    void setupMesh();
+    void bind(GLenum polygonMode);
+    std::shared_ptr<Animator> animator;
     
-    LOD getLOD();
-    bool isOnFrustum(glm::vec3 minAABB, glm::vec3 maxAABB, std::shared_ptr<Frustum> frustum);
+    bool isOnFrustum(glm::vec3 center, glm::vec3 extents, std::shared_ptr<Frustum> frustum);
+    inline bool isOnOrForwardPlane(const glm::vec3& AABBcenter, const glm::vec3& AABBextents, const Plane& plane) {
+        // Compute the projection interval radius of b onto L(t) = b.c + t * p.n
+        const float r = AABBextents.x * std::abs(plane.normal.x) +
+            AABBextents.y * std::abs(plane.normal.y) + AABBextents.z * std::abs(plane.normal.z);
+
+        
+        return -r <= plane.getSignedDistanceToPlan(AABBcenter);
+           
+    }
 };
 

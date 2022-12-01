@@ -11,7 +11,7 @@
 void PostProcessor::initVertexBuffers()
 {
     // configure VAO/VBO for postprocessing
-    float verticesLOD0[] = {
+    float vertices[] = {
         // pos        // tex
         -1.0f, -1.0f, 0.0f, 0.0f,
          1.0f,  1.0f, 1.0f, 1.0f,
@@ -25,7 +25,7 @@ void PostProcessor::initVertexBuffers()
     glGenBuffers(1, &VBO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verticesLOD0), verticesLOD0, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     glBindVertexArray(VAO);
     glEnableVertexAttribArray(0);
@@ -90,7 +90,7 @@ void PostProcessor::draw()
     GameInstance::getInstance().renderOclussion();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
-	glm::ivec2 windowSize = ConfigManager::getInstance().getWindowSize();
+	windowSize = ConfigManager::getInstance().getWindowSize();
 	glViewport(0, 0, windowSize.x, windowSize.y);
 
     // Blend
@@ -117,7 +117,7 @@ void PostProcessor::draw()
 	glm::vec2 sunPos = glm::vec2(projected.x, projected.y) / projected.w * 0.5f + 0.5f;
 	
 	postProcessingShader->setFloat("lightPos_SS", sunPos.x, sunPos.y);
-    postProcessingShader->setFloat("time", glfwGetTime());
+    postProcessingShader->setFloat("time", static_cast<float>(glfwGetTime()));
 
     glBindVertexArray(VAO);
 

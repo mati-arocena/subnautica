@@ -22,9 +22,16 @@ void Model::setAnimator(std::shared_ptr<Animator> animator)
 	}
 }
 
-Model::Model(std::string path) : GameObject()
+Model::Model(std::string path, std::string extension) : GameObject()
 {
-	loadModel(path);
+	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
+	frustumLOD0 = camera->getFrustum(LOD::LOD0);
+	frustumLOD1 = camera->getFrustum(LOD::LOD1);
+	frustumLOD2 = camera->getFrustum(LOD::LOD2);
+
+	loadModel(path + LOD_SUFFIX + "0." + extension, LOD::LOD0);
+	loadModel(path + LOD_SUFFIX + "1." + extension, LOD::LOD1);
+	loadModel(path + LOD_SUFFIX + "2." + extension, LOD::LOD2);
 	this->animator = nullptr;
 }
 
@@ -39,16 +46,56 @@ Model::Model(std::string path, std::string animationPath) : GameObject()
 	this->setAnimator(std::make_shared<Animator>(animation));
 }
 
-Model::~Model()
-{
-}
-
 void Model::render()
 {
-	for (Mesh mesh : meshes)
+	for (Mesh mesh : meshesLOD0)
 	{
-		mesh.render();
+		if (mesh.isOnFrustum(frustumLOD0))
+			mesh.render();
 	}
+	
+	for (Mesh mesh : meshesLOD1)
+	{
+		if (mesh.isOnFrustum(frustumLOD1) && !mesh.isOnFrustum(frustumLOD0))
+			mesh.render();
+	}
+
+	for (Mesh mesh : meshesLOD2)
+	{
+		if (mesh.isOnFrustum(frustumLOD2) && !mesh.isOnFrustum(frustumLOD0) && !mesh.isOnFrustum(frustumLOD1))
+			mesh.render();
+	}
+
+}
+
+void Model::renderAABB()
+{
+	for (Mesh mesh : meshesLOD0)
+	{
+			mesh.renderAABB();
+	}
+}
+
+void Model::renderWireframe()
+{
+	for (Mesh mesh : meshesLOD0)
+	{
+		if (mesh.isOnFrustum(frustumLOD0))
+			mesh.renderWireframe();
+	}
+
+	for (Mesh mesh : meshesLOD1)
+	{
+		if (mesh.isOnFrustum(frustumLOD1) && !mesh.isOnFrustum(frustumLOD0))
+			mesh.renderWireframe();
+	}
+
+	for (Mesh mesh : meshesLOD2)
+	{
+		if (mesh.isOnFrustum(frustumLOD2) && !mesh.isOnFrustum(frustumLOD0) && !mesh.isOnFrustum(frustumLOD1))
+			mesh.renderWireframe();
+	}
+
 }
 
 void Model::update(double DeltaTime)
@@ -80,7 +127,7 @@ void Model::readMissingBones(const aiAnimation* assimpAnim, std::shared_ptr<Anim
 	}
 }
 
-void Model::loadModel(std::string path)
+void Model::loadModel(const std::string& path, LOD lod)
 {
 	Assimp::Importer import;
 	import.SetPropertyFloat("PP_GSN_MAX_SMOOTHING_ANGLE", 90);
@@ -103,7 +150,7 @@ void Model::loadModel(std::string path)
 	// Initial trnasformation
 	glm::mat4 transformMat = glm::identity<glm::mat4>();
 
-	processNode(scene->mRootNode, scene, transformMat);
+	processNode(scene->mRootNode, scene, transformMat, lod);
 }
 
 void Model::loadAnimations(std::string path)
@@ -121,12 +168,10 @@ void Model::loadAnimations(std::string path)
 	}
 }
 
-void Model::processNode(aiNode* node, const aiScene* scene, glm::mat4 transformMat)
+void Model::processNode(aiNode* node, const aiScene* scene, const glm::mat4& transformMat, LOD lod)
 {
 	// Combined transformations applied
 	const glm::mat4 node_transformMat = transformMat * convertMatrix(node->mTransformation);
-	glm::vec3 pos;
-	glm::quat rot;
 
 	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -136,34 +181,26 @@ void Model::processNode(aiNode* node, const aiScene* scene, glm::mat4 transformM
 
 		aiVector3D max = mesh->mAABB.mMax;
 		aiVector3D min = mesh->mAABB.mMin;
-		/*
-		btVector3 halfExtent(std::abs(max.x - min.x) / 2, std::abs(max.y - min.y) / 2, std::abs(max.z - min.z) / 2);
-		btCollisionShape* boxCollisionShape = new btBoxShape(halfExtent);
-		btMotionState* motionState = new btDefaultMotionState(btTransform(
-			btQuaternion(rot.x, rot.y, rot.z, rot.w),
-			btVector3(pos.x, pos.y, pos.z)
-		));
-		btTransform transform;
-		transform.setIdentity();
-		btDefaultMotionState* motionState = new btDefaultMotionState(transform);
-		btRigidBody::btRigidBodyConstructionInfo Info(
-			0,
-			motionState,
-			boxCollisionShape,
-			btVector3(0,0,0)
-		);
 
-		std::shared_ptr<btRigidBody> rigidBody = std::make_shared<btRigidBody>(Info);
-
-		this->collisionObjects.push_back(rigidBody);
-		*/
-
-		meshes.push_back(processMesh(mesh, scene, node_transformMat));
+		switch (lod)
+		{
+		case LOD::LOD0:
+			meshesLOD0.emplace_back(processMesh(mesh, scene, node_transformMat));
+			break;
+		case LOD::LOD1:
+			meshesLOD1.emplace_back(processMesh(mesh, scene, node_transformMat));
+			break;
+		case LOD::LOD2:
+			meshesLOD2.emplace_back(processMesh(mesh, scene, node_transformMat));
+			break;
+		default:
+			break;
+		}
 	}
 	// then do the same for each of its children
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		processNode(node->mChildren[i], scene, node_transformMat);
+		processNode(node->mChildren[i], scene, node_transformMat, lod);
 	}
 }
 
@@ -220,10 +257,10 @@ void Model::extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* 
 	}
 }
 
-Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformMat)
+Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& transformMat)
 {
-	std::vector<Vertex> verticesLOD0;
-	std::vector<unsigned int> indicesLOD0;
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
 	std::vector<Texture*> textures;
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
@@ -242,14 +279,14 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 		vertex.Tangent = glm::vec3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
 		vertex.Bitangent = glm::vec3(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z);
 
-		verticesLOD0.push_back(vertex);
+		vertices.push_back(vertex);
 	}
 
 	for (int i = 0; i < static_cast<int>(mesh->mNumFaces); i++)
 	{
 		aiFace face = mesh->mFaces[i];
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
-			indicesLOD0.push_back(face.mIndices[j]);
+			indices.push_back(face.mIndices[j]);
 	}
 
 	extractBoneWeightForVertices(verticesLOD0, mesh);
@@ -313,10 +350,10 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 	
 	glm::vec3 AABBmin = { mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z };
 	glm::vec3 AABBmax = { mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z };
-	return Mesh(verticesLOD0, indicesLOD0, verticesLOD0, indicesLOD0, verticesLOD0, indicesLOD0, m, transformMat, AABBmin, AABBmax);
+	return Mesh(vertices, indices, m, transformMat, AABBmin, AABBmax);
 }
 
-std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName)
 {
 	std::vector<Texture*> textures;
 
@@ -349,9 +386,9 @@ std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType
 
 }
 
-void Model::clipModel(glm::vec4 plane)
+void Model::clipModel(const glm::vec4& plane)
 {
-	for (Mesh &m : meshes)
+	for (Mesh &m : meshesLOD0)
 	{
 		m.setClipPlane(plane);
 	}
@@ -359,7 +396,7 @@ void Model::clipModel(glm::vec4 plane)
 
 void Model::render_withShader(std::shared_ptr<Shader> shader)
 {
-	for (Mesh mesh : meshes)
+	for (Mesh mesh : meshesLOD0)
 	{
 		mesh.render_withShader(shader);
 	}
@@ -371,19 +408,3 @@ void Model::renderOclussion()
 }
 
 
-
-void Model::move(glm::vec3 movement)
-{
-	for (auto mesh : meshes)
-	{
-		mesh.move(movement);
-	}
-}
-
-void Model::rotate(glm::vec3 rotationAxis, float angle)
-{
-	for (auto mesh : meshes)
-	{
-		mesh.rotate(rotationAxis, angle);
-	}
-}

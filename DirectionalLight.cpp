@@ -16,12 +16,12 @@ glm::vec3 DirectionalLight::getDirection() const
 	return direction;
 }
 
-void DirectionalLight::setColor(glm::vec3 color)
+void DirectionalLight::setColor(const glm::vec3& color)
 {
 	this->color = color;
 }
 
-void DirectionalLight::setDirection(glm::vec3 direction)
+void DirectionalLight::setDirection(const glm::vec3& direction)
 {
 	this->direction = direction;
 }
