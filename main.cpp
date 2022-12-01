@@ -49,7 +49,7 @@ int main()
 	width = ConfigManager::getInstance().getWindowSize().x;
 	height = ConfigManager::getInstance().getWindowSize().y;
 #ifdef _DEBUG
-	GLFWwindow* window = glfwCreateWindow(width, height, "Game", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(width, height, "Subnautica", NULL, NULL);
 #else
 	GLFWwindow* window = glfwCreateWindow(width, height, "Subnautica", monitor, nullptr);
 #endif
