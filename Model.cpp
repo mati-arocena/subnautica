@@ -16,7 +16,7 @@ int& Model::getBoneCount()
 void Model::setAnimator(std::shared_ptr<Animator> animator)
 {
 	this->animator = animator;
-	for (auto &mesh : meshes)
+	for (auto &mesh : meshesLOD0)
 	{
 		mesh.setAnimator(animator);
 	}
@@ -35,13 +35,20 @@ Model::Model(std::string path, std::string extension) : GameObject()
 	this->animator = nullptr;
 }
 
-Model::Model(std::string path, std::string animationPath) : GameObject()
+Model::Model(std::string path, std::string extension, std::string animationPath, std::string animationExtension) : GameObject()
 {
+	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
+	frustumLOD0 = camera->getFrustum(LOD::LOD0);
+	frustumLOD1 = camera->getFrustum(LOD::LOD1);
+	frustumLOD2 = camera->getFrustum(LOD::LOD2);
 
 	this->m_BoneInfoMap = std::make_shared<std::map<std::string, BoneInfo>>();
+	// TODO: ARREGLAR
+	loadModel(path + LOD_SUFFIX + "0." + extension, LOD::LOD0);
+	loadModel(path + LOD_SUFFIX + "1." + extension, LOD::LOD1);
+	loadModel(path + LOD_SUFFIX + "2." + extension, LOD::LOD2);
 
-	loadModel(path);
-	loadAnimations(animationPath);
+	loadAnimations(path + LOD_SUFFIX + "0." + extension);
 	auto animation = this->animations[0];
 	this->setAnimator(std::make_shared<Animator>(animation));
 }
@@ -289,7 +296,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 			indices.push_back(face.mIndices[j]);
 	}
 
-	extractBoneWeightForVertices(verticesLOD0, mesh);
+	extractBoneWeightForVertices(vertices, mesh);
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	// we assume a convention for sampler names in the shaders. Each diffuse texture should be named

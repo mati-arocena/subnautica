@@ -97,7 +97,7 @@ void Camera::createViewFrustum()
     glBindVertexArray(vao);
 
     vbo = std::make_unique<VBO>();
-    vbo->load(Vertex::toVBO(vertices), vertices.size() * Vertex::numElementsInVBO);
+    vbo->load(vertices, vertices.size() * Vertex::numElementsInVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), VBO::toEBO(indices), GL_STATIC_DRAW);
 

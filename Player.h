@@ -27,6 +27,7 @@ class Player : public Model
 	void rotate(float angle, double deltaTime);
 public:
 	Player(std::string path, std::string extension) : Model(path, extension) {};
+	Player(std::string path, std::string extension, std::string animationPath, std::string animationExtension) : Model(path, extension, animationPath, animationExtension) {};
 
 	void update(double deltaTime) override;
 

@@ -58,30 +58,8 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
 	debugVBO->load(vertices, vertices.size() * Vertex::numElementsInVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, debugEbo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * debugIndicesSize, VBO::toEBO(indicesAABB), GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
-	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
-	glEnableVertexAttribArray(2);
-
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
-	glEnableVertexAttribArray(3);
-
-	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
-	glEnableVertexAttribArray(4);
-
-	// Bone ids
-	glVertexAttribIPointer(5, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, m_BoneIDs));
-	glEnableVertexAttribArray(5);
-	// Bone weights
-	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_Weights));
-	glEnableVertexAttribArray(6);
 	
-	// Vertex::setVertexAttributes(); TODO: ESTO LO COMENTO EN EL MERGE
+	Vertex::setVertexAttributes();
 	
 }
 
@@ -114,7 +92,7 @@ void Mesh::setAnimator(std::shared_ptr<Animator> animator)
 	this->animator = animator;
 }
 
-void Mesh::setupMesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, VBO& vbo, unsigned int& vao, unsigned int& ebo)
+void Mesh::setupMesh()
 {
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &ebo);
@@ -122,14 +100,20 @@ void Mesh::setupMesh(std::vector<Vertex> vertices, std::vector<unsigned int> ind
 	// 1. bind Vertex Array Object
 	glBindVertexArray(vao);
 	// 2. copy our vertices array in a vertex buffer for OpenGL to use
-	vbo.load(vertices, vertices.size() * Vertex::numElementsInVBO); // Vertices and qty
+	vbo->load(vertices, vertices.size() * Vertex::numElementsInVBO); // Vertices and qty
 	// 3. copy our index array in a element buffer for OpenGL to use
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), VBO::toEBO(indices), GL_STATIC_DRAW);
-	
-	
+
+
 	// 4. then set the vertex attributes pointers
 	// Vertex
+	Vertex::setVertexAttributes();
+
+}
+
+void Vertex::setVertexAttributes()
+{
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 	glEnableVertexAttribArray(0);
 	// Normal
@@ -150,9 +134,7 @@ void Mesh::setupMesh(std::vector<Vertex> vertices, std::vector<unsigned int> ind
 	// Bone weights
 	glEnableVertexAttribArray(6);
 	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_Weights));
-	
-	// Vertex::setVertexAttributes(); TODO: ESTO LO COMENTO EN EL MERGE
-
+}
 
 void Mesh::bind(GLenum polygonMode)
 {
@@ -279,7 +261,6 @@ void Mesh::renderWireframe()
 
 	bind(GL_LINE);
 }
-
 
 
 
