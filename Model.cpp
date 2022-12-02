@@ -186,8 +186,7 @@ void Model::processNode(aiNode* node, const aiScene* scene, const glm::mat4& tra
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		Mesh m = processMesh(mesh, scene, node_transformMat);
 
-		aiVector3D max = mesh->mAABB.mMax;
-		aiVector3D min = mesh->mAABB.mMin;
+
 
 		switch (lod)
 		{
@@ -355,8 +354,10 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 
 	Material *m = new Material(textures, GameInstance::getInstance().getShader(NORMAL_SHADER), diffuseColor, specularColor, specularStrenght, specularExponent);
 	
-	glm::vec3 AABBmin = { mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z };
-	glm::vec3 AABBmax = { mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z };
+	//glm::vec4 AABBModel =  mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z, 1.0f };
+	glm::vec3 AABBmin = transformMat * glm::vec4(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z, 1.0f);
+	glm::vec3 AABBmax = transformMat * glm::vec4( mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z ,1.0f);
+
 	return Mesh(vertices, indices, m, transformMat, AABBmin, AABBmax);
 }
 
