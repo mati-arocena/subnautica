@@ -21,6 +21,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
 	setupMesh();
 
 	debugShader = GameInstance::getInstance().getShader(FRUSTUM_SHADER);
+#if 0
 	center = { (max + min) * 0.5f };
 	extents = { max.x - center.x, max.y - center.y, max.z - center.z };
 
@@ -32,7 +33,16 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
 	Vertex fbr({ center.x + extents.x, center.y - extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
 	Vertex ftl({ center.x - extents.x, center.y + extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
 	Vertex ftr({ center.x + extents.x, center.y + extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+#endif
 
+	Vertex nbl({ min.x, min.y, max.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex nbr({ max.x, min.y, max.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex ntl({ min.x, max.y, max.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex ntr({ max.x, max.y, max.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex fbl({ center.x - extents.x, center.y - extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex fbr({ center.x + extents.x, center.y - extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex ftl({ center.x - extents.x, center.y + extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex ftr({ center.x + extents.x, center.y + extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
 	std::vector<Vertex> verticesAABB = {
 		nbl/*0*/, nbr/*1*/, ntl/*2*/, ntr/*3*/,
 		fbl/*4*/, fbr/*5*/, ftl/*6*/, ftr/*7*/
@@ -55,7 +65,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
 
 	glBindVertexArray(debugVao);	
 
-	debugVBO->load(vertices, vertices.size() * Vertex::numElementsInVBO);
+	debugVBO->load(verticesAABB, verticesAABB.size() * Vertex::numElementsInVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, debugEbo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * debugIndicesSize, VBO::toEBO(indicesAABB), GL_STATIC_DRAW);
 	
@@ -170,7 +180,7 @@ bool Mesh::isOnFrustum(std::shared_ptr<Frustum> frustum)
 
 bool Mesh::isOnFrustum(glm::vec3 center, glm::vec3 extents, std::shared_ptr<Frustum> frustum)
 {
-	return frustum->isBoxVisible(center - extents, center + extents);
+	return frustum->isBoxInFrustum(center - extents, center + extents);
 
 #if 0
 	bool left = isOnOrForwardPlane(center, extents, frustum->leftFace);
@@ -244,7 +254,8 @@ void Mesh::renderAABB()
 {
 	debugShader->use();
 	debugShader->setFloat("color", 1.f, 0.f, 0.f);
-	debugShader->setMat4("model", model);
+	glm::mat4 identity = glm::identity<glm::mat4>();
+	debugShader->setMat4("model", identity);
 
 	glBindVertexArray(debugVao);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
