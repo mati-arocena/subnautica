@@ -27,6 +27,6 @@ public:
 	void use(int pos) const;
 	void use() const;
 
-	void resize(glm::ivec2 size);
+	void resize(const glm::ivec2& size);
 };
 

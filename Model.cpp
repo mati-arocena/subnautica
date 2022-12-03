@@ -3,38 +3,193 @@
 #include "Utils.h"
 
 
+
 #include "GameInstance.h"
 #include "Definitions.h"
+#include "GameInstance.h"
 
-void Model::decomposeGLMMatrix(const glm::mat4& m, glm::vec3& pos, glm::quat& rot)
+int& Model::getBoneCount()
 {
-	pos = m[3];
-	rot = glm::quat_cast(m);
+	return m_BoneCounter;
 }
 
-Model::Model(std::string path) : GameObject()
+void Model::setAnimator(std::shared_ptr<Animator> animator)
 {
-	loadModel(path);
+	this->animator = animator;
+	for (auto &mesh : meshesLOD0)
+	{
+		mesh.setAnimator(animator);
+	}
 }
 
-Model::~Model()
+Model::Model(std::string path, std::string extension, glm::vec3 position) : GameObject()
 {
+	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
+	frustumLOD0 = camera->getFrustum(LOD::LOD0);
+	frustumLOD1 = camera->getFrustum(LOD::LOD1);
+	frustumLOD2 = camera->getFrustum(LOD::LOD2);
+
+	loadModel(path + LOD_SUFFIX + "0." + extension, LOD::LOD0);
+	loadModel(path + LOD_SUFFIX + "1." + extension, LOD::LOD1);
+	loadModel(path + LOD_SUFFIX + "2." + extension, LOD::LOD2);
+
+	this->animator = nullptr;
+
+	for (auto& mesh : meshesLOD0)
+	{
+		mesh.move(position);
+	}
+	for (auto& mesh : meshesLOD1)
+	{
+		mesh.move(position);
+	}
+	for (auto& mesh : meshesLOD2)
+	{
+		mesh.move(position);
+	}
+}
+
+Model::Model(std::string path, std::string extension, std::string animationPath, std::string animationExtension, glm::vec3 postion) : GameObject()
+{
+	this->hasAnimations = true;
+	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
+	frustumLOD0 = camera->getFrustum(LOD::LOD0);
+	frustumLOD1 = camera->getFrustum(LOD::LOD1);
+	frustumLOD2 = camera->getFrustum(LOD::LOD2);
+
+	this->m_BoneInfoMap = std::make_shared<std::map<std::string, BoneInfo>>();
+	// TODO: ARREGLAR
+	loadModel(path + LOD_SUFFIX + "0." + extension, LOD::LOD0);
+	loadModel(path + LOD_SUFFIX + "1." + extension, LOD::LOD1);
+	loadModel(path + LOD_SUFFIX + "2." + extension, LOD::LOD2);
+
+	loadAnimations(path + LOD_SUFFIX + "0." + extension);
+	auto animation = this->animations[0];
+	this->setAnimator(std::make_shared<Animator>(animation));
+
+	isMovable = true;
+	for (auto& mesh : meshesLOD0)
+	{
+		mesh.move(position);
+	}
+	for (auto& mesh : meshesLOD1)
+	{
+		mesh.move(position);
+	}
+	for (auto& mesh : meshesLOD2)
+	{
+		mesh.move(position);
+	}
 }
 
 void Model::render()
 {
-	for (Mesh mesh : meshes)
+	for (Mesh& mesh : meshesLOD0)
 	{
-		mesh.render();
+		if (mesh.isOnFrustum(frustumLOD0))
+			mesh.render();
 	}
+	
+	for (Mesh& mesh : meshesLOD1)
+	{
+		if (mesh.isOnFrustum(frustumLOD1) && !mesh.isOnFrustum(frustumLOD0))
+			mesh.render();
+	}
+
+	for (Mesh& mesh : meshesLOD2)
+	{
+		if (mesh.isOnFrustum(frustumLOD2) && !mesh.isOnFrustum(frustumLOD0) && !mesh.isOnFrustum(frustumLOD1))
+			mesh.render();
+	}
+
+}
+
+void Model::renderAABB()
+{
+	for (Mesh& mesh : meshesLOD0)
+	{
+		mesh.renderAABB();
+	}
+}
+
+void Model::renderWireframe()
+{
+	for (Mesh& mesh : meshesLOD0)
+	{
+		if (mesh.isOnFrustum(frustumLOD0))
+			mesh.renderWireframe();
+	}
+
+	for (Mesh& mesh : meshesLOD1)
+	{
+		if (mesh.isOnFrustum(frustumLOD1) && !mesh.isOnFrustum(frustumLOD0))
+			mesh.renderWireframe();
+	}
+
+	for (Mesh& mesh : meshesLOD2)
+	{
+		if (mesh.isOnFrustum(frustumLOD2) && !mesh.isOnFrustum(frustumLOD0) && !mesh.isOnFrustum(frustumLOD1))
+			mesh.renderWireframe();
+	}
+
 }
 
 void Model::update(double DeltaTime)
 {
-	// TODO: Hacer
+	for (auto& mesh : meshesLOD0)
+	{
+		if (isMovable)
+		{
+			mesh.updateAABB();
+		}
+	}
+	for (auto& mesh : meshesLOD1)
+	{
+		if (isMovable)
+		{
+			mesh.updateAABB();
+		}
+	}
+	for (auto& mesh : meshesLOD2)
+	{
+		if (isMovable)
+		{
+			mesh.updateAABB();
+		}
+	}
+	if (this->animator != nullptr)
+		this->animator->updateAnimation(DeltaTime);
+	
+	for (Mesh &mesh : meshesLOD0)
+	{
+		mesh.update(DeltaTime);
+	}
 }
 
-void Model::loadModel(std::string path)
+void Model::readMissingBones(const aiAnimation* assimpAnim, std::shared_ptr<Animation> animation)
+{
+	int size = assimpAnim->mNumChannels;
+	
+	int& boneCount = this->getBoneCount(); //getting the m_BoneCounter from Model class
+
+	//reading channels(bones engaged in an animation and their keyframes)
+	for (int i = 0; i < size; i++)
+	{
+		auto channel = assimpAnim->mChannels[i];
+		std::string boneName = channel->mNodeName.data;
+
+		if (this->m_BoneInfoMap->find(boneName) == this->m_BoneInfoMap->end())
+		{
+			this->m_BoneInfoMap->at(boneName).id = boneCount;
+			boneCount++;
+		}
+		animation->addBone(std::make_shared<Bone>(channel->mNodeName.data, this->m_BoneInfoMap->at(channel->mNodeName.data).id, channel));
+
+		animation->setBoneInfoMap(this->m_BoneInfoMap);
+	}
+}
+
+void Model::loadModel(const std::string& path, LOD lod)
 {
 	Assimp::Importer import;
 	import.SetPropertyFloat("PP_GSN_MAX_SMOOTHING_ANGLE", 90);
@@ -57,16 +212,28 @@ void Model::loadModel(std::string path)
 	// Initial trnasformation
 	glm::mat4 transformMat = glm::identity<glm::mat4>();
 
-	processNode(scene->mRootNode, scene, transformMat);
+	processNode(scene->mRootNode, scene, transformMat, lod);
 }
 
-void Model::processNode(aiNode* node, const aiScene* scene, glm::mat4 transformMat)
+void Model::loadAnimations(std::string path)
+{
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
+	assert(scene && scene->mRootNode);
+
+	for (size_t animation_c = 0; animation_c < scene->mNumAnimations; animation_c++)
+	{
+		auto animation_node = scene->mAnimations[animation_c];
+		auto animation = std::make_shared<Animation>(scene->mRootNode, animation_node);
+		readMissingBones(animation_node, animation);
+		this->animations.push_back(animation);
+	}
+}
+
+void Model::processNode(aiNode* node, const aiScene* scene, const glm::mat4& transformMat, LOD lod)
 {
 	// Combined transformations applied
 	const glm::mat4 node_transformMat = transformMat * convertMatrix(node->mTransformation);
-	glm::vec3 pos;
-	glm::quat rot;
-	decomposeGLMMatrix(node_transformMat, pos, rot);
 
 	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -74,48 +241,90 @@ void Model::processNode(aiNode* node, const aiScene* scene, glm::mat4 transformM
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		Mesh m = processMesh(mesh, scene, node_transformMat);
 
-		aiVector3D max = mesh->mAABB.mMax;
-		aiVector3D min = mesh->mAABB.mMin;
-		btVector3 halfExtent(std::abs(max.x - min.x) / 2, std::abs(max.y - min.y) / 2, std::abs(max.z - min.z) / 2);
-		btCollisionShape* boxCollisionShape = new btBoxShape(halfExtent);
-		/*
-		btMotionState* motionState = new btDefaultMotionState(btTransform(
-			btQuaternion(rot.x, rot.y, rot.z, rot.w),
-			btVector3(pos.x, pos.y, pos.z)
-		));
-		*/
-		btTransform transform;
-		transform.setIdentity();
-		btDefaultMotionState* motionState = new btDefaultMotionState(transform);
-		btRigidBody::btRigidBodyConstructionInfo Info(
-			0,
-			motionState,
-			boxCollisionShape,
-			btVector3(0,0,0)
-		);
-
-		std::shared_ptr<btRigidBody> rigidBody = std::make_shared<btRigidBody>(Info);
-
-		this->collisionObjects.push_back(rigidBody);
-
-		meshes.push_back(processMesh(mesh, scene, node_transformMat));
+		switch (lod)
+		{
+		case LOD::LOD0:
+			meshesLOD0.emplace_back(processMesh(mesh, scene, node_transformMat));
+			break;
+		case LOD::LOD1:
+			meshesLOD1.emplace_back(processMesh(mesh, scene, node_transformMat));
+			break;
+		case LOD::LOD2:
+			meshesLOD2.emplace_back(processMesh(mesh, scene, node_transformMat));
+			break;
+		default:
+			break;
+		}
 	}
 	// then do the same for each of its children
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		processNode(node->mChildren[i], scene, node_transformMat);
+		processNode(node->mChildren[i], scene, node_transformMat, lod);
 	}
 }
 
-Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformMat)
+void setVertexBoneData(Vertex& vertex, int boneID, float weight)
+/*
+	Set a bone that will influence a vertex
+*/
 {
-	std::vector<Vertex> verticesLOD0;
-	std::vector<unsigned int> indicesLOD0;
+	for (int i = 0; i < MAX_BONE_INFLUENCE; ++i)
+	{
+		if (vertex.m_BoneIDs[i] < 0)
+		{
+			vertex.m_Weights[i] = weight;
+			vertex.m_BoneIDs[i] = boneID;
+			break;
+		}
+	}
+}
+
+void Model::extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh)
+/*
+	Attach the bones to the vertices, using the assimp mesh data
+*/
+{
+	for (int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
+	{
+		int boneID = -1;
+		std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();
+		if (m_BoneInfoMap->find(boneName) == m_BoneInfoMap->end())
+		{
+			BoneInfo newBoneInfo;
+			newBoneInfo.id = m_BoneCounter;
+			newBoneInfo.offset = convertMatrix(mesh->mBones[boneIndex]->mOffsetMatrix);
+			m_BoneInfoMap->insert({ boneName, newBoneInfo });
+			boneID = m_BoneCounter;
+			m_BoneCounter++;
+		}
+		else
+		{
+			boneID = m_BoneInfoMap->at(boneName).id;
+		}
+		assert(boneID != -1);
+		auto weights = mesh->mBones[boneIndex]->mWeights;
+		int numWeights = mesh->mBones[boneIndex]->mNumWeights;
+
+		// Attach the bones to the vertices
+		for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex)
+		{
+			int vertexId = weights[weightIndex].mVertexId;
+			float weight = weights[weightIndex].mWeight;
+			assert(vertexId <= vertices.size());
+			setVertexBoneData(vertices[vertexId], boneID, weight);
+		}
+	}
+}
+
+Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& transformMat)
+{
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
 	std::vector<std::shared_ptr<Texture>> textures;
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
-		Vertex vertex({ 0, 0, 0 }, { 0, 0, 0 }, { 0, 0 });
+		Vertex vertex;
 		// process vertex positions, normals and texture coordinates
 		vertex.Position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 		vertex.Normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
@@ -129,15 +338,18 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 		vertex.Tangent = glm::vec3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
 		vertex.Bitangent = glm::vec3(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z);
 
-		verticesLOD0.push_back(vertex);
+		vertices.push_back(vertex);
 	}
 
 	for (int i = 0; i < static_cast<int>(mesh->mNumFaces); i++)
 	{
 		aiFace face = mesh->mFaces[i];
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
-			indicesLOD0.push_back(face.mIndices[j]);
+			indices.push_back(face.mIndices[j]);
 	}
+
+	if (hasAnimations)
+		extractBoneWeightForVertices(vertices, mesh);
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	// we assume a convention for sampler names in the shaders. Each diffuse texture should be named
@@ -204,12 +416,14 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transformM
 
 	Material *m = new Material(textures, GameInstance::getInstance().getShader(NORMAL_SHADER), diffuseColor, specularColor, specularStrenght, specularExponent);
 	
+	//glm::vec4 AABBModel =  mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z, 1.0f };
 	glm::vec3 AABBmin = { mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z };
 	glm::vec3 AABBmax = { mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z };
-	return Mesh(verticesLOD0, indicesLOD0, verticesLOD0, indicesLOD0, verticesLOD0, indicesLOD0, m, transformMat, AABBmin, AABBmax);
+
+	return Mesh(vertices, indices, m, transformMat, AABBmin, AABBmax);
 }
 
-std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName)
 {
 	std::vector<std::shared_ptr<Texture>> textures;
 
@@ -242,9 +456,9 @@ std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial* ma
 
 }
 
-void Model::clipModel(glm::vec4 plane)
+void Model::clipModel(const glm::vec4& plane)
 {
-	for (Mesh &m : meshes)
+	for (Mesh &m : meshesLOD0)
 	{
 		m.setClipPlane(plane);
 	}
@@ -252,7 +466,7 @@ void Model::clipModel(glm::vec4 plane)
 
 void Model::render_withShader(std::shared_ptr<Shader> shader)
 {
-	for (Mesh mesh : meshes)
+	for (Mesh& mesh : meshesLOD0)
 	{
 		mesh.render_withShader(shader);
 	}
@@ -264,23 +478,3 @@ void Model::renderOclussion()
 }
 
 
-std::vector<std::shared_ptr<btRigidBody>> Model::getCollisionObject()
-{
-	return collisionObjects;
-}
-
-void Model::move(glm::vec3 movement)
-{
-	for (auto mesh : meshes)
-	{
-		mesh.move(movement);
-	}
-}
-
-void Model::rotate(glm::vec3 rotationAxis, float angle)
-{
-	for (auto mesh : meshes)
-	{
-		mesh.rotate(rotationAxis, angle);
-	}
-}

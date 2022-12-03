@@ -1,7 +1,9 @@
 #include "Camera.h"
-#include "btBulletDynamicsCommon.h"
 #include "ConfigManager.h"
 #include "Mesh.h"
+#include "Definitions.h"
+#include "GameInstance.h"
+#include "Shader.h"
 
 Camera::Camera(
     glm::vec3 position,
@@ -13,17 +15,18 @@ Camera::Camera(
     WorldUp = up;
     Yaw = yaw;
     Pitch = pitch;
-    
-    frustumLOD0 = std::make_shared<Frustum>();
-    frustumLOD1 = std::make_shared<Frustum>();
-    frustumLOD2 = std::make_shared<Frustum>();
 
-    createViewFrustum();
+    auto& config = ConfigManager::getInstance();
+    height = config.getWindowSize().x;
+    width = config.getWindowSize().y;
+    near = config.getNear();
+    far = config.getFar();
 
     updateCameraVectors();
+    createFrustums();
+
 	float aspect = (float)width / (float)height;
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, near, far);
-
 }
 
 Camera::Camera(
@@ -37,63 +40,22 @@ Camera::Camera(
     Yaw = yaw;
     Pitch = pitch;
 
-    frustumLOD0 = std::make_shared<Frustum>();
-    frustumLOD1 = std::make_shared<Frustum>();
-    frustumLOD2 = std::make_shared<Frustum>();
-
-    createViewFrustum();
+    auto& config = ConfigManager::getInstance();
+    height = config.getWindowSize().x;
+    width = config.getWindowSize().y;
+    near = config.getNear();
+    far = config.getFar();
+    
     updateCameraVectors();
-	float aspect = float(width) / float(height);
+    createFrustums();
+
+    float aspect = float(width) / float(height);
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, near, far);
-}
-
-
-void Camera::createViewFrustum()
-{
-    const float halfVSide = far * std::tanf(glm::radians(Zoom) * .5f);
-    const float halfHSide = halfVSide * (width / height);
-    const glm::vec3 frontMultFar = far * Front;
-
-    Plane nearFace   = { Position + /*near * */ 0.f * Front, Front};
-    Plane rightFace  = { Position,
-                       glm::cross(Up,frontMultFar + Right * halfHSide) };
-    Plane leftFace   = { Position,
-                       glm::cross(frontMultFar - Right * halfHSide, Up) };
-    Plane topFace    = { Position,
-                       glm::cross(Right, frontMultFar - Up * halfVSide) };
-    Plane bottomFace = { Position,
-                       glm::cross(frontMultFar + Up * halfVSide, Right) };
-
-    frustumLOD0->nearFace = nearFace;
-    frustumLOD0->farFace = { Position + frontMultFar, -Front };
-    frustumLOD0->rightFace = rightFace;
-    frustumLOD0->leftFace = leftFace;
-    frustumLOD0->topFace = topFace;
-    frustumLOD0->bottomFace = bottomFace;
-
-    frustumLOD1->nearFace = nearFace;
-    frustumLOD1->farFace = { Position + frontMultFar, -Front };
-    frustumLOD1->rightFace = rightFace;
-    frustumLOD1->leftFace = leftFace;
-    frustumLOD1->topFace = topFace;
-    frustumLOD1->bottomFace = bottomFace;
-
-    frustumLOD2->nearFace = nearFace;
-    frustumLOD2->farFace = { Position + frontMultFar, -Front };
-    frustumLOD2->rightFace = rightFace;
-    frustumLOD2->leftFace = leftFace;
-    frustumLOD2->topFace = topFace;
-    frustumLOD2->bottomFace = bottomFace;
 }
 
 void Camera::updateViewMatrix()
 {
-    ViewMatrix = glm::lookAt(Position, Position + Front, Up);
-}
-
-void Camera::toggleFrustumUpdate()
-{
-    shouldFrustumUpdate = !shouldFrustumUpdate;
+    ViewMatrix = glm::lookAt(Position, Position + Front, Up);        
 }
 
 std::shared_ptr<Frustum> Camera::getFrustum(LOD lod)
@@ -112,16 +74,26 @@ std::shared_ptr<Frustum> Camera::getFrustum(LOD lod)
     }
 }
 
-void Camera::changeSize(glm::ivec2 size)
+void Camera::changeSize(const glm::ivec2& size)
 {
-    this->width  = size.x;
-    this->height = size.y;
-    float aspect = float(width) / float(height);
-    ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, near, far);
+    this->width  = static_cast<float>(size.x);
+    this->height = static_cast<float>(size.y);
+    ProjectionMatrix = glm::perspective(glm::radians(Zoom), width / height, near, far);
+    updateFrustumsVectors();
+}
 
-    if (shouldFrustumUpdate)
-        createViewFrustum();
+void Camera::toggleFrustumUpdate()
+{
+    frustumLOD0->toggleFreeze();
+    frustumLOD1->toggleFreeze();
+    frustumLOD2->toggleFreeze();
+}
 
+void Camera::renderFrustum()
+{
+    frustumLOD0->render({ 0.f, 1.f, 0.f });
+    frustumLOD1->render({ 0.f, 1.f, 1.f });
+    frustumLOD2->render({ 1.f, 1.f, 0.f });
 }
 
 
@@ -140,15 +112,17 @@ glm::vec4 Camera::GetPosition() const
     return glm::vec4(Position, 1.f);
 }
 
-void Camera::SetPosition(glm::vec3 position) 
+void Camera::SetPosition(const glm::vec3& position) 
 {
     this->Position = position;
+    updateFrustumsPosition();
 }
 
 void Camera::InvertPitch()
 {
     this->Pitch = -Pitch;
     updateCameraVectors();
+    updateFrustumsVectors();
 }
 
 
@@ -163,6 +137,7 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
         Position -= Right * velocity;
     if (direction == RIGHT)
         Position += Right * velocity;
+    updateFrustumsPosition();
 }
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)
@@ -184,6 +159,7 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constr
 
     // update Front, Right and Up Vectors using the updated Euler angles
     updateCameraVectors();
+    updateFrustumsVectors();
 }
 
 void Camera::ProcessMouseScroll(float yoffset)
@@ -197,11 +173,8 @@ void Camera::ProcessMouseScroll(float yoffset)
 	
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, 0.1f, 100.0f);
 
-    if (shouldFrustumUpdate)
-        createViewFrustum();
-
+    updateFrustumsZoom();
 }
-
 
 void Camera::updateCameraVectors()
 {
@@ -213,10 +186,5 @@ void Camera::updateCameraVectors()
     Front = glm::normalize(front);
     // also re-calculate the Right and Up vector
     Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-    Up = glm::normalize(glm::cross(Right, Front));
-
-    glGetDoublev(GL_MODELVIEW_MATRIX, modelViewMatrix);
-    
-    if(shouldFrustumUpdate)
-        createViewFrustum();
-}
+    Up = glm::normalize(glm::cross(Right, Front)); 
+} 

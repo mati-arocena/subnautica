@@ -16,13 +16,15 @@
 #include "UIRenderer.h"
 #include "GameInstance.h"
 
-#include "btBulletDynamicsCommon.h"
 #include "SkyBox.h"
 #include "ConfigManager.h"
 #include <thread>
+#include "Loader.h"
 
 void resizeWindow(GLFWwindow* window, int width, int height)
 {
+	if (width == 0 || height == 0)
+		return;
 	glViewport(0, 0, width, height);
 	ConfigManager::getInstance().setWindowSize(glm::ivec2(width, height));
 	GameInstance::getInstance().updateScreenSize(glm::ivec2(width, height));
@@ -37,8 +39,6 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-
 	
 	unsigned width, height;
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -49,7 +49,11 @@ int main()
 	
 	width = ConfigManager::getInstance().getWindowSize().x;
 	height = ConfigManager::getInstance().getWindowSize().y;
+#ifdef _DEBUG
+	GLFWwindow* window = glfwCreateWindow(width, height, "Subnautica", NULL, NULL);
+#else
 	GLFWwindow* window = glfwCreateWindow(width, height, "Subnautica", monitor, nullptr);
+#endif
 	if (!window)
 	{
 		glfwTerminate();
@@ -63,6 +67,7 @@ int main()
 
 	if (glewInit() != GLEW_OK)
 		return -1;
+	gameInstance.addShader(FRUSTUM_SHADER, std::make_shared<Shader>(FRUSTUM_SHADER + ".vert", FRUSTUM_SHADER + ".frag"));
 	std::shared_ptr<Camera> camera = std::make_shared<Camera>();
 	gameInstance.setCamera(camera);
 
@@ -76,17 +81,26 @@ int main()
 	gameInstance.addShader(UI_SHADER, std::make_shared<Shader>(UI_SHADER + ".vert", UI_SHADER + ".frag"));
 	gameInstance.addShader(WATER_SHADER, std::make_shared<Shader>(WATER_SHADER + ".vert", WATER_SHADER + ".frag"));
 	gameInstance.addShader(OCCLUSION_SHADER, std::make_shared<Shader>(NORMAL_SHADER + ".vert", OCCLUSION_SHADER + ".frag"));
-	gameInstance.addShader(WATER_SHADER_OCCLUSION, std::make_shared<Shader>(NORMAL_SHADER + ".vert", WATER_SHADER_OCCLUSION + ".frag"));
+	gameInstance.addShader(WATER_SHADER_OCCLUSION, std::make_shared<Shader>(WATER_SHADER_OCCLUSION + ".vert", WATER_SHADER_OCCLUSION + ".frag"));
 	gameInstance.addShader(POST_SHADER, std::make_shared<Shader>(POST_SHADER + ".vert", POST_SHADER + ".frag"));
 	gameInstance.addShader(SKY_BOX_SHADER, std::make_shared<Shader>(SKY_BOX_SHADER + ".vert", SKY_BOX_SHADER + ".frag"));
 	gameInstance.addShader(SHADOW_MAP_SHADER, std::make_shared<Shader>(SHADOW_MAP_SHADER + ".vert", SHADOW_MAP_SHADER + ".frag"));
 
 	std::shared_ptr<ShadowMapBuffer> shadowMapBuffer = std::make_shared<ShadowMapBuffer>(gameInstance.getShader(SHADOW_MAP_SHADER));
 
-	gameInstance.addLight(std::make_shared<PointLight>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{1000.f, 1000.f, 0.f}));
-	gameInstance.setShadowMapBuffer(shadowMapBuffer);
-	
-	gameInstance.addGameObject(std::make_shared<Model>("assets/mar2.gltf"));
+	Loader::loadScene();
+
+	//gameInstance.addLight(std::make_shared<PointLight>(glm::vec3{1.f, 1.f, 1.f}, glm::vec3{1000.f, 1000.f, 0.f}));
+
+	////gameInstance.setPlayer(std::make_shared<Player>("assets/player", "gltf"));
+	//gameInstance.setPlayer(std::make_shared<Player>("assets/delfin/scene", "gltf", "assets/delfin/scene", "gltf"));
+	////gameInstance.addGameObject(std::make_shared<Model>("assets/caja","obj"));
+	////gameInstance.addGameObject(std::make_shared<Model>("assets/mar2","gltf"));
+	////gameInstance.addGameObject(std::make_shared<Model>("assets/caja.obj"));
+	//gameInstance.addGameObject(std::make_shared<Model>("assets/mar2", "gltf"));
+	//
+	////gameInstance.addGameObject(std::make_shared<Model>("assets/delfin/scene", "gltf", "assets/delfin/scene", "gltf"));
+	//
 	gameInstance.addGameObject(std::make_shared<Water>());
 	gameInstance.addSkyBox(std::make_shared<SkyBox>());
 	gameInstance.setPostProcessor();
@@ -107,7 +121,6 @@ int main()
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-
 		
 		lastTime = current;
 	}

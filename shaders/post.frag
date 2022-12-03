@@ -14,6 +14,8 @@ uniform vec2 lightPos_SS;
 uniform float time;
 uniform float inside_water;
 
+uniform bool render_occlusion = false;
+
 const float fogDensity = 0.1;
 const float fogGradient = 3;
 const int steps = 300;
@@ -49,6 +51,9 @@ void main()
 
     float dist = LinearizeDepth(texture(scene_texture_depth, textCoord).r) / far;
 
-    FragColor = mix(FragColor, water_fog_color, dist * inside_water);
-    //FragColor = texture(occlusion_texture, textCoord);
+
+	if (render_occlusion)
+        FragColor = texture(occlusion_texture, textCoord);
+	else
+        FragColor = mix(FragColor, water_fog_color, dist * inside_water);
 }

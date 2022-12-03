@@ -60,12 +60,10 @@ private:
 
 public:
 	SkyBox();
-	~SkyBox();
 
 	void update(double DeltaTime);
 	void render();
 	void renderOclussion();
 	void render_withShader(std::shared_ptr<Shader> shader);
-	virtual std::vector<std::shared_ptr<btRigidBody>> getCollisionObject() { return std::vector<std::shared_ptr<btRigidBody>>(); };
 };
 

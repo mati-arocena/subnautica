@@ -3,7 +3,7 @@
 #include <iostream>
 #include "Definitions.h"
 #include "GameInstance.h"
-
+#include <array>
 
 SkyBox::SkyBox()
 {
@@ -12,7 +12,7 @@ SkyBox::SkyBox()
 	glGenTextures(1, &ID);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
 
-	std::vector<std::string> paths = { "right", "left", "top", "bottom", "back", "front" };
+	std::array<std::string, 6> paths{ "right", "left", "top", "bottom", "back", "front" };
 
 	for (int i = 0; i < paths.size(); i++)
 	{
@@ -43,12 +43,6 @@ SkyBox::SkyBox()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 }
-
-SkyBox::~SkyBox()
-{
-
-}
-
 
 void SkyBox::renderOclussion()
 {

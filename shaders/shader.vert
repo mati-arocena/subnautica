@@ -5,6 +5,14 @@ layout (location = 2) in vec2 aTexCoord;
 layout (location = 3) in vec3 aTangent;
 layout (location = 4) in vec3 aBitagent;
 
+layout(location = 5) in ivec4 boneIds; 
+layout(location = 6) in vec4 weights;
+
+const int MAX_BONES = 100;
+const int MAX_BONE_INFLUENCE = 4;
+uniform mat4 finalBonesMatrices[MAX_BONES];
+
+out vec2 TextCoord;
 out vec4 origin;
 
 out VS_OUT {
@@ -24,11 +32,36 @@ uniform mat4 projection;
 uniform vec4 clippingPlane;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
+uniform bool has_animation;
 uniform mat4 light_space_matrix;
 
 void main()
-{
-	vec4 worldPosition = model * vec4(aPos, 1.0);
+{	
+	vec4 totalPosition = vec4(0.0f);
+	if (has_animation)
+	{
+		for(int i = 0 ; i < MAX_BONE_INFLUENCE ; i++)
+		{
+			if(boneIds[i] == -1) 
+				continue;
+			if(boneIds[i] >=MAX_BONES) 
+			{
+				totalPosition = vec4(aPos,1.0f);
+				break;
+			}
+			vec4 localPosition = finalBonesMatrices[boneIds[i]] * vec4(aPos,1.0f);
+			totalPosition += localPosition * weights[i];
+			vec3 localNormal = mat3(finalBonesMatrices[boneIds[i]]) * aNormal;
+		}
+	} 
+	else
+	{
+		totalPosition = vec4(aPos,1.);
+	}
+	
+
+	//vec4 worldPosition = model * vec4(aPos,1.0f);
+	vec4 worldPosition = model * totalPosition;
 	vec4 positionRelativeToCam = view * worldPosition;
 	gl_ClipDistance[0] = dot(worldPosition, clippingPlane);
 	gl_Position = projection * positionRelativeToCam;

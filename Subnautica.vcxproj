@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)ThirdParty\includes;$(IncludePath);$(Soli</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)ThirdParty\includes;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)ThirdParty\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -111,15 +111,17 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BT_USE_DOUBLE_PRECISION;GLEW_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEW_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)ThirdParty\includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32s.lib;opengl32.lib;glfw3.lib;assimp-vc143-mt.lib;$(SolutionDir)ThirdParty\libs\BulletDynamics_vs2010_x64_debug.lib;$(SolutionDir)ThirdParty\libs\BulletCollision_vs2010_x64_debug.lib;$(SolutionDir)ThirdParty\libs\LinearMath_vs2010_x64_debug.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32s.lib;opengl32.lib;glfw3.lib;assimp-vc143-mt.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <AdditionalLibraryDirectories>$(SolutionDir)ThirdParty\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
@@ -133,17 +135,19 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BT_USE_DOUBLE_PRECISION;GLEW_STATIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEW_STATIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)ThirdParty\includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32s.lib;opengl32.lib;glfw3.lib;assimp-vc143-mt.lib;BulletCollision_vs2010_x64_release.lib;BulletDynamics_vs2010_x64_release.lib;LinearMath_vs2010_x64_release.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32s.lib;opengl32.lib;glfw3.lib;assimp-vc143-mt.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <AdditionalLibraryDirectories>$(SolutionDir)ThirdParty\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <Profile>true</Profile>
@@ -153,20 +157,27 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="Animator.cpp" />
+    <ClCompile Include="Bone.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ConfigManager.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
+    <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GameInstance.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Light.cpp" />
+    <ClCompile Include="Loader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="PostProcessor.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShadowMapBuffer.cpp" />
     <ClCompile Include="SkyBox.cpp" />
+    <ClCompile Include="ThirdParty\includes\pugixml\pugixml.cpp" />
     <ClCompile Include="UIRenderer.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -174,20 +185,29 @@
     <ClCompile Include="Water.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="Animator.h" />
+    <ClInclude Include="AssimpNodeData.h" />
+    <ClInclude Include="Bone.h" />
+    <ClInclude Include="BoneInfo.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ConfigManager.h" />
     <ClInclude Include="Definitions.h" />
     <ClInclude Include="DirectionalLight.h" />
+    <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameInstance.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="Loader.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="PostProcessor.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShadowMapBuffer.h" />
     <ClInclude Include="SkyBox.h" />
+    <ClInclude Include="ThirdParty\includes\pugixml\pugixml.hpp" />
     <ClInclude Include="UIRenderer.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="VBO.h" />
@@ -195,6 +215,8 @@
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\frustum.frag" />
+    <None Include="shaders\frustum.vert" />
     <None Include="shaders\occlusion.frag" />
     <None Include="shaders\post.frag" />
     <None Include="shaders\post.vert" />
@@ -205,6 +227,7 @@
     <None Include="shaders\ui.frag" />
     <None Include="shaders\ui.vert" />
     <None Include="shaders\water_occlusion.frag" />
+    <None Include="shaders\water_occlusion.vert" />
     <None Include="shaders\water_shader.frag" />
     <None Include="shaders\water_shader.vert" />
     <None Include="shaders\shader.frag" />

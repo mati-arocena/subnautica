@@ -4,43 +4,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Frustum.h"
 #include <memory>
 #include <vector>
-#include <btBulletDynamicsCommon.h>
-#include <BulletCollision/CollisionDispatch/btGhostObject.h>
+#include "VBO.h"
+#include "ConfigManager.h"
 
-
-struct Plane
-{
-    glm::vec3 normal = { 0.f, 1.f, 0.f };
-    float distance = 0.f;
-
-    Plane(const glm::vec3& p1, const glm::vec3& norm)
-        : normal(glm::normalize(norm)),
-        distance(glm::dot(normal, p1))
-    {}
-
-    Plane() = default;
-
-    inline float getSignedDistanceToPlan(const glm::vec3& point) const
-    {
-        return glm::dot(normal, point) - distance;
-    }
-};
-
-struct Frustum
-{
-    Plane topFace;
-    Plane bottomFace;
-
-    Plane rightFace;
-    Plane leftFace;
-
-    Plane farFace;
-    Plane nearFace;
-
-  
-};
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
@@ -53,20 +22,29 @@ enum Camera_Movement {
 // Default camera values
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
-const float SPEED = 2.5f;
+const float SPEED = 5.f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
 
 class Camera
 {
-    float height = 480;
-    float width = 640;
-    float near = 0.1f;
-    float far = 200.f;
+    float height;
+    float width;
+    float near; 
+    float far;
+
+    void updateCameraVectors();
+    
     std::shared_ptr<Frustum> frustumLOD0;
     std::shared_ptr<Frustum> frustumLOD1;
     std::shared_ptr<Frustum> frustumLOD2;
+
+    inline void createFrustums();
+    inline void updateFrustumsVectors();
+    inline void updateFrustumsPosition();
+    inline void updateFrustumsZoom();
+
 public:
     // camera Attributes
     glm::vec3 Position;
@@ -76,8 +54,7 @@ public:
     glm::vec3 WorldUp;
     glm::mat4 ViewMatrix;
     glm::mat4 ProjectionMatrix;
-
-    btScalar modelViewMatrix[16];
+	
 
     // euler Angles
     float Yaw;
@@ -100,7 +77,7 @@ public:
     );
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix() const;
-    void SetPosition(glm::vec3 position);
+    void SetPosition(const glm::vec3& position);
     void InvertPitch();
     glm::mat4 GetProjectionMatrix() const;
     glm::vec4 GetPosition() const; 
@@ -112,16 +89,37 @@ public:
     void ProcessMouseScroll(float yoffset);
     void updateViewMatrix();
 
-	void changeSize(glm::ivec2 size);
-	
+	void changeSize(const glm::ivec2& size);
+
     std::shared_ptr<Frustum> getFrustum(enum class LOD lod);
-
     void toggleFrustumUpdate();
-private:
-
-    bool shouldFrustumUpdate = true;
-
-    void createViewFrustum();
-
-    void updateCameraVectors();
+    void renderFrustum();
 };
+
+void Camera::updateFrustumsVectors()
+{
+    frustumLOD0->update(Front, Right, Up, width / height);
+    frustumLOD1->update(Front, Right, Up, width / height);
+    frustumLOD2->update(Front, Right, Up, width / height);
+}
+
+void Camera::updateFrustumsPosition()
+{
+    frustumLOD0->update(Position);
+    frustumLOD1->update(Position);
+    frustumLOD2->update(Position);
+}
+
+void Camera::updateFrustumsZoom()
+{
+    frustumLOD0->update(glm::radians(Zoom), width / height, Right);
+    frustumLOD1->update(glm::radians(Zoom), width / height, Right);
+    frustumLOD2->update(glm::radians(Zoom), width / height, Right);
+}
+
+void Camera::createFrustums()
+{
+    frustumLOD0 = std::make_shared<Frustum>(Position, Front, Up, Right, glm::radians(Zoom), near, far * 0.68, width / height);
+    frustumLOD1 = std::make_shared<Frustum>(Position, Front, Up, Right, glm::radians(Zoom), far * 0.68, far * 0.95, width / height);
+    frustumLOD2 = std::make_shared<Frustum>(Position, Front, Up, Right, glm::radians(Zoom), far * 0.95, far, width / height);
+}
