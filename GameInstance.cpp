@@ -351,16 +351,18 @@ void GameInstance::render_withShader(std::shared_ptr<Shader> shader)
 
 void GameInstance::renderOclussion()
 {
-	glClearColor(1.f, 1.f, 1.f, 1.0f);
+	glClearColor(0.f, 0.f, 0.f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	std::shared_ptr<Shader> occShdr = getShader(OCCLUSION_SHADER);
 	occShdr->prerender(camera, pointLight);
 
+
 	if (water != NULL)
 	{
 		this->water->renderOclussion();
 	}
+	player->render_withShader(occShdr);
 	for (auto object : objects)
 	{
 		if (auto m = dynamic_cast<Model*>(object.get()))

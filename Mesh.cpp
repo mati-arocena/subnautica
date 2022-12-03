@@ -220,6 +220,13 @@ void Mesh::render_withShader(std::shared_ptr<Shader> shader)
 
 	shader->setMat4("model", model);
 
+	shader->setBool("has_animation", this->animator != nullptr);
+	if (this->animator != nullptr)
+	{
+		auto transforms = animator->getFinalBoneMatrices();
+		for (int i = 0; i < transforms->size(); ++i)
+			shader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms->at(i));
+	}
 	bind(GL_FILL);
 
 }
