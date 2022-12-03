@@ -11,7 +11,8 @@ Frustum::Frustum(const glm::vec3& position, const glm::vec3& front, const glm::v
 	this->fov = fov;
 
 	update(position, front, up, right, aspect);
-	setupRender();
+
+	setupRender(false);
 }
 
 void Frustum::update(const glm::vec3& position, const glm::vec3& front, const glm::vec3& right, const glm::vec3& up, float aspect)
@@ -87,28 +88,42 @@ FrustumVertices Frustum::calculateVertices() const
 	return result;
 }
 
-FrustumVertices Frustum::toWorldCoordinates(const FrustumVertices& vertices)
+FrustumPlanes Frustum::calculatePlanes(const FrustumVertices& vertices) const
 {
-	FrustumVertices result{};
 
-	result.farTopLeft = toWorldCoordinates(result.farTopLeft);
-	result.farTopRight = toWorldCoordinates(result.farTopRight);
-	result.farBottomLeft = toWorldCoordinates(result.farBottomLeft);
-	result.farBottomRight = toWorldCoordinates(result.farBottomRight);
-
-	result.nearTopLeft = toWorldCoordinates(result.nearTopLeft);
-	result.nearTopRight = toWorldCoordinates(result.nearTopRight);
-	result.nearBottomLeft = toWorldCoordinates(result.nearBottomLeft);
-	result.nearBottomRight = toWorldCoordinates(result.nearBottomRight);
+	FrustumPlanes result{};
+	result.top = { planeEquation(vertices.nearTopLeft, vertices.farTopLeft, vertices.nearTopRight) };
+	result.bottom = { planeEquation(vertices.nearBottomLeft, vertices.farBottomLeft, vertices.nearBottomRight) };
+	result.right = { planeEquation(vertices.nearBottomRight, vertices.farBottomRight, vertices.nearTopRight) };
+	result.left = { planeEquation(vertices.nearBottomLeft, vertices.farBottomLeft, vertices.nearTopLeft) };
+	result.near = { planeEquation(vertices.nearTopLeft, vertices.nearTopRight, vertices.nearBottomLeft) };
+	result.far = { planeEquation(vertices.farTopLeft, vertices.farTopRight, vertices.farBottomLeft) };
 
 	return result;
 }
 
-void Frustum::setupRender()
+FrustumVertices Frustum::toWorldCoordinates(const FrustumVertices& vertices) const
+{
+	FrustumVertices result{};
+
+	result.farTopLeft = toWorldCoordinates(vertices.farTopLeft);
+	result.farTopRight = toWorldCoordinates(vertices.farTopRight);
+	result.farBottomLeft = toWorldCoordinates(vertices.farBottomLeft);
+	result.farBottomRight = toWorldCoordinates(vertices.farBottomRight);
+
+	result.nearTopLeft = toWorldCoordinates(vertices.nearTopLeft);
+	result.nearTopRight = toWorldCoordinates(vertices.nearTopRight);
+	result.nearBottomLeft = toWorldCoordinates(vertices.nearBottomLeft);
+	result.nearBottomRight = toWorldCoordinates(vertices.nearBottomRight);
+
+	return result;
+}
+
+void Frustum::setupRender(bool inWorldCoordinates)
 {
 	frustumShader = GameInstance::getInstance().getShader(FRUSTUM_SHADER);
 
-	const FrustumVertices frustumVertices = calculateVertices();
+	const FrustumVertices frustumVertices{ inWorldCoordinates ? toWorldCoordinates(calculateVertices()) : calculateVertices()};
 
 	Vertex nbl(frustumVertices.nearBottomLeft, { 0.f, 1.f, 0.f }, { 0.f, 1.f });
 	Vertex nbr(frustumVertices.nearBottomRight, { 0.f, 1.f, 0.f }, { 0.f, 1.f });
@@ -143,20 +158,43 @@ void Frustum::setupRender()
 	glBindVertexArray(vao);
 
 	this->vbo = std::make_shared<VBO>();
-	vbo->load(vertices, vertices.size() * Vertex::numElementsInVBO);
+	vbo->loadDynamic(vertices, vertices.size() * Vertex::numElementsInVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), VBO::toEBO(indices), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), VBO::toEBO(indices), GL_DYNAMIC_DRAW);
 
 	Vertex::setVertexAttributes();
 }
 
+void Frustum::updateRender(bool inWorldCoordinates)
+{
+	const FrustumVertices frustumVertices{ inWorldCoordinates ? toWorldCoordinates(calculateVertices()) : calculateVertices() };
+
+	Vertex nbl(frustumVertices.nearBottomLeft, { 0.f, 1.f, 0.f }, { 0.f, 1.f });
+	Vertex nbr(frustumVertices.nearBottomRight, { 0.f, 1.f, 0.f }, { 0.f, 1.f });
+	Vertex ntl(frustumVertices.nearTopLeft, { 0.f, 1.f, 0.f }, { 0.f, 1.f });
+	Vertex ntr(frustumVertices.nearTopRight, { 0.f, 1.f, 0.f }, { 0.f, 1.f });
+	Vertex fbl(frustumVertices.farBottomLeft, { 0.f, 1.f, 0.f }, { 0.f, 1.f });
+	Vertex fbr(frustumVertices.farBottomRight, { 0.f, 1.f, 0.f }, { 0.f, 1.f });
+	Vertex ftl(frustumVertices.farTopLeft, { 0.f, 1.f, 0.f }, { 0.f, 1.f });
+	Vertex ftr(frustumVertices.farTopRight, { 0.f, 1.f, 0.f }, { 0.f, 1.f });
+
+	std::vector<Vertex> vertices = {
+		nbl/*0*/, nbr/*1*/, ntl/*2*/, ntr/*3*/,
+		fbl/*4*/, fbr/*5*/, ftl/*6*/, ftr/*7*/
+	};
+
+	vbo->updateDynamic(vertices);
+}
+
 void Frustum::render(const glm::vec3& color /*= { 0.f, 1.f, 0.f }*/)
 {
+
 	frustumShader->use();
 
 	frustumShader->setFloat("color", color.r, color.g, color.b);
 
-	glm::mat4 model = getModelMatrix();
+	glm::mat4 model = glm::identity<glm::mat4>();
+
 	frustumShader->setMat4("model", model);
 
 	glBindVertexArray(vao);
@@ -167,91 +205,94 @@ void Frustum::render(const glm::vec3& color /*= { 0.f, 1.f, 0.f }*/)
 
 bool Frustum::isBoxInFrustum(const glm::vec3& minp, const glm::vec3& maxp) const
 {
+	const FrustumVertices vertices{ calculateVertices() };
+
+	const FrustumPlanes planes = calculatePlanes(vertices);
 	
-#if 0
 	// check box outside/inside of frustum
-	if ((glm::dot(topFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(topFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(topFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(topFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(topFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(topFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(topFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(topFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f)) > 0.4))
+	if ((glm::dot(planes.top, glm::vec4(minp.x, minp.y, minp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.top, glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.top, glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.top, glm::vec4(maxp.x, maxp.y, minp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.top, glm::vec4(minp.x, minp.y, maxp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.top, glm::vec4(maxp.x, minp.y, maxp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.top, glm::vec4(minp.x, maxp.y, maxp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.top, glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f)) < 0.f))
 	{
 		return false;
 	}
-	if ((glm::dot(bottomFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(bottomFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(bottomFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(bottomFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(bottomFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(bottomFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(bottomFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(bottomFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f)) > 0.4))
+	if ((glm::dot(planes.bottom, glm::vec4(minp.x, minp.y, minp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.bottom, glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.bottom, glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.bottom, glm::vec4(maxp.x, maxp.y, minp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.bottom, glm::vec4(minp.x, minp.y, maxp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.bottom, glm::vec4(maxp.x, minp.y, maxp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.bottom, glm::vec4(minp.x, maxp.y, maxp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.bottom, glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f)) > 0.f))
 	{
 		return false;
 	}
-	if ((glm::dot(rightFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(rightFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(rightFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(rightFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(rightFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(rightFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(rightFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(rightFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f)) > 0.4))
+	if ((glm::dot(planes.right, glm::vec4(minp.x, minp.y, minp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.right, glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.right, glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.right, glm::vec4(maxp.x, maxp.y, minp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.right, glm::vec4(minp.x, minp.y, maxp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.right, glm::vec4(maxp.x, minp.y, maxp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.right, glm::vec4(minp.x, maxp.y, maxp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.right, glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f)) > 0.f))
 	{
 		return false;
 	}
-	if ((glm::dot(leftFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(leftFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(leftFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(leftFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(leftFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(leftFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(leftFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(leftFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f)) > 0.4))
+	if ((glm::dot(planes.left, glm::vec4(minp.x, minp.y, minp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.left, glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.left, glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.left, glm::vec4(maxp.x, maxp.y, minp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.left, glm::vec4(minp.x, minp.y, maxp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.left, glm::vec4(maxp.x, minp.y, maxp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.left, glm::vec4(minp.x, maxp.y, maxp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.left, glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f)) < 0.f))
 	{
 		return false;
 	}
-	if ((glm::dot(farFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(farFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(farFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(farFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(farFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(farFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(farFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(farFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f)) > 0.4))
+	if ((glm::dot(planes.far, glm::vec4(minp.x, minp.y, minp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.far, glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.far, glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.far, glm::vec4(maxp.x, maxp.y, minp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.far, glm::vec4(minp.x, minp.y, maxp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.far, glm::vec4(maxp.x, minp.y, maxp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.far, glm::vec4(minp.x, maxp.y, maxp.z, 1.0f)) > 0.f) &&
+		(glm::dot(planes.far, glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f)) > 0.f))
 	{
 		return false;
 	}
-	if ((glm::dot(nearFace.equation(), glm::vec4(minp.x, minp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(nearFace.equation(), glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(nearFace.equation(), glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(nearFace.equation(), glm::vec4(maxp.x, maxp.y, minp.z, 1.0f)) > 0.4) &&
-		(glm::dot(nearFace.equation(), glm::vec4(minp.x, minp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(nearFace.equation(), glm::vec4(maxp.x, minp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(nearFace.equation(), glm::vec4(minp.x, maxp.y, maxp.z, 1.0f)) > 0.4) &&
-		(glm::dot(nearFace.equation(), glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f)) > 0.4))
+	if ((glm::dot(planes.near, glm::vec4(minp.x, minp.y, minp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.near, glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.near, glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.near, glm::vec4(maxp.x, maxp.y, minp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.near, glm::vec4(minp.x, minp.y, maxp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.near, glm::vec4(maxp.x, minp.y, maxp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.near, glm::vec4(minp.x, maxp.y, maxp.z, 1.0f)) < 0.f) &&
+		(glm::dot(planes.near, glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f)) < 0.f))
 	{
 		return false;
 	}
 
 
 	// check frustum outside/inside box
-	int out;
-	out = 0; for (int i = 0; i < 8; i++) out += ((points[i].x > maxp.x) ? 1 : 0); if (out == 8) return false;
-	out = 0; for (int i = 0; i < 8; i++) out += ((points[i].x < minp.x) ? 1 : 0); if (out == 8) return false;
-	out = 0; for (int i = 0; i < 8; i++) out += ((points[i].y > maxp.y) ? 1 : 0); if (out == 8) return false;
-	out = 0; for (int i = 0; i < 8; i++) out += ((points[i].y < minp.y) ? 1 : 0); if (out == 8) return false;
-	out = 0; for (int i = 0; i < 8; i++) out += ((points[i].z > maxp.z) ? 1 : 0); if (out == 8) return false;
-	out = 0; for (int i = 0; i < 8; i++) out += ((points[i].z < minp.z) ? 1 : 0); if (out == 8) return false;
+	if (isGreaterThan(vertices, Coordinates::x, maxp.x) || 
+		isSmallerThan(vertices, Coordinates::x, minp.x) ||
+	    isGreaterThan(vertices, Coordinates::y, maxp.y) ||
+		isSmallerThan(vertices, Coordinates::y, minp.y) ||
+		isGreaterThan(vertices, Coordinates::z, maxp.z) ||
+		isSmallerThan(vertices, Coordinates::z, minp.z)) 
+		return false;
 
-#endif
 	return true;
 }
 
 void Frustum::toggleFreeze()
 {
 	freeze = !freeze;
+	if (freeze)
+		updateRender(false);
 }

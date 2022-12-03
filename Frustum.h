@@ -4,6 +4,13 @@
 #include <memory>
 #include "VBO.h"
 
+enum class Coordinates
+{
+    x,
+    y,
+    z
+};
+
 struct FrustumVertices
 {
     glm::vec3 farTopLeft;
@@ -50,18 +57,24 @@ class Frustum
     bool freeze = false;
 
     FrustumVertices calculateVertices() const;
-   
-    FrustumVertices toWorldCoordinates(const FrustumVertices& vertices);
-    inline glm::vec3 toWorldCoordinates(const glm::vec3& vertex);
-    inline glm::mat4 getModelMatrix();
+    FrustumPlanes calculatePlanes(const FrustumVertices& vertices) const;
+
+    FrustumVertices toWorldCoordinates(const FrustumVertices& vertices) const;
+    inline glm::vec3 toWorldCoordinates(const glm::vec3& vertex) const;
+    inline glm::mat4 getModelMatrix() const;
+    inline float getSignedDistance(const glm::vec3& point) const;
 
     inline static glm::vec4 planeEquation(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3);
+
+    inline static bool isGreaterThan(const FrustumVertices& vertices, Coordinates coord, float value);
+    inline static bool isSmallerThan(const FrustumVertices& vertices, Coordinates coord, float value);
 
     unsigned int vao, ebo, indicesSize;
     std::shared_ptr<VBO> vbo;
     std::shared_ptr<class Shader> frustumShader;
 
-    void setupRender();
+    void setupRender(bool inWorldCoordinates = true);
+    void updateRender(bool inWorldCoordinates = true);
 public:
     Frustum(const glm::vec3& position, const glm::vec3& front, const glm::vec3& up, const glm::vec3& right, float fov, float near, float far, float aspect);
     void update(const glm::vec3& position, const glm::vec3& front, const glm::vec3& right, const glm::vec3& up, float aspect);
@@ -73,13 +86,13 @@ public:
     void toggleFreeze();
 };
 
-inline glm::vec3 Frustum::toWorldCoordinates(const glm::vec3& vertex)
+inline glm::vec3 Frustum::toWorldCoordinates(const glm::vec3& vertex) const
 {
-    
-    return glm::vec3(getModelMatrix() * glm::vec4(vertex, 1.0f));
+    glm::vec4 v = getModelMatrix() * glm::vec4(vertex, 1.0f);
+    return glm::vec3(v);
 }
 
-inline glm::mat4 Frustum::getModelMatrix()
+inline glm::mat4 Frustum::getModelMatrix() const 
 {
     return glm::inverse(glm::lookAt(position, position + front, up));
 }
@@ -92,4 +105,48 @@ inline glm::vec4 Frustum::planeEquation(const glm::vec3& p1, const glm::vec3& p2
     const glm::vec3 n = glm::cross(v, w);
 
     return glm::vec4(n, -n.x * p1.x - n.y * p1.y - n.z * p1.z);
+}
+
+inline bool Frustum::isGreaterThan(const FrustumVertices& vertices, Coordinates coord, float value)
+{
+    int component;
+    if (coord == Coordinates::x)
+        component = 0;
+    else if (coord == Coordinates::y)
+        component = 1;
+    else
+        component = 2;
+
+    return (
+        vertices.farBottomLeft[component] > value &&
+        vertices.farBottomRight[component] > value &&
+        vertices.farTopLeft[component] > value &&
+        vertices.farTopRight[component] > value &&
+        vertices.nearBottomLeft[component] > value &&
+        vertices.nearBottomRight[component] > value &&
+        vertices.nearTopLeft[component] > value &&
+        vertices.nearTopRight[component] > value
+        );
+}
+
+inline bool Frustum::isSmallerThan(const FrustumVertices& vertices, Coordinates coord, float value)
+{
+    int component;
+    if (coord == Coordinates::x)
+        component = 0;
+    else if (coord == Coordinates::y)
+        component = 1;
+    else
+        component = 2;
+
+    return (
+        vertices.farBottomLeft[component] < value &&
+        vertices.farBottomRight[component] < value &&
+        vertices.farTopLeft[component] < value &&
+        vertices.farTopRight[component] < value &&
+        vertices.nearBottomLeft[component] < value &&
+        vertices.nearBottomRight[component] < value &&
+        vertices.nearTopLeft[component] < value &&
+        vertices.nearTopRight[component] < value
+        );
 }

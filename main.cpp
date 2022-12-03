@@ -85,8 +85,8 @@ int main()
 	
 	//gameInstance.setPlayer(std::make_shared<Player>("assets/player", "gltf"));
 	gameInstance.setPlayer(std::make_shared<Player>("assets/delfin/scene", "gltf", "assets/delfin/scene", "gltf"));
-//	gameInstance.addGameObject(std::make_shared<Model>("assets/caja","obj"));
-//	gameInstance.addGameObject(std::make_shared<Model>("assets/mar2.gltf"));
+	gameInstance.addGameObject(std::make_shared<Model>("assets/caja","obj"));
+	//gameInstance.addGameObject(std::make_shared<Model>("assets/mar2","gltf"));
 	//gameInstance.addGameObject(std::make_shared<Model>("assets/caja.obj"));
 	//gameInstance.addGameObject(std::make_shared<Model>("assets/mar2", "gltf"));
 	

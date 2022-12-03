@@ -155,51 +155,7 @@ void Mesh::bind(GLenum polygonMode)
 
 bool Mesh::isOnFrustum(std::shared_ptr<Frustum> frustum)
 {
-	//Get global scale thanks to our transform
-	const glm::vec3 globalCenter{ model * glm::vec4(center, 1.f) };
-
-	// Scaled orientation
-	const glm::vec3 right = model[0] * extents.x;
-	const glm::vec3 up = model[1] * extents.y;
-	const glm::vec3 forward = -model[2] * extents.z;
-
-	const float newIi = std::abs(glm::dot(glm::vec3{ 1.f, 0.f, 0.f }, right)) +
-		std::abs(glm::dot(glm::vec3{ 1.f, 0.f, 0.f }, up)) +
-		std::abs(glm::dot(glm::vec3{ 1.f, 0.f, 0.f }, forward));
-
-	const float newIj = std::abs(glm::dot(glm::vec3{ 0.f, 1.f, 0.f }, right)) +
-		std::abs(glm::dot(glm::vec3{ 0.f, 1.f, 0.f }, up)) +
-		std::abs(glm::dot(glm::vec3{ 0.f, 1.f, 0.f }, forward));
-	const float newIk = std::abs(glm::dot(glm::vec3{ 0.f, 0.f, 1.f }, right)) +
-		std::abs(glm::dot(glm::vec3{ 0.f, 0.f, 1.f }, up)) +
-		std::abs(glm::dot(glm::vec3{ 0.f, 0.f, 1.f }, forward));
-	const glm::vec3 newExtents = { newIi, newIj, newIk };
-
-	return isOnFrustum(globalCenter, newExtents, frustum);
-}
-
-bool Mesh::isOnFrustum(glm::vec3 center, glm::vec3 extents, std::shared_ptr<Frustum> frustum)
-{
-	return frustum->isBoxInFrustum(center - extents, center + extents);
-
-#if 0
-	bool left = isOnOrForwardPlane(center, extents, frustum->leftFace);
-	bool right = isOnOrForwardPlane(center, extents, frustum->rightFace);
-	bool top = isOnOrForwardPlane(center, extents, frustum->topFace);
-	bool bottom = isOnOrForwardPlane(center, extents, frustum->bottomFace);
-	bool near = isOnOrForwardPlane(center, extents, frustum->nearFace);
-	bool far = isOnOrForwardPlane(center, extents, frustum->farFace);
-
-	bool res = left && right && top && bottom && near && far;
-
-
-	return isOnOrForwardPlane(center, extents, frustum->leftFace) &&
-		isOnOrForwardPlane(center, extents, frustum->rightFace) &&
-		isOnOrForwardPlane(center, extents, frustum->topFace) &&
-		isOnOrForwardPlane(center, extents, frustum->bottomFace) &&
-		isOnOrForwardPlane(center, extents, frustum->nearFace) &&
-		isOnOrForwardPlane(center, extents, frustum->farFace);
-#endif
+	return frustum->isBoxInFrustum(minAABB, maxAABB);
 }
 
 float* Vertex::toVBO(const std::vector<Vertex>& vertices)
