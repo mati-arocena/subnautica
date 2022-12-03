@@ -42,7 +42,10 @@ void Player::update(double deltaTime)
 	movementAngle = 0.f;
 
 	position += movementVector;
-	move(movementVector, deltaTime);
+	if (movementVector.x != 0.f || movementVector.y != 0.f || movementVector.z != 0.f)
+	{
+		move(movementVector, deltaTime);
+	}
 	movementVector = { 0.f, 0.f, 0.f };
 }
 

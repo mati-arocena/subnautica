@@ -30,6 +30,7 @@ protected:
 	std::string directory;
     std::vector<Texture*> textures_loaded;
     
+    bool hasAnimations = false;
     void loadModel(const std::string& path, LOD lod);
     void loadAnimations(std::string path);
 

@@ -5,6 +5,9 @@
 #include "Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 #include "Animator.h"
 
@@ -26,6 +29,7 @@ public:
 	std::vector<unsigned int> indices;
 	Material* material;
 
+	~Mesh() {};
 
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
 		Material* material, glm::mat4 modelMat, glm::vec3 AABBmin, glm::vec3 AABBmax, bool isMovable = false);
@@ -37,25 +41,45 @@ public:
 
 	void setClipPlane(const glm::vec4& plane);
 	glm::vec4 getClipPlane();
-	glm::mat4 model;
+
+
+	glm::mat4* model_P = new glm::mat4(1.f);
+
+	glm::vec3 scale;
+	glm::quat rotation;
+	glm::vec3 translation;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+
+
+
 	void render_withShader(std::shared_ptr<Shader> shader);
 
 	inline void move(const glm::vec3& translate)
 	{
-		model = glm::translate(model, translate);
+		translation += translate;
 	}
 
     inline void rotate(const glm::vec3& rotationAxis, float angle)
     {
-        //model = glm::rotate(model, glm::radians(angle), rotationAxis);
-        model *= glm::eulerAngleYXZ(
-            glm::radians(0.f),
-            glm::radians(angle),
-            glm::radians(0.f));
+		rotation *= glm::angleAxis(angle, rotationAxis);
     }
 
-	bool isOnFrustum(std::shared_ptr<Frustum> frustum);
+	inline void computeModelMatrix()
+	{
+		glm::mat4 t = glm::translate(glm::mat4(1.0f), translation);
+		glm::mat4 r = glm::toMat4(rotation);
+		glm::mat4 s = glm::scale(glm::mat4(1.0f), scale);
+
+		this->model = t * r * s;
+	}
+
+	void decomposeModelMatrix(glm::mat4 model);
+
+    bool isOnFrustum(std::shared_ptr<Frustum> frustum);
     void setAnimator(std::shared_ptr<Animator> animator);
+
+	void update(float delta);
 
 	bool isMovable();
 
@@ -69,6 +93,7 @@ private:
 	unsigned int vao, ebo;
 	glm::vec4 clipPlane;
 
+	glm::mat4 model; // your transformation matrix.
 	std::shared_ptr<Shader> debugShader;
 	unsigned int debugIndicesSize, debugVao, debugEbo;
 	VBO* debugVBO;
@@ -78,7 +103,6 @@ private:
 	glm::vec3 minAABB;
 	glm::vec3 maxAABB;
 
-	glm::vec3 translation;
 	float angle;
 
     void setupMesh();

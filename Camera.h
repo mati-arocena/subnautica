@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 #include "VBO.h"
+#include "ConfigManager.h"
 
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
@@ -53,6 +54,7 @@ public:
     glm::vec3 WorldUp;
     glm::mat4 ViewMatrix;
     glm::mat4 ProjectionMatrix;
+	
 
     // euler Angles
     float Yaw;

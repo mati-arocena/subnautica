@@ -60,6 +60,9 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * debugIndicesSize, VBO::toEBO(indicesAABB), GL_DYNAMIC_DRAW);
 	
 	Vertex::setVertexAttributes();
+
+	decomposeModelMatrix(modelMat);
+	computeModelMatrix();
 	
 }
 
@@ -89,6 +92,12 @@ void Mesh::render()
 void Mesh::setAnimator(std::shared_ptr<Animator> animator)
 {
 	this->animator = animator;
+}
+
+void Mesh::update(float delta)
+{
+	// At the end
+	computeModelMatrix();
 }
 
 bool Mesh::isMovable()
@@ -146,6 +155,15 @@ void Mesh::bind(GLenum polygonMode)
 	glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
 	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0); // cantidad de indices
 	glBindVertexArray(0);
+}
+
+void Mesh::decomposeModelMatrix(glm::mat4 model)
+{
+	/*
+		Used when loading model from assimp
+	*/
+	glm::decompose(model, scale, rotation, translation, skew, perspective);
+	rotation = glm::conjugate(rotation);
 }
 
 bool Mesh::isOnFrustum(std::shared_ptr<Frustum> frustum)
