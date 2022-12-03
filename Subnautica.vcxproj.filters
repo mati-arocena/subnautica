@@ -84,6 +84,12 @@
     <ClCompile Include="Frustum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Loader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\includes\pugixml\pugixml.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -159,6 +165,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Frustum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Loader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\includes\pugixml\pugixml.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

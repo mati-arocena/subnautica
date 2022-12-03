@@ -23,8 +23,6 @@ private:
 	float far = 100.f;
 	float near = 0.01f;
 	Mode mode = Mode::FLY_MODE;
-	
-	
 
 public:
 	static ConfigManager& getInstance();
@@ -52,6 +50,5 @@ public:
 
 	float getFar();
 	float getNear();
-
 };
 

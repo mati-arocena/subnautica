@@ -22,8 +22,10 @@ void Model::setAnimator(std::shared_ptr<Animator> animator)
 	}
 }
 
-Model::Model(std::string path, std::string extension) : GameObject()
+Model::Model(std::string path, std::string extension, glm::vec3 position) : GameObject()
 {
+	this->position = position;
+
 	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
 	frustumLOD0 = camera->getFrustum(LOD::LOD0);
 	frustumLOD1 = camera->getFrustum(LOD::LOD1);
@@ -32,11 +34,26 @@ Model::Model(std::string path, std::string extension) : GameObject()
 	loadModel(path + LOD_SUFFIX + "0." + extension, LOD::LOD0);
 	loadModel(path + LOD_SUFFIX + "1." + extension, LOD::LOD1);
 	loadModel(path + LOD_SUFFIX + "2." + extension, LOD::LOD2);
+
 	this->animator = nullptr;
+
+	for (auto& mesh : meshesLOD0)
+	{
+		mesh.move(position);
+	}
+	for (auto& mesh : meshesLOD1)
+	{
+		mesh.move(position);
+	}
+	for (auto& mesh : meshesLOD2)
+	{
+		mesh.move(position);
+	}
 }
 
-Model::Model(std::string path, std::string extension, std::string animationPath, std::string animationExtension) : GameObject()
+Model::Model(std::string path, std::string extension, std::string animationPath, std::string animationExtension, glm::vec3 position) : GameObject()
 {
+	this->position = position;
 	this->hasAnimations = true;
 	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
 	frustumLOD0 = camera->getFrustum(LOD::LOD0);
@@ -54,6 +71,18 @@ Model::Model(std::string path, std::string extension, std::string animationPath,
 	this->setAnimator(std::make_shared<Animator>(animation));
 
 	isMovable = true;
+	for (auto& mesh : meshesLOD0)
+	{
+		mesh.move(position);
+	}
+	for (auto& mesh : meshesLOD1)
+	{
+		mesh.move(position);
+	}
+	for (auto& mesh : meshesLOD2)
+	{
+		mesh.move(position);
+	}
 }
 
 void Model::render()
@@ -72,7 +101,7 @@ void Model::render()
 
 	for (Mesh& mesh : meshesLOD2)
 	{
-		if (mesh.isOnFrustum(frustumLOD2) && !mesh.isOnFrustum(frustumLOD0) && !mesh.isOnFrustum(frustumLOD1))
+		if (mesh.isOnFrustum(frustumLOD2) && !mesh.isOnFrustum(frustumLOD1))
 			mesh.render();
 	}
 
@@ -112,29 +141,28 @@ void Model::update(double DeltaTime)
 {
 	for (auto& mesh : meshesLOD0)
 	{
-		if (isMovable)
-		{
-			mesh.updateAABB();
-		}
+		mesh.recalculateAABB();
 	}
 	for (auto& mesh : meshesLOD1)
 	{
-		if (isMovable)
-		{
-			mesh.updateAABB();
-		}
+		mesh.recalculateAABB();
 	}
 	for (auto& mesh : meshesLOD2)
 	{
-		if (isMovable)
-		{
-			mesh.updateAABB();
-		}
+		mesh.recalculateAABB();
 	}
 	if (this->animator != nullptr)
 		this->animator->updateAnimation(DeltaTime);
 	
-	for (Mesh &mesh : meshesLOD0)
+	for (Mesh& mesh : meshesLOD0)
+	{
+		mesh.update(DeltaTime);
+	}
+	for (Mesh& mesh : meshesLOD1)
+	{
+		mesh.update(DeltaTime);
+	}
+	for (Mesh& mesh : meshesLOD2)
 	{
 		mesh.update(DeltaTime);
 	}
