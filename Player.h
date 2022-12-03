@@ -24,10 +24,11 @@ class Player : public Model
 	void move(const glm::vec3& movement, double deltaTime);
 	void rotate(float angle, double deltaTime);
 public:
-	Player(std::string path, std::string extension) : Model(path, extension) {
+	Player(std::string path, std::string extension) : Model(path, extension, glm::vec3(0.f, 0.f, 0.f)) {
 		this->isMovable = true;
 	};
-	Player(std::string path, std::string extension, std::string animationPath, std::string animationExtension) : Model(path, extension, animationPath, animationExtension) {};
+
+	Player(std::string path, std::string extension, std::string animationPath, std::string animationExtension) : Model(path, extension, animationPath, animationExtension, glm::vec3(0.f)) {};
 
 	void update(double deltaTime) override;
 

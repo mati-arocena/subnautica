@@ -22,7 +22,7 @@ void Model::setAnimator(std::shared_ptr<Animator> animator)
 	}
 }
 
-Model::Model(std::string path, std::string extension) : GameObject()
+Model::Model(std::string path, std::string extension, glm::vec3 position) : GameObject()
 {
 	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
 	frustumLOD0 = camera->getFrustum(LOD::LOD0);
@@ -32,10 +32,24 @@ Model::Model(std::string path, std::string extension) : GameObject()
 	loadModel(path + LOD_SUFFIX + "0." + extension, LOD::LOD0);
 	loadModel(path + LOD_SUFFIX + "1." + extension, LOD::LOD1);
 	loadModel(path + LOD_SUFFIX + "2." + extension, LOD::LOD2);
+
 	this->animator = nullptr;
+
+	for (auto& mesh : meshesLOD0)
+	{
+		mesh.move(position);
+	}
+	for (auto& mesh : meshesLOD1)
+	{
+		mesh.move(position);
+	}
+	for (auto& mesh : meshesLOD2)
+	{
+		mesh.move(position);
+	}
 }
 
-Model::Model(std::string path, std::string extension, std::string animationPath, std::string animationExtension) : GameObject()
+Model::Model(std::string path, std::string extension, std::string animationPath, std::string animationExtension, glm::vec3 postion) : GameObject()
 {
 	this->hasAnimations = true;
 	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
@@ -54,6 +68,18 @@ Model::Model(std::string path, std::string extension, std::string animationPath,
 	this->setAnimator(std::make_shared<Animator>(animation));
 
 	isMovable = true;
+	for (auto& mesh : meshesLOD0)
+	{
+		mesh.move(position);
+	}
+	for (auto& mesh : meshesLOD1)
+	{
+		mesh.move(position);
+	}
+	for (auto& mesh : meshesLOD2)
+	{
+		mesh.move(position);
+	}
 }
 
 void Model::render()

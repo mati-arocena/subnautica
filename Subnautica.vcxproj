@@ -167,6 +167,7 @@
     <ClCompile Include="GameInstance.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Light.cpp" />
+    <ClCompile Include="Loader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -175,6 +176,7 @@
     <ClCompile Include="PostProcessor.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="SkyBox.cpp" />
+    <ClCompile Include="ThirdParty\includes\pugixml\pugixml.cpp" />
     <ClCompile Include="UIRenderer.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -195,6 +197,7 @@
     <ClInclude Include="GameInstance.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="Loader.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
@@ -202,6 +205,7 @@
     <ClInclude Include="PostProcessor.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SkyBox.h" />
+    <ClInclude Include="ThirdParty\includes\pugixml\pugixml.hpp" />
     <ClInclude Include="UIRenderer.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="VBO.h" />

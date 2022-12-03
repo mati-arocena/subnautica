@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Scene resX="1080" resY="1080" bgColorR="0" bgColorG="0" bgColorB="0"
+ near="0.1" far="300" occlusionResX="200"  occlusionResY="150" waterResX="200"  waterResY="150"
+ mode="fly" >
+	<Player 
+		modelPath="assets/player"
+		modelExtension="gltf"
+	/>
+
+	<Light
+		colorr="1"
+		colorg="1"
+		colorb="1"
+		x="1000"
+		y="1000"
+		z="0"
+	/>
+	
+	<Models>
+		<Model posx="1" posy="-2" posz="-1" 
+			modelPath="assets/delfin/scene"
+			modelExtension="gltf" 
+			animationPath="assets/delfin/scene"
+			animationExtension="gltf" 
+		/>
+		<Model posx="0" posy="0" posz="0" 
+			modelPath="assets/mar2"
+			modelExtension="gltf" 
+		/>
+
+		<Model posx="5" posy="5" posz="5" 
+			modelPath="assets/caja"
+			modelExtension="obj" />
+		
+		<Model posx="20" posy="20" posz="20" 
+			modelPath="assets/caja"
+			modelExtension="obj" />
+		
+		<Model posx="40" posy="40" posz="40" 
+			modelPath="assets/caja"
+			modelExtension="obj" />
+		
+	</Models>
+</Scene>

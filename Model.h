@@ -51,8 +51,8 @@ protected:
     glm::vec3 rotation;
     glm::vec3 position;
 public:
-    Model(std::string path, std::string extension);
-    Model(std::string path, std::string extension, std::string animationPath, std::string animationExtension);
+    Model(std::string path, std::string extension, glm::vec3 pos);
+    Model(std::string path, std::string extension, std::string animationPath, std::string animationExtension, glm::vec3 pos);
 
     void clipModel(const glm::vec4& plane);
     void update(double DeltaTime) override;
