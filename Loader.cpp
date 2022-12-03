@@ -75,11 +75,11 @@ void Loader::loadPlayer(pugi::xml_node node)
 	}
 	else
 	{
-		gameInstance.setPlayer(std::make_shared<Player>(
-			node.child("Player").attribute("modelPath").as_string(),
-			node.child("Player").attribute("modelExtension").as_string()
-			));
-	}
+	gameInstance.setPlayer(std::make_shared<Player>(
+		node.child("Player").attribute("modelPath").as_string(),
+		node.child("Player").attribute("modelExtension").as_string()
+	));
+}
 
 }
 

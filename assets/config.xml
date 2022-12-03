@@ -2,13 +2,9 @@
 <Scene resX="1080" resY="1080" bgColorR="0" bgColorG="0" bgColorB="0"
  near="0.1" far="300" occlusionResX="200"  occlusionResY="150" waterResX="200"  waterResY="150"
  mode="fly" >
-	<!--Player 
+	<Player 
 		modelPath="assets/player"
 		modelExtension="gltf"
-	/-->
-	<Player 
-		modelPath="assets/caja"
-		modelExtension="obj"
 	/>
 
 	<Light
@@ -21,13 +17,13 @@
 	/>
 	
 	<Models>
-		<Model posx="10" posy="0" posz="0" 
+		<Model posx="1" posy="-2" posz="-1" 
 			modelPath="assets/delfin/scene"
 			modelExtension="gltf" 
 			animationPath="assets/delfin/scene"
 			animationExtension="gltf" 
 		/>
-		<!--Model posx="0" posy="0" posz="0" 
+		<Model posx="0" posy="0" posz="0" 
 			modelPath="assets/mar2"
 			modelExtension="gltf" 
 		/>
@@ -42,7 +38,7 @@
 		
 		<Model posx="40" posy="40" posz="40" 
 			modelPath="assets/caja"
-			modelExtension="obj" /-->
+			modelExtension="obj" />
 		
 	</Models>
 </Scene>
