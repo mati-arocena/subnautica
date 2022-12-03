@@ -45,6 +45,16 @@ void ConfigManager::setNear(float near)
 	this->near = near;
 }
 
+void ConfigManager::setMode(Mode mode)
+{
+	this->mode = mode;
+}
+
+Mode ConfigManager::getMode()
+{
+	return this->mode;
+}
+
 // Getters
 
 glm::ivec2 ConfigManager::getWindowSize()

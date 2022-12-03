@@ -5,6 +5,10 @@
 #include <glm/glm.hpp>
 
 
+enum Mode {
+	PLAYER_MODE,
+	FLY_MODE
+};
 
 class ConfigManager
 {
@@ -18,6 +22,7 @@ private:
 	
 	float far = 100.f;
 	float near = 0.01f;
+	Mode mode = Mode::FLY_MODE;
 	
 	
 
@@ -35,6 +40,9 @@ public:
 	
 	void setFar(float far);
 	void setNear(float near);
+
+	void setMode(Mode mode);
+	Mode getMode();
 
 	glm::ivec2 getWindowSize();
 	glm::ivec2 getOcclusionMapResolution();

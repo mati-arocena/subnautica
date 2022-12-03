@@ -165,6 +165,12 @@ void Camera::updateViewFrustum()
 
 void Camera::updateViewMatrix()
 {
+	if (mode == Mode::FLY_MODE)
+	{
+        ViewMatrix = glm::lookAt(Position, Position + Front, Up);
+	}
+	
+		
     ViewMatrix = glm::lookAt(Position, Position + Front, Up);
     if (shouldFrustumUpdate) 
     {

@@ -7,6 +7,9 @@
 #include <memory>
 #include <vector>
 #include "VBO.h"
+#include "ConfigManager.h"
+
+class Player;
 
 struct Plane
 {
@@ -160,6 +163,7 @@ class Camera
     std::shared_ptr<Frustum> frustumLOD0;
     std::shared_ptr<Frustum> frustumLOD1;
     std::shared_ptr<Frustum> frustumLOD2;
+    Mode mode = Mode::FLY_MODE;
 public:
     // camera Attributes
     glm::vec3 Position;
@@ -169,6 +173,8 @@ public:
     glm::vec3 WorldUp;
     glm::mat4 ViewMatrix;
     glm::mat4 ProjectionMatrix;
+
+    std::shared_ptr<Player> player;
 
     // euler Angles
     float Yaw;

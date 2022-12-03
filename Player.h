@@ -13,9 +13,9 @@ enum class Movement {
 class Player : public Model
 {
 	const glm::vec3 rotationAxis = { 0.f, 0.f, 1.f };
-	const float forwardVelocity = 100.f;
-	const float upVelocity = 100.f;
-	const float rotationVelocity = 50.f;
+	const float forwardVelocity = 1.f;
+	const float upVelocity = 1.f;
+	const float rotationVelocity = 1.f;
 	
 	glm::vec3 position = { 0.f, 0.f, 0.f };
 	float orientation = 0.f;

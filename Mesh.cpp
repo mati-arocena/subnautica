@@ -9,7 +9,7 @@ int Vertex::numElementsInVBO = 14;
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
 	Material* material, glm::mat4 modelMat, glm::vec3 min, glm::vec3 max)
-	: vertices(vertices), indices(indices), material(material), model(modelMat), minAABB(min), maxAABB(max)
+	: vertices(vertices), indices(indices), material(material), minAABB(min), maxAABB(max)
 {
 	clipPlane = glm::vec4{ 0.f, 0.f, 0.f, 0.f };
 	center = { (max + min) * 0.5f };
@@ -60,6 +60,9 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * debugIndicesSize, VBO::toEBO(indicesAABB), GL_STATIC_DRAW);
 	
 	Vertex::setVertexAttributes();
+
+	decomposeModelMatrix(modelMat);
+	computeModelMatrix();
 	
 }
 
@@ -89,6 +92,12 @@ void Mesh::render()
 void Mesh::setAnimator(std::shared_ptr<Animator> animator)
 {
 	this->animator = animator;
+}
+
+void Mesh::update(float delta)
+{
+	// At the end
+	computeModelMatrix();
 }
 
 void Mesh::setupMesh()
@@ -141,6 +150,15 @@ void Mesh::bind(GLenum polygonMode)
 	glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
 	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0); // cantidad de indices
 	glBindVertexArray(0);
+}
+
+void Mesh::decomposeModelMatrix(glm::mat4 model)
+{
+	/*
+		Used when loading model from assimp
+	*/
+	glm::decompose(model, scale, rotation, translation, skew, perspective);
+	rotation = glm::conjugate(rotation);
 }
 
 bool Mesh::isOnFrustum(std::shared_ptr<Frustum> frustum)

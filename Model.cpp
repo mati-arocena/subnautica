@@ -37,6 +37,7 @@ Model::Model(std::string path, std::string extension) : GameObject()
 
 Model::Model(std::string path, std::string extension, std::string animationPath, std::string animationExtension) : GameObject()
 {
+	this->hasAnimations = true;
 	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
 	frustumLOD0 = camera->getFrustum(LOD::LOD0);
 	frustumLOD1 = camera->getFrustum(LOD::LOD1);
@@ -55,19 +56,19 @@ Model::Model(std::string path, std::string extension, std::string animationPath,
 
 void Model::render()
 {
-	for (Mesh mesh : meshesLOD0)
+	for (Mesh& mesh : meshesLOD0)
 	{
 		if (mesh.isOnFrustum(frustumLOD0))
 			mesh.render();
 	}
 	
-	for (Mesh mesh : meshesLOD1)
+	for (Mesh& mesh : meshesLOD1)
 	{
 		if (mesh.isOnFrustum(frustumLOD1) && !mesh.isOnFrustum(frustumLOD0))
 			mesh.render();
 	}
 
-	for (Mesh mesh : meshesLOD2)
+	for (Mesh& mesh : meshesLOD2)
 	{
 		if (mesh.isOnFrustum(frustumLOD2) && !mesh.isOnFrustum(frustumLOD0) && !mesh.isOnFrustum(frustumLOD1))
 			mesh.render();
@@ -77,27 +78,27 @@ void Model::render()
 
 void Model::renderAABB()
 {
-	for (Mesh mesh : meshesLOD0)
+	for (Mesh& mesh : meshesLOD0)
 	{
-			mesh.renderAABB();
+		mesh.renderAABB();
 	}
 }
 
 void Model::renderWireframe()
 {
-	for (Mesh mesh : meshesLOD0)
+	for (Mesh& mesh : meshesLOD0)
 	{
 		if (mesh.isOnFrustum(frustumLOD0))
 			mesh.renderWireframe();
 	}
 
-	for (Mesh mesh : meshesLOD1)
+	for (Mesh& mesh : meshesLOD1)
 	{
 		if (mesh.isOnFrustum(frustumLOD1) && !mesh.isOnFrustum(frustumLOD0))
 			mesh.renderWireframe();
 	}
 
-	for (Mesh mesh : meshesLOD2)
+	for (Mesh& mesh : meshesLOD2)
 	{
 		if (mesh.isOnFrustum(frustumLOD2) && !mesh.isOnFrustum(frustumLOD0) && !mesh.isOnFrustum(frustumLOD1))
 			mesh.renderWireframe();
@@ -109,6 +110,11 @@ void Model::update(double DeltaTime)
 {
 	if (this->animator != nullptr)
 		this->animator->updateAnimation(DeltaTime);
+	
+	for (Mesh &mesh : meshesLOD0)
+	{
+		mesh.update(DeltaTime);
+	}
 }
 
 void Model::readMissingBones(const aiAnimation* assimpAnim, std::shared_ptr<Animation> animation)
@@ -296,7 +302,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 			indices.push_back(face.mIndices[j]);
 	}
 
-	extractBoneWeightForVertices(vertices, mesh);
+	if (hasAnimations)
+		extractBoneWeightForVertices(vertices, mesh);
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	// we assume a convention for sampler names in the shaders. Each diffuse texture should be named
@@ -403,7 +410,7 @@ void Model::clipModel(const glm::vec4& plane)
 
 void Model::render_withShader(std::shared_ptr<Shader> shader)
 {
-	for (Mesh mesh : meshesLOD0)
+	for (Mesh& mesh : meshesLOD0)
 	{
 		mesh.render_withShader(shader);
 	}
