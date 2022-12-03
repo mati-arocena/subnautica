@@ -168,6 +168,7 @@ void Mesh::recalculateAABB()
 	glm::mat4 rot = glm::toMat4(rotation);
 	glm::mat4 s = glm::scale(glm::mat4(1.0f), scale);
 	glm::mat4 M = s * rot;
+
 	for (i = 0; i < 3; i++)
 		for (j = 0; j < 3; j++)
 		{
