@@ -12,7 +12,7 @@ enum class Movement {
 
 class Player : public Model
 {
-	const glm::vec3 rotationAxis = { 0.f, 0.f, 1.f };
+	const glm::vec3 rotationAxis = { 0.f, 1.f, 0.f };
 	const float forwardVelocity = 1.f;
 	const float upVelocity = 1.f;
 	const float rotationVelocity = 1.f;

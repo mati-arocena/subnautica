@@ -157,6 +157,45 @@ void Mesh::bind(GLenum polygonMode)
 	glBindVertexArray(0);
 }
 
+void Mesh::recalculateAABB()
+{
+	
+
+	float a, b;
+	glm::vec3 min, max;
+	int    i, j;
+
+	/* Take care of translation by beginning at T. */
+
+	min = max = translation;
+
+	/* Now find the extreme points by considering the product of the */
+	/* min and max with each component of M.  */
+	glm::mat4 rot = glm::toMat4(rotation);
+
+	for (i = 0; i < 3; i++)
+		for (j = 0; j < 3; j++)
+		{
+			a = (float)(rot[i][j] * minAABB[j]);
+			b = (float)(rot[i][j] * maxAABB[j]);
+			if (a < b)
+
+			{
+				min[i] += a;
+				max[i] += b;
+			}
+			else
+			{
+				min[i] += b;
+				max[i] += a;
+			}
+		}
+
+	/* Copy the result into the new box. */
+	center = { (max + min) * 0.5f };
+	extents = { max.x - center.x, max.y - center.y, max.z - center.z };
+}
+
 void Mesh::decomposeModelMatrix(glm::mat4 model)
 {
 	/*

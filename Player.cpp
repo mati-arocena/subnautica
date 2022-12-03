@@ -75,4 +75,5 @@ void Player::move(Movement mov)
 	default:
 		break;
 	}
+
 }

@@ -63,6 +63,7 @@ public:
     inline void rotate(const glm::vec3& rotationAxis, float angle)
     {
 		rotation *= glm::angleAxis(angle, rotationAxis);
+		recalculateAABB();
     }
 
 	inline void computeModelMatrix()
@@ -72,6 +73,7 @@ public:
 		glm::mat4 s = glm::scale(glm::mat4(1.0f), scale);
 
 		this->model = t * r * s;
+//		this->model = r;
 	}
 
 	void decomposeModelMatrix(glm::mat4 model);
@@ -82,12 +84,11 @@ public:
 	void update(float delta);
 
 	bool isMovable();
+	void recalculateAABB();
+
 
 private:
 	bool movable = false;
-	glm::vec3 scale;
-	glm::vec3 rotation;
-	glm::vec3 position;
 
 	VBO* vbo;
 	unsigned int vao, ebo;
@@ -110,6 +111,5 @@ private:
     std::shared_ptr<Animator> animator;
     
 	bool isOnFrustum(glm::vec3 center, glm::vec3 extents, std::shared_ptr<Frustum> frustum);
-
 };
 
