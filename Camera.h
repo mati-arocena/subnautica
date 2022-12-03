@@ -54,8 +54,7 @@ public:
     glm::vec3 WorldUp;
     glm::mat4 ViewMatrix;
     glm::mat4 ProjectionMatrix;
-
-    std::shared_ptr<Player> player;
+	
 
     // euler Angles
     float Yaw;
