@@ -3,7 +3,7 @@
 ConfigManager::ConfigManager()
 {
 	windowSize = glm::ivec2(800, 600);
-	far = 1000.f;
+	far = 100.f;
 	near = 0.1f;
 }
 

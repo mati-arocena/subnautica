@@ -60,7 +60,9 @@ class VBO
 public:
 	VBO();
 	void load(float* vertices, size_t lenght);
-	void load(std::vector<Vertex> vertices_v, size_t lenght);
+    void load(std::vector<Vertex> vertices_v, size_t lenght);
+    void loadDynamic(std::vector<Vertex> vertices_v, size_t lenght);
+    void updateDynamic(std::vector<Vertex> vertices_v);
 	void bind();
 	void destroy();
 	~VBO();
@@ -71,6 +73,5 @@ private:
 	size_t lenght;
 	float* vertices;
     std::vector<Vertex> vertices_v;
-	void setVertexAttribute(int id, int stride);
 };
 

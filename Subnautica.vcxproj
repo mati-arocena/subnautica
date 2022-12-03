@@ -163,6 +163,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ConfigManager.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
+    <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GameInstance.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Light.cpp" />
@@ -190,6 +191,7 @@
     <ClInclude Include="ConfigManager.h" />
     <ClInclude Include="Definitions.h" />
     <ClInclude Include="DirectionalLight.h" />
+    <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameInstance.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Light.h" />

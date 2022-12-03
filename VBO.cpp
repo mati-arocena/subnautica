@@ -22,6 +22,20 @@ void VBO::load(float* vertices, size_t lenght)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * lenght, this->vertices, GL_STATIC_DRAW);
 }
 
+void VBO::loadDynamic(std::vector<Vertex> vertices, size_t lenght)
+{
+	bind();
+	this->vertices_v = vertices;
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices_v.size(), &vertices_v[0], GL_DYNAMIC_DRAW);
+}
+
+void VBO::updateDynamic(std::vector<Vertex> vertices)
+{
+	bind();
+	this->vertices_v = vertices;
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertices_v.size(), &vertices_v[0]);
+}
+
 void VBO::bind()
 {
 	glBindBuffer(GL_ARRAY_BUFFER, id);

@@ -99,15 +99,6 @@ private:
     void bind(GLenum polygonMode);
     std::shared_ptr<Animator> animator;
     
-    bool isOnFrustum(glm::vec3 center, glm::vec3 extents, std::shared_ptr<Frustum> frustum);
-    inline bool isOnOrForwardPlane(const glm::vec3& AABBcenter, const glm::vec3& AABBextents, const Plane& plane) {
-        // Compute the projection interval radius of b onto L(t) = b.c + t * p.n
-        const float r = AABBextents.x * std::abs(plane.normal.x) +
-            AABBextents.y * std::abs(plane.normal.y) + AABBextents.z * std::abs(plane.normal.z);
-
-
-		return -r <= plane.getSignedDistanceToPlan(AABBcenter);
-
-	}
+	bool isOnFrustum(glm::vec3 center, glm::vec3 extents, std::shared_ptr<Frustum> frustum);
 };
 
