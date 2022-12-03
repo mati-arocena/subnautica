@@ -154,21 +154,21 @@ void Shader::prerender(std::shared_ptr<Camera> camera, std::shared_ptr<PointLigh
 	setFloat("inside_water", camera->GetPosition().y > 0 ? 0.f: 1.f);
 
 	glm::mat4 lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 0.1f, 100.f);
-	glm::mat4 lightView = glm::lookAt(glm::vec3(0.0f, 15.0f, -1.0f), glm::vec3(.0f, .0f, .0f), glm::vec3(.0f, .0f, 1.0f));
+	glm::mat4 lightView = glm::lookAt(glm::vec3(1.0f, 15.0f, .0f), glm::vec3(.0f, .0f, .0f), glm::vec3(.0f, 1.0f, .0f));
 	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 	setMat4("light_space_matrix", lightSpaceMatrix);
 
 	glUseProgram(currentPorgramId);
 }
 
-void Shader::lightSpaceTransform(std::shared_ptr<Light> light)
+void Shader::lightSpaceTransform(std::shared_ptr<PointLight> light)
 {
 	GLint currentPorgramId;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &currentPorgramId);
 
 	glUseProgram(ID);
 	glm::mat4 lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 0.1f, 100.f);
-	glm::mat4 lightView = glm::lookAt(glm::vec3(0.0f, 15.0f, .0f), glm::vec3(.0f, .0f, .0f), glm::vec3(.0f, .0f, 1.0f));
+	glm::mat4 lightView = glm::lookAt(glm::vec3(1.0f, 15.0f, .0f), glm::vec3(.0f, .0f, .0f), glm::vec3(.0f, 1.0f, .0f));
 	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 	setMat4("light_space_matrix", lightSpaceMatrix);
 	glUseProgram(currentPorgramId);

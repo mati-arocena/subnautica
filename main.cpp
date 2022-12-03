@@ -87,6 +87,7 @@ int main()
 	gameInstance.addShader(SHADOW_MAP_SHADER, std::make_shared<Shader>(SHADOW_MAP_SHADER + ".vert", SHADOW_MAP_SHADER + ".frag"));
 
 	std::shared_ptr<ShadowMapBuffer> shadowMapBuffer = std::make_shared<ShadowMapBuffer>(gameInstance.getShader(SHADOW_MAP_SHADER));
+	gameInstance.setShadowMapBuffer(shadowMapBuffer);
 
 	Loader::loadScene();
 

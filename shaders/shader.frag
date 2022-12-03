@@ -55,7 +55,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
     // check whether current frag pos is in shadow
     float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
 
-    return currentDepth * 100;
+    return currentDepth;
 }
 
 void main()
@@ -99,7 +99,7 @@ void main()
 
     float shadow = ShadowCalculation(fs_in.FragPosLightSpace);
 
-    //FragColor = vec4(ambient + (1.0 - shadow) * (diffuse + specular), 1.0);
+    //FragColor = vec4(ambient * (diffuse + specular), 1.0);
     FragColor = vec4(vec3   (shadow), 1.0);
     //FragColor = vec4(vec3(normalize(vec3(fs_in.TangentViewPos))), 1.0);
 }

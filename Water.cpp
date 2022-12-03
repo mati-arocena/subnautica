@@ -41,20 +41,20 @@ Material* Water::initializeMaterial()
 
 	glGenFramebuffers(1, &reflFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, reflFrameBuffer);
-	reflTexture = std::make_shared(waterReflectionResolution.x, waterReflectionResolution.y, GL_RGB, GL_RGB, "texture_reflection", GL_COLOR_ATTACHMENT0);
+	reflTexture = std::make_shared<Texture>(waterReflectionResolution.x, waterReflectionResolution.y, GL_RGB, GL_RGB, "texture_reflection", GL_COLOR_ATTACHMENT0);
 	textures.push_back(reflTexture);
 
-	reflectionDepthTexture = std::make_shared(waterReflectionResolution.x, waterReflectionResolution.y, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_reflection_depth", GL_DEPTH_ATTACHMENT);
+	reflectionDepthTexture = std::make_shared<Texture>(waterReflectionResolution.x, waterReflectionResolution.y, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_reflection_depth", GL_DEPTH_ATTACHMENT);
 	textures.push_back(reflectionDepthTexture);
 
 	unbindFrameFuffer();
 
 	glGenFramebuffers(1, &refrFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, refrFrameBuffer);
-	refrTexture = std::make_shared(waterReflectionResolution.x, waterReflectionResolution.y, GL_RGB, GL_RGB, "texture_refraction", GL_COLOR_ATTACHMENT0);
+	refrTexture = std::make_shared<Texture>(waterReflectionResolution.x, waterReflectionResolution.y, GL_RGB, GL_RGB, "texture_refraction", GL_COLOR_ATTACHMENT0);
 	textures.push_back(refrTexture);
 
-	refractionDepthTexture = std::make_shared(waterReflectionResolution.x, waterReflectionResolution.y, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_refraction_depth", GL_DEPTH_ATTACHMENT);
+	refractionDepthTexture = std::make_shared<Texture>(waterReflectionResolution.x, waterReflectionResolution.y, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_refraction_depth", GL_DEPTH_ATTACHMENT);
 	textures.push_back(refractionDepthTexture);
 	unbindFrameFuffer();
 

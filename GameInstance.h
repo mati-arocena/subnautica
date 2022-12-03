@@ -73,6 +73,7 @@ public:
 	void setCamera(std::shared_ptr<Camera> camera);
 	std::shared_ptr<Camera> getCamera();
 	void setWindow(GLFWwindow* window);
+	void setShadowMapBuffer(std::shared_ptr<ShadowMapBuffer> shadowMapBuffer);
 
 	std::shared_ptr<PointLight> getPointLight();
 	std::shared_ptr<Shader> getShader(const std::string& name);

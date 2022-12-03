@@ -265,7 +265,7 @@ void GameInstance::renderShadowMap()
 {
 	shadowMapBuffer->bind();
 	glClear(GL_DEPTH_BUFFER_BIT);
-	shadowMapBuffer->shader->lightSpaceTransform(this->light);
+	shadowMapBuffer->shader->lightSpaceTransform(this->pointLight);
 	for (auto object : objects)
 	{
 		if (auto m = dynamic_cast<Model*>(object.get()))
@@ -273,6 +273,9 @@ void GameInstance::renderShadowMap()
 			object->render_withShader(shadowMapBuffer->shader);
 		}
 	}
+
+	player->render_withShader(shadowMapBuffer->shader);
+
 	shadowMapBuffer->unbind();
 
 }
