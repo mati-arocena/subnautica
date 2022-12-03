@@ -8,12 +8,12 @@
 int Vertex::numElementsInVBO = 14;
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
-	Material* material, glm::mat4 modelMat, glm::vec3 min, glm::vec3 max)
-	: vertices(vertices), indices(indices), material(material), model(modelMat), minAABB(min), maxAABB(max)
+	Material* material, glm::mat4 modelMat, glm::vec3 min, glm::vec3 max, bool movable)
+	: vertices(vertices), indices(indices), material(material), model(modelMat), minAABB(min), maxAABB(max), movable(movable)
 {
 	clipPlane = glm::vec4{ 0.f, 0.f, 0.f, 0.f };
-	center = { (max + min) * 0.5f };
-	extents = { max.x - center.x, max.y - center.y, max.z - center.z };
+
+	updateAABB();
 
 	vbo = new VBO();
 	debugVBO = new VBO();
@@ -21,24 +21,14 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
 	setupMesh();
 
 	debugShader = GameInstance::getInstance().getShader(FRUSTUM_SHADER);
-#if 0
-	center = { (max + min) * 0.5f };
-	extents = { max.x - center.x, max.y - center.y, max.z - center.z };
 
-	Vertex nbl({ center.x - extents.x, center.y - extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
-	Vertex nbr({ center.x + extents.x, center.y - extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
-	Vertex ntl({ center.x - extents.x, center.y + extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
-	Vertex ntr({ center.x + extents.x, center.y + extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
-	Vertex fbl({ center.x - extents.x, center.y - extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
-	Vertex fbr({ center.x + extents.x, center.y - extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
-	Vertex ftl({ center.x - extents.x, center.y + extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
-	Vertex ftr({ center.x + extents.x, center.y + extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
-#endif
+	glm::vec3 worldMin = glm::vec3(model * glm::vec4(minAABB, 1.f));
+	glm::vec3 worldMax = glm::vec3(model * glm::vec4(maxAABB, 1.f));
 
-	Vertex nbl({ min.x, min.y, max.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
-	Vertex nbr({ max.x, min.y, max.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
-	Vertex ntl({ min.x, max.y, max.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
-	Vertex ntr({ max.x, max.y, max.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex nbl({ worldMin.x, worldMin.y, worldMax.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex nbr({ worldMax.x, worldMin.y, worldMax.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex ntl({ worldMin.x, worldMax.y, worldMax.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex ntr({ worldMax.x, worldMax.y, worldMax.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
 	Vertex fbl({ center.x - extents.x, center.y - extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
 	Vertex fbr({ center.x + extents.x, center.y - extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
 	Vertex ftl({ center.x - extents.x, center.y + extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
@@ -67,7 +57,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
 
 	debugVBO->load(verticesAABB, verticesAABB.size() * Vertex::numElementsInVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, debugEbo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * debugIndicesSize, VBO::toEBO(indicesAABB), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * debugIndicesSize, VBO::toEBO(indicesAABB), GL_DYNAMIC_DRAW);
 	
 	Vertex::setVertexAttributes();
 	
@@ -99,6 +89,11 @@ void Mesh::render()
 void Mesh::setAnimator(std::shared_ptr<Animator> animator)
 {
 	this->animator = animator;
+}
+
+bool Mesh::isMovable()
+{
+	return movable;
 }
 
 void Mesh::setupMesh()
@@ -155,7 +150,7 @@ void Mesh::bind(GLenum polygonMode)
 
 bool Mesh::isOnFrustum(std::shared_ptr<Frustum> frustum)
 {
-	return frustum->isBoxInFrustum(minAABB, maxAABB);
+	return frustum->isBoxInFrustum(center - extents, center + extents);
 }
 
 float* Vertex::toVBO(const std::vector<Vertex>& vertices)
@@ -208,6 +203,21 @@ void Mesh::render_withShader(std::shared_ptr<Shader> shader)
 
 void Mesh::renderAABB()
 {
+	Vertex nbl({ center.x - extents.x, center.y - extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex nbr({ center.x + extents.x, center.y - extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex ntl({ center.x - extents.x, center.y + extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex ntr({ center.x + extents.x, center.y + extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex fbl({ center.x - extents.x, center.y - extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex fbr({ center.x + extents.x, center.y - extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex ftl({ center.x - extents.x, center.y + extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex ftr({ center.x + extents.x, center.y + extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	std::vector<Vertex> verticesAABB = {
+		nbl/*0*/, nbr/*1*/, ntl/*2*/, ntr/*3*/,
+		fbl/*4*/, fbr/*5*/, ftl/*6*/, ftr/*7*/
+	};
+
+	debugVBO->updateDynamic(verticesAABB);
+
 	debugShader->use();
 	debugShader->setFloat("color", 1.f, 0.f, 0.f);
 	glm::mat4 identity = glm::identity<glm::mat4>();
@@ -226,6 +236,14 @@ void Mesh::renderWireframe()
 	debugShader->setMat4("model", model);
 
 	bind(GL_LINE);
+}
+
+void Mesh::updateAABB()
+{
+	glm::vec3 worldMin = glm::vec3(model * glm::vec4(minAABB, 1.f));
+	glm::vec3 worldMax = glm::vec3(model * glm::vec4(maxAABB, 1.f));
+	center = { (worldMax + worldMin) * 0.5f };
+	extents = { worldMax.x - center.x, worldMax.y - center.y, worldMax.z - center.z };
 }
 
 

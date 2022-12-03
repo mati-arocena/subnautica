@@ -51,6 +51,8 @@ Model::Model(std::string path, std::string extension, std::string animationPath,
 	loadAnimations(path + LOD_SUFFIX + "0." + extension);
 	auto animation = this->animations[0];
 	this->setAnimator(std::make_shared<Animator>(animation));
+
+	isMovable = true;
 }
 
 void Model::render()
@@ -107,6 +109,27 @@ void Model::renderWireframe()
 
 void Model::update(double DeltaTime)
 {
+	for (auto& mesh : meshesLOD0)
+	{
+		if (isMovable)
+		{
+			mesh.updateAABB();
+		}
+	}
+	for (auto& mesh : meshesLOD1)
+	{
+		if (isMovable)
+		{
+			mesh.updateAABB();
+		}
+	}
+	for (auto& mesh : meshesLOD2)
+	{
+		if (isMovable)
+		{
+			mesh.updateAABB();
+		}
+	}
 	if (this->animator != nullptr)
 		this->animator->updateAnimation(DeltaTime);
 }
@@ -185,8 +208,6 @@ void Model::processNode(aiNode* node, const aiScene* scene, const glm::mat4& tra
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		Mesh m = processMesh(mesh, scene, node_transformMat);
-
-
 
 		switch (lod)
 		{
@@ -355,8 +376,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 	Material *m = new Material(textures, GameInstance::getInstance().getShader(NORMAL_SHADER), diffuseColor, specularColor, specularStrenght, specularExponent);
 	
 	//glm::vec4 AABBModel =  mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z, 1.0f };
-	glm::vec3 AABBmin = transformMat * glm::vec4(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z, 1.0f);
-	glm::vec3 AABBmax = transformMat * glm::vec4( mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z ,1.0f);
+	glm::vec3 AABBmin = { mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z };
+	glm::vec3 AABBmax = { mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z };
 
 	return Mesh(vertices, indices, m, transformMat, AABBmin, AABBmax);
 }

@@ -44,6 +44,11 @@ protected:
     int m_BoneCounter = 0;
     std::shared_ptr<std::map<std::string, BoneInfo>> m_BoneInfoMap;
     void extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh);
+    
+    bool isMovable = false;
+    glm::vec3 scale;
+    glm::vec3 rotation;
+    glm::vec3 position;
 public:
     Model(std::string path, std::string extension);
     Model(std::string path, std::string extension, std::string animationPath, std::string animationExtension);

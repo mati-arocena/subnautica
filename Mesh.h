@@ -28,10 +28,12 @@ public:
 
 
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
-		Material* material, glm::mat4 modelMat, glm::vec3 AABBmin, glm::vec3 AABBmax);
+		Material* material, glm::mat4 modelMat, glm::vec3 AABBmin, glm::vec3 AABBmax, bool isMovable = false);
 	void render();
 	void renderAABB();
 	void renderWireframe();
+
+	void updateAABB();
 
 	void setClipPlane(const glm::vec4& plane);
 	glm::vec4 getClipPlane();
@@ -52,9 +54,17 @@ public:
             glm::radians(0.f));
     }
 
-    bool isOnFrustum(std::shared_ptr<Frustum> frustum);
+	bool isOnFrustum(std::shared_ptr<Frustum> frustum);
     void setAnimator(std::shared_ptr<Animator> animator);
+
+	bool isMovable();
+
 private:
+	bool movable = false;
+	glm::vec3 scale;
+	glm::vec3 rotation;
+	glm::vec3 position;
+
 	VBO* vbo;
 	unsigned int vao, ebo;
 	glm::vec4 clipPlane;
@@ -76,5 +86,6 @@ private:
     std::shared_ptr<Animator> animator;
     
 	bool isOnFrustum(glm::vec3 center, glm::vec3 extents, std::shared_ptr<Frustum> frustum);
+
 };
 

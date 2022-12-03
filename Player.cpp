@@ -38,7 +38,6 @@ void Player::rotate(float angle, double deltaTime)
 void Player::update(double deltaTime)
 {
 	Model::update(deltaTime);
-	orientation = fmod(orientation + movementAngle, 360.0f);
 	rotate(movementAngle, deltaTime);
 	movementAngle = 0.f;
 
