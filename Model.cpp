@@ -398,11 +398,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 	}
 
-
-
-	
-
-	
 	// 3. normal maps
 	std::vector<std::shared_ptr<Texture>> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, TEXTURE_NORMAL);
 	if (normalMaps.size() == 0)
@@ -417,13 +412,13 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 
 	// Todo: Make one texture load only
 
-	Texture* occlusion_texture = new Texture("assets/caustics.jpg", "occlusion_map", true, true);
+	std::shared_ptr<Texture> occlusion_texture = std::make_shared<Texture>("assets/caustics.jpg", "occlusion_map", true, true);
 	textures.push_back(occlusion_texture);
 
-	Texture* dudv_texture = new Texture("assets/causticsDUDV.png", "dudv_map", true, true);	
+	std::shared_ptr<Texture> dudv_texture = std::make_shared<Texture>("assets/causticsDUDV.png", "dudv_map", true, true);
 	textures.push_back(dudv_texture);
 
-	Texture* caustics_factor = new Texture("assets/causticFactor.jpg", "caustics_factor", true, true);
+	std::shared_ptr<Texture> caustics_factor = std::make_shared<Texture>("assets/causticFactor.jpg", "caustics_factor", true, true);
 	textures.push_back(caustics_factor);
 
 	Material *m = new Material(textures, GameInstance::getInstance().getShader(NORMAL_SHADER), diffuseColor, specularColor, specularStrenght, specularExponent);

@@ -10,6 +10,7 @@ in VS_OUT {
     vec2 TexCoords;
     vec3 Normal;
     vec3 TangentLightPos;
+    vec3 TangentLightDir;
     vec3 TangentViewPos;
     vec3 TangentFragPos;
 	vec4 FragPosLightSpace;
@@ -57,7 +58,6 @@ vec4 computeCaustics(vec3 ts_normal)
 
     #define CAUSTIC_INFLUENCE 4         // Caustic influence exponent. Higher -> Less caustics 
 
-
     float causticMoveFactor       = mod(CAUSTIC_SPEED * time, CAUSTIC_SIZE);
     float causticFactorMoveFactor = mod(CAUSTIC_FACTOR_SPEED * time, CAUSTIC_FACTOR_SIZE);
 
@@ -70,7 +70,7 @@ vec4 computeCaustics(vec3 ts_normal)
 	distortedCausticsTexCoords =  causticCoord + vec2(distortedCausticsTexCoords.x, distortedCausticsTexCoords.y + causticMoveFactor);
 	distortedCausticsFactorTexCoords =  causticFactorCoord + vec2(distortedCausticsFactorTexCoords.x, distortedCausticsFactorTexCoords.y + causticFactorMoveFactor);
 
-	vec3 globalLightVector = normalize(fs_in.TangentLightPos - fs_in.TangentFragPos);
+	vec3 globalLightVector = normalize(-fs_in.TangentLightDir);
     
     float causticsFactor = texture(caustics_factor, distortedCausticsFactorTexCoords/CAUSTIC_FACTOR_SIZE).r;
     vec4 caustics = texture(occlusion_map, distortedCausticsTexCoords/CAUSTIC_SIZE) * pow(dot(ts_normal, globalLightVector), CAUSTIC_INFLUENCE) * smoothstep(0.3,.7,causticsFactor);
