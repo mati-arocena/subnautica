@@ -380,6 +380,17 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 	std::vector<Texture*> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height");
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
+	// Todo: Make one texture load only
+
+	Texture* occlusion_texture = new Texture("assets/caustics.jpg", "occlusion_map", true, true);
+	textures.push_back(occlusion_texture);
+
+	Texture* dudv_texture = new Texture("assets/causticsDUDV.png", "dudv_map", true, true);	
+	textures.push_back(dudv_texture);
+
+	Texture* caustics_factor = new Texture("assets/causticFactor.jpg", "caustics_factor", true, true);
+	textures.push_back(caustics_factor);
+
 	Material *m = new Material(textures, GameInstance::getInstance().getShader(NORMAL_SHADER), diffuseColor, specularColor, specularStrenght, specularExponent);
 	
 	//glm::vec4 AABBModel =  mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z, 1.0f };

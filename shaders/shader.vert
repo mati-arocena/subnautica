@@ -80,6 +80,5 @@ void main()
 	vs_out.TangentFragPos = TBN * vs_out.FragPos;
 	// Tangent space normal from local space
 	vs_out.Normal = TBN * N;
-
 	vs_out.TangentViewPos = TBN * viewPos;
 }

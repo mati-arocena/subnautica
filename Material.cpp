@@ -8,7 +8,7 @@ Material::Material(
 	float specularStrenght,
 	float specularExponent
 )
-	:textures(textures), shader(shader), diffuseColor(diffuseColor), specColor(specColor), specularStrenght(specularStrenght), specularExponent(specularExponent)
+	:textures(textures), diffuseColor(diffuseColor), shader(shader), specColor(specColor), specularStrenght(specularStrenght), specularExponent(specularExponent)
 {
 	this->textureFactor = glm::ivec3(0);
 
@@ -36,6 +36,7 @@ void Material::use()
 
 	for (unsigned int x = 0; x < textures.size(); x++)
 	{	
+		shader->setTexture(textures[x], x);
 		textures[x]->use(x);
 	}
 
