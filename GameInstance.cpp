@@ -143,6 +143,7 @@ void GameInstance::processInput(double deltaTime)
 	// F11 is fullscreen
 	if (f11Pressed && glfwGetKey(window, GLFW_KEY_F11) == GLFW_RELEASE)
 	{
+		f11Pressed = false;
 		if (!fullscreen)
 		{
 			setFullscreen();

@@ -20,6 +20,7 @@ out VS_OUT {
 	vec2 TexCoords;
 	vec3 Normal;
 	vec3 TangentLightPos;
+	vec3 TangentLightDir;
 	vec3 TangentViewPos;
 	vec3 TangentFragPos;
 	vec4 FragPosLightSpace;
@@ -80,9 +81,9 @@ void main()
 	
 	mat3 TBN = transpose(mat3(T, B, N));
 	vs_out.TangentLightPos = TBN * (aPos - lightDir);
+	vs_out.TangentLightDir = TBN * lightDir;
 	vs_out.TangentFragPos = TBN * vs_out.FragPos;
 	// Tangent space normal from local space
 	vs_out.Normal = TBN * N;
-
 	vs_out.TangentViewPos = TBN * viewPos;
 }

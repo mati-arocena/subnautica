@@ -73,7 +73,6 @@ public:
 		glm::mat4 s = glm::scale(glm::mat4(1.0f), scale);
 
 		this->model = t * r * s;
-//		this->model = r;
 	}
 
 	void decomposeModelMatrix(glm::mat4 model);
