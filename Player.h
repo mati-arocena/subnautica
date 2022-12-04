@@ -29,12 +29,12 @@ class Player : public Model
 	void move(const glm::vec3& movement, double deltaTime);
 	void rotate(float angle, double deltaTime);
 public:
-	Player(std::string path, std::string extension) : Model(path, extension, glm::vec3(0.f, 0.f, 0.f)) {
+	Player(const std::string& path, const std::string& extension) : Model(path, extension, glm::vec3(0.f, 0.f, 0.f)) {
 		this->isMovable = true;
 		firstPerson = ConfigManager::getInstance().getMode() == PLAYER_MODE;
 	};
 
-	Player(std::string path, std::string extension, std::string animationPath, std::string animationExtension) : Model(path, extension, animationPath, animationExtension, glm::vec3(0.f)) {
+	Player(const std::string& path, const std::string& extension, const std::string& animationPath, const std::string& animationExtension) : Model(path, extension, animationPath, animationExtension, glm::vec3(0.f)) {
 		firstPerson = ConfigManager::getInstance().getMode() == PLAYER_MODE;
 		this->isMovable = true;
 	};
@@ -46,6 +46,6 @@ public:
 
 	float getYaw();
 	glm::vec3 getFront();
-	glm::vec3 getPosition();
+	glm::vec3 getPosition() const;
 };
 

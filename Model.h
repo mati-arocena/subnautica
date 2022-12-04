@@ -51,16 +51,16 @@ protected:
     glm::vec3 rotation;
     glm::vec3 position;
 public:
-    Model(std::string path, std::string extension, glm::vec3 pos);
-    Model(std::string path, std::string extension, std::string animationPath, std::string animationExtension, glm::vec3 pos);
+    Model(const std::string& path, const std::string& extension, glm::vec3 position);
+    Model(const std::string& path, const std::string& extension, const std::string& animationPath, const std::string& animationExtension, glm::vec3 position);
 
     void clipModel(const glm::vec4& plane);
     void update(double DeltaTime) override;
     void render() override;
     void renderAABB() override; 
     void renderWireframe() override;
-    void renderOclussion();
-    void render_withShader(std::shared_ptr<Shader> shader);
+    void renderOclussion() override;
+    void render_withShader(std::shared_ptr<Shader> shader) override;
     void move(const glm::vec3& movement);
     void rotate(const glm::vec3& rotationAxis, float angle);
     int& getBoneCount();

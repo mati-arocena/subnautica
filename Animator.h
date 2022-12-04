@@ -9,7 +9,7 @@
 class Animator
 {
 public:
-    Animator(std::shared_ptr<Animation> animation);
+    explicit Animator(std::shared_ptr<Animation> animation);
 
     void updateAnimation(float dt);
 

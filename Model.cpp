@@ -22,7 +22,7 @@ void Model::setAnimator(std::shared_ptr<Animator> animator)
 	}
 }
 
-Model::Model(std::string path, std::string extension, glm::vec3 position) : GameObject()
+Model::Model(const std::string& path, const std::string& extension, glm::vec3 position) : GameObject()
 {
 	this->position = position;
 
@@ -51,7 +51,7 @@ Model::Model(std::string path, std::string extension, glm::vec3 position) : Game
 	}
 }
 
-Model::Model(std::string path, std::string extension, std::string animationPath, std::string animationExtension, glm::vec3 position) : GameObject()
+Model::Model(const std::string& path, const std::string& extension, const std::string& animationPath, const std::string& animationExtension, glm::vec3 position) : GameObject()
 {
 	this->position = position;
 	this->hasAnimations = true;
@@ -152,19 +152,19 @@ void Model::update(double DeltaTime)
 		mesh.recalculateAABB();
 	}
 	if (this->animator != nullptr)
-		this->animator->updateAnimation(DeltaTime);
+		this->animator->updateAnimation(static_cast<float>(DeltaTime));
 	
 	for (Mesh& mesh : meshesLOD0)
 	{
-		mesh.update(DeltaTime);
+		mesh.update(static_cast<float>(DeltaTime));
 	}
 	for (Mesh& mesh : meshesLOD1)
 	{
-		mesh.update(DeltaTime);
+		mesh.update(static_cast<float>(DeltaTime));
 	}
 	for (Mesh& mesh : meshesLOD2)
 	{
-		mesh.update(DeltaTime);
+		mesh.update(static_cast<float>(DeltaTime));
 	}
 }
 
@@ -286,7 +286,7 @@ void Model::extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* 
 	Attach the bones to the vertices, using the assimp mesh data
 */
 {
-	for (int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
+	for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
 	{
 		int boneID = -1;
 		std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();

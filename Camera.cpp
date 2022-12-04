@@ -9,16 +9,18 @@ Camera::Camera(
     glm::vec3 position,
     glm::vec3 up,
     float yaw, float pitch
-) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+) : Position{ position }, 
+    Front(glm::vec3(0.0f, 0.0f, -1.0f)), 
+    WorldUp {up}, 
+    Yaw {yaw}, 
+    Pitch {pitch},
+    MovementSpeed(SPEED), 
+    MouseSensitivity(SENSITIVITY), 
+    Zoom(ZOOM)  
 {
-    Position = position;
-    WorldUp = up;
-    Yaw = yaw;
-    Pitch = pitch;
-
     auto& config = ConfigManager::getInstance();
-    height = config.getWindowSize().x;
-    width = config.getWindowSize().y;
+    height = static_cast<float>(config.getWindowSize().x);
+    width = static_cast<float>(config.getWindowSize().y);
     near = config.getNear();
     far = config.getFar();
 
@@ -27,22 +29,24 @@ Camera::Camera(
 
 	float aspect = (float)width / (float)height;
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, near, far);
+
+    mode = FLY_MODE;
 }
 
 Camera::Camera(
     float posX, float posY, float posZ,
     float upX, float upY, float upZ,
     float yaw, float pitch
-) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+) : Position{posX, posY, posZ},Front(glm::vec3(0.0f, 0.0f, -1.0f)), 
+    WorldUp{upX, upY, upZ},
+    MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
 {
-    Position = glm::vec3(posX, posY, posZ);
-    WorldUp = glm::vec3(upX, upY, upZ);
     Yaw = yaw;
     Pitch = pitch;
 
     auto& config = ConfigManager::getInstance();
-    height = config.getWindowSize().x;
-    width = config.getWindowSize().y;
+    height = static_cast<float>(config.getWindowSize().x);
+    width = static_cast<float>(config.getWindowSize().y);
     near = config.getNear();
     far = config.getFar();
     
@@ -51,6 +55,8 @@ Camera::Camera(
 
     float aspect = float(width) / float(height);
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, near, far);
+
+    mode = FLY_MODE;
 }
 
 void Camera::updateViewMatrix()
@@ -221,7 +227,7 @@ void Camera::updateCameraVectors()
 
 } 
 
-Mode Camera::getMode()
+Mode Camera::getMode() const
 {
     return mode;
 }

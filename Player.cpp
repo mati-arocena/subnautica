@@ -63,10 +63,10 @@ void Player::update(double deltaTime)
 	movementVector = { 0.f, 0.f, 0.f };
 }
 
-void Player::move(Movement mov)
+void Player::move(Movement movement)
 {
 	glm::mat4 rot = glm::toMat4(meshesLOD0[0].rotation);
-	switch (mov)
+	switch (movement)
 	{
 	case Movement::UP:
 		if (position.y < 0.f)
@@ -104,7 +104,7 @@ glm::vec3 Player::getFront()
 	return glm::vec3(glm::normalize(rot * front));
 }
 
-glm::vec3 Player::getPosition()
+glm::vec3 Player::getPosition() const
 {
 	return meshesLOD0[0].translation;
 }

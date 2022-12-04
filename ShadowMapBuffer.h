@@ -11,9 +11,9 @@ public:
 	std::shared_ptr<Texture> shadowDepthTexture;
 	unsigned int shadowFrameBuffer;
 
-	ShadowMapBuffer(std::shared_ptr<Shader> shader);
+	explicit ShadowMapBuffer(std::shared_ptr<Shader> shader);
 
 	void bind();
-	void unbind();
+	static void unbind();
 };
 

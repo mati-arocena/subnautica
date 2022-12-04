@@ -61,9 +61,9 @@ private:
 public:
 	SkyBox();
 
-	void update(double DeltaTime);
-	void render();
-	void renderOclussion();
-	void render_withShader(std::shared_ptr<Shader> shader);
+	void update(double DeltaTime) override;
+	void render() override;
+	void renderOclussion() override;
+	void render_withShader(std::shared_ptr<Shader> shader) override;
 };
 

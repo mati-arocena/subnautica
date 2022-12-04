@@ -50,26 +50,26 @@ public:
     tranformations*/
     void update(float animationTime);
 
-    glm::mat4 getLocalTransform();
+    glm::mat4 getLocalTransform() const;
     std::string getBoneName() const;
-    int getBoneID();
+    int getBoneID() const;
 
     /* Gets the current index on mKeyPositions to interpolate to based on
     the current animation time*/
-    int getPositionIndex(float animationTime);
+    int getPositionIndex(float animationTime) const;
 
     /* Gets the current index on mKeyRotations to interpolate to based on the
     current animation time*/
-    int getRotationIndex(float animationTime);
+    int getRotationIndex(float animationTime) const;
 
     /* Gets the current index on mKeyScalings to interpolate to based on the
     current animation time */
-    int getScaleIndex(float animationTime);
+    int getScaleIndex(float animationTime) const;
 
 private:
 
     /* Gets normalized value for Lerp & Slerp*/
-    float getScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime);
+    static float getScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime);
 
     /*figures out which position keys to interpolate b/w and performs the interpolation
     and returns the translation matrix*/

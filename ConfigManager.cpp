@@ -1,10 +1,7 @@
 #include "ConfigManager.h"
 
-ConfigManager::ConfigManager()
+ConfigManager::ConfigManager() : windowSize {glm::ivec2(800, 600)}, far {100.f}, near {0.1f}
 {
-	windowSize = glm::ivec2(800, 600);
-	far = 100.f;
-	near = 0.1f;
 }
 
 ConfigManager& ConfigManager::getInstance()
@@ -50,39 +47,39 @@ void ConfigManager::setMode(Mode mode)
 	this->mode = mode;
 }
 
-Mode ConfigManager::getMode()
+Mode ConfigManager::getMode() const
 {
 	return this->mode;
 }
 
 // Getters
 
-glm::ivec2 ConfigManager::getWindowSize()
+glm::ivec2 ConfigManager::getWindowSize() const
 {
 	return windowSize;
 }
 
-glm::ivec2 ConfigManager::getOcclusionMapResolution()
+glm::ivec2 ConfigManager::getOcclusionMapResolution() const
 {
 	return occlusionMapResolution;
 }
 
-glm::ivec2 ConfigManager::getWaterReflectionResolution()
+glm::ivec2 ConfigManager::getWaterReflectionResolution() const
 {
 	return waterReflectionResolution;
 }
 
-glm::vec3 ConfigManager::getClearColor()
+glm::vec3 ConfigManager::getClearColor() const
 {
 	return clearColor;
 }
 
-float ConfigManager::getFar()
+float ConfigManager::getFar() const
 {
 	return far;
 }
 
-float ConfigManager::getNear()
+float ConfigManager::getNear() const
 {
 	return near;
 }

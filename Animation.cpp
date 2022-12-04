@@ -2,8 +2,8 @@
 
 Animation::Animation(aiNode* mRootNode, aiAnimation* animationNode)
 {
-    m_Duration = animationNode->mDuration;
-    m_TicksPerSecond = animationNode->mTicksPerSecond;
+    m_Duration = static_cast<float>(animationNode->mDuration);
+    m_TicksPerSecond = static_cast<int>(animationNode->mTicksPerSecond);
     readHeirarchyData(m_RootNode, mRootNode);
 }
 
@@ -23,22 +23,22 @@ Bone* Animation::findBone(const std::string& name)
     else return &(*iter);
 }
 
-float Animation::getTicksPerSecond()
+float Animation::getTicksPerSecond() const
 {
-	return m_TicksPerSecond;
+	return static_cast<float>(m_TicksPerSecond);
 }
 
-float Animation::getDuration()
+float Animation::getDuration() const
 {
 	return m_Duration;
 }
 
-const AssimpNodeData& Animation::getRootNode()
+const AssimpNodeData& Animation::getRootNode() const
 {
 	return m_RootNode;
 }
 
-const std::map<std::string, BoneInfo>& Animation::getBoneIDMap()
+const std::map<std::string, BoneInfo>& Animation::getBoneIDMap() const
 {
 	return *m_BoneInfoMap;
 }
@@ -62,7 +62,7 @@ void Animation::readHeirarchyData(AssimpNodeData& dest, const aiNode* src)
     dest.transformation = convertMatrix(src->mTransformation);
     dest.childrenCount = src->mNumChildren;
 
-    for (int i = 0; i < src->mNumChildren; i++)
+    for (unsigned int i = 0; i < src->mNumChildren; i++)
     {
         AssimpNodeData newData;
         readHeirarchyData(newData, src->mChildren[i]);

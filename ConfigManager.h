@@ -40,15 +40,15 @@ public:
 	void setNear(float near);
 
 	void setMode(Mode mode);
-	Mode getMode();
+	Mode getMode() const;
 
-	glm::ivec2 getWindowSize();
-	glm::ivec2 getOcclusionMapResolution();
-	glm::ivec2 getWaterReflectionResolution();
+	glm::ivec2 getWindowSize() const;
+	glm::ivec2 getOcclusionMapResolution() const;
+	glm::ivec2 getWaterReflectionResolution() const;
 
-	glm::vec3 getClearColor();
+	glm::vec3 getClearColor() const;
 
-	float getFar();
-	float getNear();
+	float getFar() const;
+	float getNear() const;
 };
 

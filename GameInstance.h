@@ -85,7 +85,7 @@ public:
 	void processInput(double deltaTime);
 	void update(double deltaTime);
 	void render();
-	void render(GameObject* excludeFromRendering, const glm::vec4& clipPlane);
+	void render(const GameObject* excludeFromRendering, const glm::vec4& clipPlane);
 	void render_withShader(std::shared_ptr<Shader> shader);
 	void renderOclussion();
 	void renderShadowMap();
@@ -94,7 +94,7 @@ public:
 	void removeFullscreen();
 	void setFullscreen();
 	
-	bool isRunning();
+	bool isRunning() const;
 
 	void updateScreenSize(const glm::ivec2& size);
 };

@@ -22,19 +22,19 @@ class Animation
 public:
     Animation() = default;
 
-    Animation(aiNode* mRootNode, aiAnimation* animationNod);
+    Animation(aiNode* mRootNode, aiAnimation* animationNode);
 
     ~Animation();
 
     Bone* findBone(const std::string& name);
 
-    float getTicksPerSecond();
+    float getTicksPerSecond() const;
 
-    float getDuration();
+    float getDuration() const;
 
-    const AssimpNodeData& getRootNode();
+    const AssimpNodeData& getRootNode() const;
 
-    const std::map<std::string, BoneInfo>& getBoneIDMap();
+    const std::map<std::string, BoneInfo>& getBoneIDMap() const;
 
     void addBone(std::shared_ptr<Bone> bone);
 
@@ -45,8 +45,8 @@ private:
 
     void readHeirarchyData(AssimpNodeData& dest, const aiNode* src);
 
-    float m_Duration;
-    int m_TicksPerSecond;
+    float m_Duration = 0.f;
+    int m_TicksPerSecond = 0;
     std::vector<Bone> m_Bones;
     AssimpNodeData m_RootNode;
     std::shared_ptr<std::map<std::string, BoneInfo>> m_BoneInfoMap;

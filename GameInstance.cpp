@@ -253,7 +253,7 @@ std::shared_ptr<Shader> GameInstance::getShader(const std::string& name)
 	}
 }
 
-void GameInstance::render(GameObject* excludeFromRendering, const glm::vec4& clipPlane)
+void GameInstance::render(const GameObject* excludeFromRendering, const glm::vec4& clipPlane)
 {
 	glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -293,7 +293,7 @@ void GameInstance::renderShadowMap()
 	shadowMapBuffer->shader->lightSpaceTransform(this->light);
 	for (auto object : objects)
 	{
-		if (auto m = dynamic_cast<Model*>(object.get()))
+		if (dynamic_cast<Model*>(object.get()))
 		{
 			object->render_withShader(shadowMapBuffer->shader);
 		}
@@ -362,7 +362,7 @@ void GameInstance::render()
 	postProcessor->draw();
 }
 
-bool GameInstance::isRunning()
+bool GameInstance::isRunning() const
 {
 	return running;
 }
@@ -398,7 +398,7 @@ void GameInstance::render_withShader(std::shared_ptr<Shader> shader)
 
 	for (auto object : objects)
 	{
-		if (auto m = dynamic_cast<Model*>(object.get()))
+		if (dynamic_cast<Model*>(object.get()))
 		{
 			object->render_withShader(shader);
 		}
@@ -421,7 +421,7 @@ void GameInstance::renderOclussion()
 	player->render_withShader(occShdr);
 	for (auto object : objects)
 	{
-		if (auto m = dynamic_cast<Model*>(object.get()))
+		if (dynamic_cast<Model*>(object.get()))
 		{
 			object->render_withShader(occShdr);
 		}

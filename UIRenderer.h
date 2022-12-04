@@ -6,7 +6,7 @@
 class UIRenderer
 {
 public:
-    UIRenderer(std::shared_ptr<Shader> shader);
+    explicit UIRenderer(std::shared_ptr<Shader> shader);
     ~UIRenderer();
 
     void draw(std::shared_ptr<Texture> texture, const glm::vec2& position,

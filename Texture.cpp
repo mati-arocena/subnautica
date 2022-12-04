@@ -1,6 +1,6 @@
 #include "Texture.h"
 
-Texture::Texture(const char* texturePath, std::string name, bool alpha, bool minmap) 
+Texture::Texture(const char* texturePath, const std::string& name, bool alpha, bool minmap) 
     : name(name), path (texturePath), alpha(alpha), minmap(minmap)
 {
     ID = NULL; // Initialization
@@ -26,7 +26,7 @@ Texture::Texture(const char* texturePath, std::string name, bool alpha, bool min
     stbi_image_free(data);
 }
 
-Texture::Texture(int width, int height, int internalFormat, int format, std::string name, int attachment)
+Texture::Texture(int width, int height, int internalFormat, int format, const std::string& name, int attachment)
     : name(name), width(width), height(height), internalFormat(internalFormat), format(format)
 {
     this->alpha = false;

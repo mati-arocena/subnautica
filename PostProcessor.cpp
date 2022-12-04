@@ -130,7 +130,7 @@ void PostProcessor::draw()
 
 }
 
-GLint PostProcessor::getSceneFB()
+GLint PostProcessor::getSceneFB() const
 {
     return scene_FB;
 }
