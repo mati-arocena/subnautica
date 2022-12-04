@@ -3,7 +3,6 @@
 
 out vec4 FragColor;
 
-in vec2 TextCoord;
 in vec4 origin;
 
 in VS_OUT {
@@ -13,9 +12,10 @@ in VS_OUT {
     vec3 TangentLightPos;
     vec3 TangentViewPos;
     vec3 TangentFragPos;
+	vec4 FragPosLightSpace;
 } fs_in;
 
-uniform vec3 lightPos;
+//uniform vec3 lightDir;
 uniform vec3 lightColor;
 uniform float time;
 
@@ -34,6 +34,7 @@ uniform sampler2D texture_normal;
 uniform sampler2D occlusion_map;
 uniform sampler2D dudv_map;
 uniform sampler2D caustics_factor;
+uniform sampler2D shadow_depth;
 
 const float waveStrength = 0.02;
 
@@ -56,6 +57,7 @@ vec4 computeCaustics(vec3 ts_normal)
 
     #define CAUSTIC_INFLUENCE 4         // Caustic influence exponent. Higher -> Less caustics 
 
+
     float causticMoveFactor       = mod(CAUSTIC_SPEED * time, CAUSTIC_SIZE);
     float causticFactorMoveFactor = mod(CAUSTIC_FACTOR_SPEED * time, CAUSTIC_FACTOR_SIZE);
 
@@ -74,6 +76,22 @@ vec4 computeCaustics(vec3 ts_normal)
     vec4 caustics = texture(occlusion_map, distortedCausticsTexCoords/CAUSTIC_SIZE) * pow(dot(ts_normal, globalLightVector), CAUSTIC_INFLUENCE) * smoothstep(0.3,.7,causticsFactor);
 
     return caustics;
+}
+
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadow_depth, projCoords.xy).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = abs(projCoords.z);
+    // check whether current frag pos is in shadow
+    float shadow = currentDepth > closestDepth + 0.005  ? 1.0 : 0.0;
+
+    return shadow;
 }
 
 
@@ -117,9 +135,12 @@ void main()
     vec3 specular = specular_strenght * spec * specularColor;
 
 
-   vec4 caustics = computeCaustics(normal);
 
+	vec4 caustics = computeCaustics(normal);
 
-    FragColor = vec4(ambient + diffuse + specular, 1.0) + inside_water * caustics;
+    float shadow = ShadowCalculation(fs_in.FragPosLightSpace);
 
+    FragColor = vec4(ambient +  (1 - shadow) * (diffuse + specular), 1.0) + inside_water * caustics;
+    //FragColor = vec4(vec3   (shadow), 1.0);
+    //FragColor = vec4(vec3(normalize(vec3(fs_in.TangentViewPos))), 1.0);
 }

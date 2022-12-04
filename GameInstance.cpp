@@ -26,6 +26,11 @@ void GameInstance::addGameObject(std::shared_ptr<GameObject> gameObject)
 	}
 }
 
+void GameInstance::setShadowMapBuffer(std::shared_ptr<ShadowMapBuffer> shadowMapBuffer)
+{
+	this->shadowMapBuffer = shadowMapBuffer;
+}
+
 void GameInstance::addShader(const std::string& name, std::shared_ptr<Shader> shader)
 {
 	shaders[name] = std::move(shader);
@@ -38,9 +43,9 @@ void GameInstance::setupMouse()
 	glfwSetScrollCallback(window, scroll_callback);
 }
 
-void GameInstance::addLight(std::shared_ptr<PointLight> light)
+void GameInstance::addLight(std::shared_ptr<Light> light)
 {
-	pointLight = std::move(light);
+	this->light = std::move(light);
 }
 
 void GameInstance::addLight(std::shared_ptr<DirectionalLight> light)
@@ -127,8 +132,16 @@ void GameInstance::processInput(double deltaTime)
 		camera->ProcessKeyboard(LEFT, static_cast<float>(deltaTime));
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera->ProcessKeyboard(RIGHT, static_cast<float>(deltaTime));
+
 	// F11 is fullscreen
 	if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS)
+	{
+		f11Pressed = true;
+	}
+
+	
+	// F11 is fullscreen
+	if (f11Pressed && glfwGetKey(window, GLFW_KEY_F11) == GLFW_RELEASE)
 	{
 		if (!fullscreen)
 		{
@@ -212,6 +225,8 @@ void GameInstance::update(double deltaTime)
 		object->update(deltaTime);
 	}
 
+	light->updatePosition(camera->GetPosition());
+
 }
 
 std::shared_ptr<Shader> GameInstance::getShader(const std::string& name)
@@ -226,12 +241,12 @@ std::shared_ptr<Shader> GameInstance::getShader(const std::string& name)
 
 void GameInstance::render(GameObject* excludeFromRendering, const glm::vec4& clipPlane)
 {
-	glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0);
+	glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	for (auto& shader : shaders)
 	{
-		shader.second->prerender(camera, pointLight);
+		shader.second->prerender(camera, light);
 	}
 
 	glDisable(GL_DEPTH_TEST);
@@ -256,8 +271,30 @@ void GameInstance::render(GameObject* excludeFromRendering, const glm::vec4& cli
 
 }
 
+void GameInstance::renderShadowMap()
+{
+
+	shadowMapBuffer->bind();
+	glClear(GL_DEPTH_BUFFER_BIT);
+	shadowMapBuffer->shader->lightSpaceTransform(this->light);
+	for (auto object : objects)
+	{
+		if (auto m = dynamic_cast<Model*>(object.get()))
+		{
+			object->render_withShader(shadowMapBuffer->shader);
+		}
+	}
+
+	player->render_withShader(shadowMapBuffer->shader);
+
+	shadowMapBuffer->unbind();
+
+}
+
 void GameInstance::render()
 {
+	renderShadowMap();
+
 	// Render escena
 	glm::ivec2 windowSize = ConfigManager::getInstance().getWindowSize();
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -269,7 +306,7 @@ void GameInstance::render()
 
 	for (auto shader : shaders)
 	{
-		shader.second->prerender(camera, pointLight);
+		shader.second->prerender(camera, light);
 	}
 
 	glDisable(GL_DEPTH_TEST);
@@ -321,8 +358,8 @@ void GameInstance::updateScreenSize(const glm::ivec2& size)
 	this->camera->changeSize(size);
 }
 
-std::shared_ptr<PointLight> GameInstance::getPointLight() {
-	return this->pointLight;
+std::shared_ptr<Light> GameInstance::getPointLight() {
+	return this->light;
 }
 
 void GameInstance::render_withShader(std::shared_ptr<Shader> shader)
@@ -331,7 +368,7 @@ void GameInstance::render_withShader(std::shared_ptr<Shader> shader)
 	glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	shader->prerender(camera, pointLight);
+	shader->prerender(camera, light);
 	
 	glDisable(GL_DEPTH_TEST);
 	if (skyBox)
@@ -355,7 +392,7 @@ void GameInstance::renderOclussion()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	std::shared_ptr<Shader> occShdr = getShader(OCCLUSION_SHADER);
-	occShdr->prerender(camera, pointLight);
+	occShdr->prerender(camera, light);
 
 
 	if (water != NULL)

@@ -9,6 +9,7 @@
 #include "Shader.h"
 #include "Light.h"
 #include "Water.h"
+#include "ShadowMapBuffer.h"
 
 #include <GLFW/glfw3.h>
 #include "PostProcessor.h"
@@ -23,13 +24,12 @@ class GameInstance
 	bool running = true;
 
 	std::shared_ptr<Camera> camera;
-
 	GLFWwindow* window;
 
 	std::vector<std::shared_ptr<GameObject>> objects;
 	std::shared_ptr<Water> water;
 	
-	std::shared_ptr<PointLight> pointLight;
+	std::shared_ptr<Light> light;
 	std::shared_ptr<Player> player;
 
 	std::shared_ptr<DirectionalLight> directionalLight;
@@ -40,8 +40,9 @@ class GameInstance
 	bool fPressed = false;
 	bool lPressed = false;
 	bool cPressed = false;
+	bool f11Pressed = false;
 
-	bool fullscreen = true;
+	bool fullscreen = false;
 	bool renderFrustum = false;
 	bool renderWireframe = false;
 	bool renderAABB = false;
@@ -57,13 +58,14 @@ class GameInstance
 
 public:
 	static GameInstance& getInstance();
+	std::shared_ptr<ShadowMapBuffer> shadowMapBuffer;
 
 	GameInstance(GameInstance const&) = delete;
 	void operator=(GameInstance const&) = delete;
 
 	void addGameObject(std::shared_ptr<GameObject> gameObject);
 	void addShader(const std::string& name, std::shared_ptr<Shader> shader);
-	void addLight(std::shared_ptr<PointLight> light);
+	void addLight(std::shared_ptr<Light> light);
 	void addLight(std::shared_ptr<DirectionalLight> light);
 	void addSkyBox(std::shared_ptr<SkyBox> skyBox);
 	void setPlayer(std::shared_ptr<Player> player);
@@ -72,8 +74,9 @@ public:
 	void setCamera(std::shared_ptr<Camera> camera);
 	std::shared_ptr<Camera> getCamera();
 	void setWindow(GLFWwindow* window);
+	void setShadowMapBuffer(std::shared_ptr<ShadowMapBuffer> shadowMapBuffer);
 
-	std::shared_ptr<PointLight> getPointLight();
+	std::shared_ptr<Light> getPointLight();
 	std::shared_ptr<Shader> getShader(const std::string& name);
 
 	void processInput(double deltaTime);
@@ -82,6 +85,7 @@ public:
 	void render(GameObject* excludeFromRendering, const glm::vec4& clipPlane);
 	void render_withShader(std::shared_ptr<Shader> shader);
 	void renderOclussion();
+	void renderShadowMap();
 	void setPostProcessor();
 
 	void removeFullscreen();

@@ -22,8 +22,10 @@ void Model::setAnimator(std::shared_ptr<Animator> animator)
 	}
 }
 
-Model::Model(std::string path, std::string extension) : GameObject()
+Model::Model(std::string path, std::string extension, glm::vec3 position) : GameObject()
 {
+	this->position = position;
+
 	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
 	frustumLOD0 = camera->getFrustum(LOD::LOD0);
 	frustumLOD1 = camera->getFrustum(LOD::LOD1);
@@ -32,11 +34,26 @@ Model::Model(std::string path, std::string extension) : GameObject()
 	loadModel(path + LOD_SUFFIX + "0." + extension, LOD::LOD0);
 	loadModel(path + LOD_SUFFIX + "1." + extension, LOD::LOD1);
 	loadModel(path + LOD_SUFFIX + "2." + extension, LOD::LOD2);
+
 	this->animator = nullptr;
+
+	for (auto& mesh : meshesLOD0)
+	{
+		mesh.move(position);
+	}
+	for (auto& mesh : meshesLOD1)
+	{
+		mesh.move(position);
+	}
+	for (auto& mesh : meshesLOD2)
+	{
+		mesh.move(position);
+	}
 }
 
-Model::Model(std::string path, std::string extension, std::string animationPath, std::string animationExtension) : GameObject()
+Model::Model(std::string path, std::string extension, std::string animationPath, std::string animationExtension, glm::vec3 position) : GameObject()
 {
+	this->position = position;
 	this->hasAnimations = true;
 	std::shared_ptr<Camera> camera = GameInstance::getInstance().getCamera();
 	frustumLOD0 = camera->getFrustum(LOD::LOD0);
@@ -54,6 +71,18 @@ Model::Model(std::string path, std::string extension, std::string animationPath,
 	this->setAnimator(std::make_shared<Animator>(animation));
 
 	isMovable = true;
+	for (auto& mesh : meshesLOD0)
+	{
+		mesh.move(position);
+	}
+	for (auto& mesh : meshesLOD1)
+	{
+		mesh.move(position);
+	}
+	for (auto& mesh : meshesLOD2)
+	{
+		mesh.move(position);
+	}
 }
 
 void Model::render()
@@ -72,7 +101,7 @@ void Model::render()
 
 	for (Mesh& mesh : meshesLOD2)
 	{
-		if (mesh.isOnFrustum(frustumLOD2) && !mesh.isOnFrustum(frustumLOD0) && !mesh.isOnFrustum(frustumLOD1))
+		if (mesh.isOnFrustum(frustumLOD2) && !mesh.isOnFrustum(frustumLOD1))
 			mesh.render();
 	}
 
@@ -112,29 +141,28 @@ void Model::update(double DeltaTime)
 {
 	for (auto& mesh : meshesLOD0)
 	{
-		if (isMovable)
-		{
-			mesh.updateAABB();
-		}
+		mesh.recalculateAABB();
 	}
 	for (auto& mesh : meshesLOD1)
 	{
-		if (isMovable)
-		{
-			mesh.updateAABB();
-		}
+		mesh.recalculateAABB();
 	}
 	for (auto& mesh : meshesLOD2)
 	{
-		if (isMovable)
-		{
-			mesh.updateAABB();
-		}
+		mesh.recalculateAABB();
 	}
 	if (this->animator != nullptr)
 		this->animator->updateAnimation(DeltaTime);
 	
-	for (Mesh &mesh : meshesLOD0)
+	for (Mesh& mesh : meshesLOD0)
+	{
+		mesh.update(DeltaTime);
+	}
+	for (Mesh& mesh : meshesLOD1)
+	{
+		mesh.update(DeltaTime);
+	}
+	for (Mesh& mesh : meshesLOD2)
 	{
 		mesh.update(DeltaTime);
 	}
@@ -294,7 +322,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 {
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-	std::vector<Texture*> textures;
+	std::vector<std::shared_ptr<Texture>> textures;
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
@@ -339,8 +367,10 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 	float specularStrenght, specularExponent;
 	specularStrenght = specularExponent = 0;
 
+	textures.push_back(GameInstance::getInstance().shadowMapBuffer->shadowDepthTexture);
+
 	// 2. specular maps
-	std::vector<Texture*> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, TEXTURE_SPECULAR);
+	std::vector<std::shared_ptr<Texture>> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, TEXTURE_SPECULAR);
 	if (specularMaps.size() == 0)
 	{
 		aiColor3D aiSpecCol;
@@ -356,7 +386,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 	}
 
 	// 1. diffuse maps
-	std::vector<Texture*> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, TEXTURE_DIFFUSE);
+	std::vector<std::shared_ptr<Texture>> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, TEXTURE_DIFFUSE);
 	if (diffuseMaps.size() == 0)
 	{	
 		aiColor3D aiDiff;
@@ -367,9 +397,14 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 	{
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 	}
+
+
+
+	
+
 	
 	// 3. normal maps
-	std::vector<Texture*> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, TEXTURE_NORMAL);
+	std::vector<std::shared_ptr<Texture>> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, TEXTURE_NORMAL);
 	if (normalMaps.size() == 0)
 	{
 		normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, TEXTURE_NORMAL);
@@ -377,7 +412,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 
 	textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 	// 4. height maps
-	std::vector<Texture*> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height");
+	std::vector<std::shared_ptr<Texture>> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height");
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 	// Todo: Make one texture load only
@@ -400,9 +435,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 	return Mesh(vertices, indices, m, transformMat, AABBmin, AABBmax);
 }
 
-std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName)
+std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName)
 {
-	std::vector<Texture*> textures;
+	std::vector<std::shared_ptr<Texture>> textures;
 
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
 	{
@@ -423,7 +458,7 @@ std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType
 		}
 		if (!skip)
 		{   // if texture hasn't been loaded already, load it
-			Texture* texture = new Texture(filename.c_str(), typeName, true, true);
+			std::shared_ptr<Texture> texture = std::make_shared<Texture>(filename.c_str(), typeName, true, true);
 			textures.push_back(texture);
 			textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
 		}

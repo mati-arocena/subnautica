@@ -11,11 +11,11 @@ class Water : public GameObject
 private:
 	glm::vec3 position;
 	Mesh* mesh;
-	Texture* refrTexture;
-	Texture* reflTexture;
-	Texture* reflectionDepthTexture;
-	Texture* refractionDepthTexture;
-	Texture* dudv_texture;
+	std::shared_ptr<Texture> refrTexture;
+	std::shared_ptr<Texture> reflTexture;
+	std::shared_ptr<Texture> reflectionDepthTexture;
+	std::shared_ptr<Texture> refractionDepthTexture;
+	std::shared_ptr<Texture> dudv_texture;
 	unsigned int reflFrameBuffer;
 	unsigned int refrFrameBuffer;
 

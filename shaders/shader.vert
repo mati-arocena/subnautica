@@ -22,6 +22,7 @@ out VS_OUT {
 	vec3 TangentLightPos;
 	vec3 TangentViewPos;
 	vec3 TangentFragPos;
+	vec4 FragPosLightSpace;
 } vs_out;
 
 uniform mat4 model;
@@ -29,9 +30,10 @@ uniform mat4 view;
 uniform mat4 projection;
 
 uniform vec4 clippingPlane;
-uniform vec3 lightPos;
+uniform vec3 lightDir;
 uniform vec3 viewPos;
 uniform bool has_animation;
+uniform mat4 light_space_matrix;
 
 void main()
 {	
@@ -68,6 +70,7 @@ void main()
 
 	vs_out.FragPos = vec3(worldPosition);
 	vs_out.TexCoords = TextCoord;
+	vs_out.FragPosLightSpace = light_space_matrix * worldPosition;
 	
 	mat3 normalMatrix = transpose(inverse(mat3(model)));
 	vec3 T = normalize(normalMatrix * aTangent);
@@ -76,7 +79,7 @@ void main()
 	vec3 B = cross(N, T);
 	
 	mat3 TBN = transpose(mat3(T, B, N));
-	vs_out.TangentLightPos = TBN * lightPos;
+	vs_out.TangentLightPos = TBN * (aPos - lightDir);
 	vs_out.TangentFragPos = TBN * vs_out.FragPos;
 	// Tangent space normal from local space
 	vs_out.Normal = TBN * N;

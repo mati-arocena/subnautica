@@ -1,7 +1,7 @@
 #include "Material.h"
 
 Material::Material(
-	std::vector<Texture*> textures, 
+	std::vector<std::shared_ptr<Texture>> textures,
 	std::shared_ptr<Shader> shader, 
 	glm::vec3 diffuseColor,
 	glm::vec3 specColor,
