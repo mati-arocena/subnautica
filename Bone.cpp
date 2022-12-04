@@ -1,16 +1,16 @@
 #include "Bone.h"
 
 Bone::Bone(const std::string& name, int ID, const aiNodeAnim* channel) :
+    m_LocalTransform(1.0f),
     m_Name(name),
-    m_ID(ID),
-    m_LocalTransform(1.0f)
+    m_ID(ID)
 {
     m_NumPositions = channel->mNumPositionKeys;
 
     for (int positionIndex = 0; positionIndex < m_NumPositions; ++positionIndex)
     {
         aiVector3D aiPosition = channel->mPositionKeys[positionIndex].mValue;
-        float timeStamp = channel->mPositionKeys[positionIndex].mTime;
+        float timeStamp = static_cast<float>(channel->mPositionKeys[positionIndex].mTime);
         KeyPosition data;
         data.position = toVec3(aiPosition);
         data.timeStamp = timeStamp;
@@ -21,7 +21,7 @@ Bone::Bone(const std::string& name, int ID, const aiNodeAnim* channel) :
     for (int rotationIndex = 0; rotationIndex < m_NumRotations; ++rotationIndex)
     {
         aiQuaternion aiOrientation = channel->mRotationKeys[rotationIndex].mValue;
-        float timeStamp = channel->mRotationKeys[rotationIndex].mTime;
+        float timeStamp = static_cast<float>(channel->mRotationKeys[rotationIndex].mTime);
         KeyRotation data;
         data.orientation = toQuat(aiOrientation);
         data.timeStamp = timeStamp;
@@ -32,7 +32,7 @@ Bone::Bone(const std::string& name, int ID, const aiNodeAnim* channel) :
     for (int keyIndex = 0; keyIndex < m_NumScalings; ++keyIndex)
     {
         aiVector3D scale = channel->mScalingKeys[keyIndex].mValue;
-        float timeStamp = channel->mScalingKeys[keyIndex].mTime;
+        float timeStamp = static_cast<float>(channel->mScalingKeys[keyIndex].mTime);
         KeyScale data;
         data.scale = toVec3(scale);
         data.timeStamp = timeStamp;
@@ -48,7 +48,7 @@ void Bone::update(float animationTime)
     m_LocalTransform = translation * rotation * scale;
 }
 
-glm::mat4 Bone::getLocalTransform()
+glm::mat4 Bone::getLocalTransform() const
 {
     return m_LocalTransform;
 }
@@ -58,12 +58,12 @@ std::string Bone::getBoneName() const
     return m_Name;
 }
 
-int Bone::getBoneID()
+int Bone::getBoneID() const
 {
     return m_ID;
 }
 
-int Bone::getPositionIndex(float animationTime)
+int Bone::getPositionIndex(float animationTime) const
 {
     for (int index = 0; index < m_NumPositions - 1; ++index)
     {
@@ -71,9 +71,10 @@ int Bone::getPositionIndex(float animationTime)
             return index;
     }
     assert(0);
+    return -1;
 }
 
-int Bone::getRotationIndex(float animationTime)
+int Bone::getRotationIndex(float animationTime) const
 {
     for (int index = 0; index < m_NumRotations - 1; ++index)
     {
@@ -81,9 +82,10 @@ int Bone::getRotationIndex(float animationTime)
             return index;
     }
     assert(0);
+    return -1;
 }
 
-int Bone::getScaleIndex(float animationTime)
+int Bone::getScaleIndex(float animationTime) const
 {
     for (int index = 0; index < m_NumScalings - 1; ++index)
     {
@@ -91,6 +93,7 @@ int Bone::getScaleIndex(float animationTime)
             return index;
     }
     assert(0);
+    return -1;
 }
 
 float Bone::getScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime)

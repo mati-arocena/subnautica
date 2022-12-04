@@ -7,12 +7,10 @@
 
 int Vertex::numElementsInVBO = 14;
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
-	Material* material, glm::mat4 modelMat, glm::vec3 min, glm::vec3 max, bool movable)
-	: vertices(vertices), indices(indices), material(material), model(modelMat), minAABB(min), maxAABB(max), movable(movable)
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices,
+	Material* material, glm::mat4 modelMat, glm::vec3 AABBmin, glm::vec3 AABBmax, bool movable)
+	: vertices(vertices), indices(indices), material(material), model(modelMat), minAABB(AABBmin), maxAABB(AABBmax), movable(movable), clipPlane{}, angle{0.f}
 {
-	clipPlane = glm::vec4{ 0.f, 0.f, 0.f, 0.f };
-
 	decomposeModelMatrix(modelMat);
 	computeModelMatrix();
 
@@ -96,7 +94,7 @@ void Mesh::update(float delta)
 	computeModelMatrix();
 }
 
-bool Mesh::isMovable()
+bool Mesh::isMovable() const
 {
 	return movable;
 }
@@ -238,7 +236,7 @@ void Mesh::setClipPlane(const glm::vec4& plane)
 	this->clipPlane = plane;
 }
 
-glm::vec4 Mesh::getClipPlane()
+glm::vec4 Mesh::getClipPlane() const
 {
 	return this->clipPlane;
 }

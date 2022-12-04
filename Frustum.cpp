@@ -88,7 +88,7 @@ FrustumVertices Frustum::calculateVertices() const
 	return result;
 }
 
-FrustumPlanes Frustum::calculatePlanes(const FrustumVertices& vertices) const
+FrustumPlanes Frustum::calculatePlanes(const FrustumVertices& vertices)
 {
 
 	FrustumPlanes result{};

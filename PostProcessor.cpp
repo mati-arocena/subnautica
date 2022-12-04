@@ -111,7 +111,7 @@ void PostProcessor::draw()
     glm::mat4 view = camera->GetViewMatrix();
     glm::mat4 model = glm::identity<glm::mat4>();
 	
-    glm::vec4 projected = projection * (view * glm::vec4(light->getDirection(), 1));
+    glm::vec4 projected = projection * (view * glm::vec4(light->getDirection() * -5000.f, 1));
 
 	// Between -1 and 1
 	glm::vec2 sunPos = glm::vec2(projected.x, projected.y) / projected.w * 0.5f + 0.5f;
@@ -130,7 +130,7 @@ void PostProcessor::draw()
 
 }
 
-GLint PostProcessor::getSceneFB()
+GLint PostProcessor::getSceneFB() const
 {
     return scene_FB;
 }

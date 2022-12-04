@@ -57,7 +57,7 @@ class Frustum
     bool freeze = false;
 
     FrustumVertices calculateVertices() const;
-    FrustumPlanes calculatePlanes(const FrustumVertices& vertices) const;
+    static FrustumPlanes calculatePlanes(const FrustumVertices& vertices);
 
     FrustumVertices toWorldCoordinates(const FrustumVertices& vertices) const;
     inline glm::vec3 toWorldCoordinates(const glm::vec3& vertex) const;

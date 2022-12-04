@@ -27,9 +27,9 @@ public:
 	void render() override;
 	void renderOclussion() override;
 
-	void unbindFrameFuffer();
+	static void unbindFrameFuffer();
 	Material* initializeMaterial();
-	void render_withShader(std::shared_ptr<Shader> shader);
+	void render_withShader(std::shared_ptr<Shader> shader) override;
 
 };
 

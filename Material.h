@@ -9,8 +9,8 @@
 class Material
 {
 private:
-	std::shared_ptr<Shader> shader;
 	std::vector<std::shared_ptr<Texture>> textures;
+	std::shared_ptr<Shader> shader;
 
 	glm::vec3 diffuseColor;
 	glm::vec3 specColor;
@@ -25,6 +25,6 @@ public:
 	void use();
 	std::shared_ptr<Shader> getShader();
 
-	std::shared_ptr<Shader> changeShader(std::shared_ptr<Shader> shader);
+	std::shared_ptr<Shader> changeShader(std::shared_ptr<Shader> newShader);
 };
 

@@ -1,9 +1,9 @@
 #include "Animator.h"
 
-Animator::Animator(std::shared_ptr<Animation> animation)
+Animator::Animator(std::shared_ptr<Animation> animation) : m_CurrentAnimation {animation}
 {
 	m_CurrentTime = 0.0;
-	m_CurrentAnimation = animation;
+    m_DeltaTime = 0.0f;
 
 	m_FinalBoneMatrices.reserve(100);
 

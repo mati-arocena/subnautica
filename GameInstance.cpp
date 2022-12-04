@@ -143,6 +143,7 @@ void GameInstance::processInput(double deltaTime)
 	// F11 is fullscreen
 	if (f11Pressed && glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS)
 	{
+		f11Pressed = false;
 		if (!fullscreen)
 		{
 			setFullscreen();
@@ -153,6 +154,7 @@ void GameInstance::processInput(double deltaTime)
 			removeFullscreen();
 			fullscreen = false;
 		}
+		f11Pressed = false;
 	}
 	
 	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
@@ -179,7 +181,20 @@ void GameInstance::processInput(double deltaTime)
 		cPressed = false;
 		renderAABB = !renderAABB;
 	}
-
+	
+	
+	if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
+		mPressed = true;
+	if (mPressed && glfwGetKey(window, GLFW_KEY_M) == GLFW_RELEASE)
+	{
+		mPressed = false;
+		Mode mode = camera->getMode();
+		if (mode == PLAYER_MODE)
+			camera->setMode(FLY_MODE);
+		else
+			camera->setMode(PLAYER_MODE);
+	}
+	
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
 		player->move(Movement::FORWARD);
@@ -239,7 +254,7 @@ std::shared_ptr<Shader> GameInstance::getShader(const std::string& name)
 	}
 }
 
-void GameInstance::render(GameObject* excludeFromRendering, const glm::vec4& clipPlane)
+void GameInstance::render(const GameObject* excludeFromRendering, const glm::vec4& clipPlane)
 {
 	glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -281,7 +296,7 @@ void GameInstance::renderShadowMap()
 	shadowMapBuffer->shader->lightSpaceTransform(this->light);
 	for (auto object : objects)
 	{
-		if (auto m = dynamic_cast<Model*>(object.get()))
+		if (dynamic_cast<Model*>(object.get()))
 		{
 			object->render_withShader(shadowMapBuffer->shader);
 		}
@@ -353,7 +368,7 @@ void GameInstance::render()
 	postProcessor->draw();
 }
 
-bool GameInstance::isRunning()
+bool GameInstance::isRunning() const
 {
 	return running;
 }
@@ -361,6 +376,11 @@ bool GameInstance::isRunning()
 void GameInstance::updateScreenSize(const glm::ivec2& size)
 {
 	this->camera->changeSize(size);
+}
+
+std::shared_ptr<Player> GameInstance::getPlayer()
+{
+	return player;
 }
 
 std::shared_ptr<Light> GameInstance::getPointLight() {
@@ -384,7 +404,7 @@ void GameInstance::render_withShader(std::shared_ptr<Shader> shader)
 
 	for (auto object : objects)
 	{
-		if (auto m = dynamic_cast<Model*>(object.get()))
+		if (dynamic_cast<Model*>(object.get()))
 		{
 			object->render_withShader(shader);
 		}
@@ -407,7 +427,7 @@ void GameInstance::renderOclussion()
 	player->render_withShader(occShdr);
 	for (auto object : objects)
 	{
-		if (auto m = dynamic_cast<Model*>(object.get()))
+		if (dynamic_cast<Model*>(object.get()))
 		{
 			object->render_withShader(occShdr);
 		}

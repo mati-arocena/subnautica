@@ -15,7 +15,7 @@ public:
 
 	PostProcessor();
 	void draw();
-	GLint getSceneFB();
+	GLint getSceneFB() const;
 
 private:
 	GLuint VBO, VAO;

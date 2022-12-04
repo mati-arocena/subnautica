@@ -10,7 +10,6 @@
 #include "VBO.h"
 #include "ConfigManager.h"
 
-
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
     FORWARD,
@@ -45,6 +44,7 @@ class Camera
     inline void updateFrustumsPosition();
     inline void updateFrustumsZoom();
 
+    Mode mode;
 public:
     // camera Attributes
     glm::vec3 Position;
@@ -64,8 +64,8 @@ public:
     float MouseSensitivity;
     float Zoom;
     // constructor with vectors
-    Camera(
-        glm::vec3 position = glm::vec3(0.0f, 0.0f, 1.0f),
+    explicit Camera(
+        glm::vec3 position = glm::vec3(0.0f, 3.0f, 1.0f),
         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
         float yaw = YAW, float pitch = PITCH
     );
@@ -94,13 +94,16 @@ public:
     std::shared_ptr<Frustum> getFrustum(enum class LOD lod);
     void toggleFrustumUpdate();
     void renderFrustum();
+
+    void setMode(Mode mode);
+    Mode getMode() const;
 };
 
 void Camera::updateFrustumsVectors()
 {
-    frustumLOD0->update(Front, Right, Up, width / height);
-    frustumLOD1->update(Front, Right, Up, width / height);
-    frustumLOD2->update(Front, Right, Up, width / height);
+    frustumLOD0->update(Front, Right, Up, static_cast<float>(width / height));
+    frustumLOD1->update(Front, Right, Up, static_cast<float>(width / height));
+    frustumLOD2->update(Front, Right, Up, static_cast<float>(width / height));
 }
 
 void Camera::updateFrustumsPosition()
@@ -112,14 +115,14 @@ void Camera::updateFrustumsPosition()
 
 void Camera::updateFrustumsZoom()
 {
-    frustumLOD0->update(glm::radians(Zoom), width / height, Right);
-    frustumLOD1->update(glm::radians(Zoom), width / height, Right);
-    frustumLOD2->update(glm::radians(Zoom), width / height, Right);
+    frustumLOD0->update(glm::radians(Zoom), static_cast<float>(width / height), Right);
+    frustumLOD1->update(glm::radians(Zoom), static_cast<float>(width / height), Right);
+    frustumLOD2->update(glm::radians(Zoom), static_cast<float>(width / height), Right);
 }
 
 void Camera::createFrustums()
 {
-    frustumLOD0 = std::make_shared<Frustum>(Position, Front, Up, Right, glm::radians(Zoom), near, far * 0.68, width / height);
-    frustumLOD1 = std::make_shared<Frustum>(Position, Front, Up, Right, glm::radians(Zoom), far * 0.68, far * 0.95, width / height);
-    frustumLOD2 = std::make_shared<Frustum>(Position, Front, Up, Right, glm::radians(Zoom), far * 0.95, far, width / height);
+    frustumLOD0 = std::make_shared<Frustum>(Position, Front, Up, Right, glm::radians(Zoom), near, far * 0.68f, static_cast<float>(width / height));
+    frustumLOD1 = std::make_shared<Frustum>(Position, Front, Up, Right, glm::radians(Zoom), far * 0.68f, far * 0.95f, static_cast<float>(width / height));
+    frustumLOD2 = std::make_shared<Frustum>(Position, Front, Up, Right, glm::radians(Zoom), far * 0.95f, far, static_cast<float>(width / height));
 }

@@ -1,14 +1,8 @@
 #include "Material.h"
 
-Material::Material(
-	std::vector<std::shared_ptr<Texture>> textures,
-	std::shared_ptr<Shader> shader, 
-	glm::vec3 diffuseColor,
-	glm::vec3 specColor,
-	float specularStrenght,
-	float specularExponent
-)
-	:textures(textures), shader(shader), diffuseColor(diffuseColor), specColor(specColor), specularStrenght(specularStrenght), specularExponent(specularExponent)
+
+Material::Material(std::vector<std::shared_ptr<Texture>> textures, std::shared_ptr<Shader> shader, glm::vec3 diffuseColor, glm::vec3 specColor, float specularStrenght, float specularExponent)
+	: textures{ textures }, shader{ shader }, diffuseColor{ diffuseColor }, specColor{ specColor }, specularStrenght{ specularStrenght }, specularExponent{ specularExponent }
 {
 	this->textureFactor = glm::ivec3(0);
 
@@ -29,6 +23,8 @@ Material::Material(
 		shader->setTexture(textures[x], x);
 	}
 }
+
+
 
 void Material::use()
 {

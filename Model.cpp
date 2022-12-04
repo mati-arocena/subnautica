@@ -22,7 +22,7 @@ void Model::setAnimator(std::shared_ptr<Animator> animator)
 	}
 }
 
-Model::Model(std::string path, std::string extension, glm::vec3 position) : GameObject()
+Model::Model(const std::string& path, const std::string& extension, glm::vec3 position) : GameObject()
 {
 	this->position = position;
 
@@ -51,7 +51,7 @@ Model::Model(std::string path, std::string extension, glm::vec3 position) : Game
 	}
 }
 
-Model::Model(std::string path, std::string extension, std::string animationPath, std::string animationExtension, glm::vec3 position) : GameObject()
+Model::Model(const std::string& path, const std::string& extension, const std::string& animationPath, const std::string& animationExtension, glm::vec3 position) : GameObject()
 {
 	this->position = position;
 	this->hasAnimations = true;
@@ -152,19 +152,19 @@ void Model::update(double DeltaTime)
 		mesh.recalculateAABB();
 	}
 	if (this->animator != nullptr)
-		this->animator->updateAnimation(DeltaTime);
+		this->animator->updateAnimation(static_cast<float>(DeltaTime));
 	
 	for (Mesh& mesh : meshesLOD0)
 	{
-		mesh.update(DeltaTime);
+		mesh.update(static_cast<float>(DeltaTime));
 	}
 	for (Mesh& mesh : meshesLOD1)
 	{
-		mesh.update(DeltaTime);
+		mesh.update(static_cast<float>(DeltaTime));
 	}
 	for (Mesh& mesh : meshesLOD2)
 	{
-		mesh.update(DeltaTime);
+		mesh.update(static_cast<float>(DeltaTime));
 	}
 }
 
@@ -286,7 +286,7 @@ void Model::extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* 
 	Attach the bones to the vertices, using the assimp mesh data
 */
 {
-	for (int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
+	for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
 	{
 		int boneID = -1;
 		std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();
@@ -398,11 +398,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 	}
 
-
-
-	
-
-	
 	// 3. normal maps
 	std::vector<std::shared_ptr<Texture>> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, TEXTURE_NORMAL);
 	if (normalMaps.size() == 0)
@@ -415,6 +410,16 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 	std::vector<std::shared_ptr<Texture>> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height");
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
+	// Todo: Make one texture load only
+
+	std::shared_ptr<Texture> occlusion_texture = std::make_shared<Texture>("assets/caustics.jpg", "occlusion_map", true, true);
+	textures.push_back(occlusion_texture);
+
+	std::shared_ptr<Texture> dudv_texture = std::make_shared<Texture>("assets/causticsDUDV.png", "dudv_map", true, true);
+	textures.push_back(dudv_texture);
+
+	std::shared_ptr<Texture> caustics_factor = std::make_shared<Texture>("assets/causticFactor.jpg", "caustics_factor", true, true);
+	textures.push_back(caustics_factor);
 
 	Material *m = new Material(textures, GameInstance::getInstance().getShader(NORMAL_SHADER), diffuseColor, specularColor, specularStrenght, specularExponent);
 	

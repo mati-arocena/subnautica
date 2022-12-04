@@ -31,8 +31,8 @@ public:
 
 	~Mesh() {};
 
-	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
-		Material* material, glm::mat4 modelMat, glm::vec3 AABBmin, glm::vec3 AABBmax, bool isMovable = false);
+	Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices,
+		Material* material, glm::mat4 modelMat, glm::vec3 AABBmin, glm::vec3 AABBmax, bool movable = false);
 	void render();
 	void renderAABB();
 	void renderWireframe();
@@ -40,7 +40,7 @@ public:
 	void updateAABB();
 
 	void setClipPlane(const glm::vec4& plane);
-	glm::vec4 getClipPlane();
+	glm::vec4 getClipPlane() const;
 
 
 	glm::mat4* model_P = new glm::mat4(1.f);
@@ -73,7 +73,6 @@ public:
 		glm::mat4 s = glm::scale(glm::mat4(1.0f), scale);
 
 		this->model = t * r * s;
-//		this->model = r;
 	}
 
 	void decomposeModelMatrix(glm::mat4 model);
@@ -83,16 +82,14 @@ public:
 
 	void update(float delta);
 
-	bool isMovable();
+	bool isMovable() const;
 	void recalculateAABB();
 
 
 private:
-	bool movable = false;
 
 	VBO* vbo;
 	unsigned int vao, ebo;
-	glm::vec4 clipPlane;
 
 	glm::mat4 model; // your transformation matrix.
 	std::shared_ptr<Shader> debugShader;
@@ -103,6 +100,8 @@ private:
 	glm::vec3 extents;
 	glm::vec3 minAABB;
 	glm::vec3 maxAABB;
+	bool movable = false;
+	glm::vec4 clipPlane;
 
 	float angle;
 
