@@ -5,8 +5,6 @@
 
 class ShadowMapBuffer
 {
-	const int WIDTH = 800;
-	const int HEIGHT = 600;
 
 public:
 	std::shared_ptr<Shader> shader;

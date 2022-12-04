@@ -129,14 +129,14 @@ void Shader::setMat4(const std::string& name, glm::mat4& mat)
 	glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
 }
 
-void Shader::prerender(std::shared_ptr<Camera> camera, std::shared_ptr<PointLight> light)
+void Shader::prerender(std::shared_ptr<Camera> camera, std::shared_ptr<Light> light)
 {
 	GLint currentPorgramId;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &currentPorgramId);
 
 	use();
-	const glm::vec3& lightPos = light->getPosition();
-	setFloat("lightPos", lightPos.x, lightPos.y, lightPos.z);
+	const glm::vec3& lightDir = light->getDirection();
+	setFloat("lightDir", lightDir.x, lightDir.y, lightDir.z);
 
 	const glm::vec3& lightColor = light->getColor();
 	setFloat("lightColor", lightColor.x, lightColor.y, lightColor.z);
@@ -153,22 +153,22 @@ void Shader::prerender(std::shared_ptr<Camera> camera, std::shared_ptr<PointLigh
 	setFloat("water_fog_color", 0.f, .3f, .5f, 1.f);
 	setFloat("inside_water", camera->GetPosition().y > 0 ? 0.f: 1.f);
 
-	glm::mat4 lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 0.1f, 100.f);
-	glm::mat4 lightView = glm::lookAt(glm::vec3(1.0f, 15.0f, .0f), glm::vec3(.0f, .0f, .0f), glm::vec3(.0f, 1.0f, .0f));
+	glm::mat4 lightProjection = light->getLightProjection();
+	glm::mat4 lightView = light->getLightView();
 	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 	setMat4("light_space_matrix", lightSpaceMatrix);
 
 	glUseProgram(currentPorgramId);
 }
 
-void Shader::lightSpaceTransform(std::shared_ptr<PointLight> light)
+void Shader::lightSpaceTransform(std::shared_ptr<Light> light)
 {
 	GLint currentPorgramId;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &currentPorgramId);
 
 	glUseProgram(ID);
-	glm::mat4 lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 0.1f, 100.f);
-	glm::mat4 lightView = glm::lookAt(glm::vec3(1.0f, 15.0f, .0f), glm::vec3(.0f, .0f, .0f), glm::vec3(.0f, 1.0f, .0f));
+	glm::mat4 lightProjection = light->getLightProjection();
+	glm::mat4 lightView = light->getLightView();
 	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 	setMat4("light_space_matrix", lightSpaceMatrix);
 	glUseProgram(currentPorgramId);

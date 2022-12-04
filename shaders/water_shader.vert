@@ -14,7 +14,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform vec3 camera_position;
-uniform vec3 lightPos;
+uniform vec3 lightDir;
 
 const float fogDensity = 0.1;
 const float fogGradient = 2.0;
@@ -29,5 +29,5 @@ void main()
 	col = aNormal;
 	TextCoord = aTexCoord;
 	toCameraVector = camera_position - worldPosition.xyz;
-	fromLightVector = worldPosition.xyz - lightPos;
+	fromLightVector = worldPosition.xyz + lightDir;
 }

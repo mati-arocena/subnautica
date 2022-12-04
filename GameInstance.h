@@ -29,7 +29,7 @@ class GameInstance
 	std::vector<std::shared_ptr<GameObject>> objects;
 	std::shared_ptr<Water> water;
 	
-	std::shared_ptr<PointLight> pointLight;
+	std::shared_ptr<Light> light;
 	std::shared_ptr<Player> player;
 
 	std::shared_ptr<DirectionalLight> directionalLight;
@@ -64,7 +64,7 @@ public:
 
 	void addGameObject(std::shared_ptr<GameObject> gameObject);
 	void addShader(const std::string& name, std::shared_ptr<Shader> shader);
-	void addLight(std::shared_ptr<PointLight> light);
+	void addLight(std::shared_ptr<Light> light);
 	void addLight(std::shared_ptr<DirectionalLight> light);
 	void addSkyBox(std::shared_ptr<SkyBox> skyBox);
 	void setPlayer(std::shared_ptr<Player> player);
@@ -75,7 +75,7 @@ public:
 	void setWindow(GLFWwindow* window);
 	void setShadowMapBuffer(std::shared_ptr<ShadowMapBuffer> shadowMapBuffer);
 
-	std::shared_ptr<PointLight> getPointLight();
+	std::shared_ptr<Light> getPointLight();
 	std::shared_ptr<Shader> getShader(const std::string& name);
 
 	void processInput(double deltaTime);

@@ -20,7 +20,7 @@ ShadowMapBuffer::ShadowMapBuffer(std::shared_ptr<Shader> shader)
 
 void ShadowMapBuffer::bind()
 {
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(GL_TEXTURE_2D, GL_TEXTURE0);
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowFrameBuffer);
 }
 

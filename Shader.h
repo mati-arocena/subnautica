@@ -40,6 +40,6 @@ public:
 
 	void setMat4(const std::string& name, glm::mat4& mat);
 	void setTexture(std::shared_ptr<Texture> texture, int pos);
-	void prerender(std::shared_ptr<Camera> camera, std::shared_ptr<PointLight> light);
-	void lightSpaceTransform(std::shared_ptr<PointLight> light);
+	void prerender(std::shared_ptr<Camera> camera, std::shared_ptr<Light> light);
+	void lightSpaceTransform(std::shared_ptr<Light> light);
 };

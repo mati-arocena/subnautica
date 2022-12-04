@@ -30,7 +30,7 @@ uniform mat4 view;
 uniform mat4 projection;
 
 uniform vec4 clippingPlane;
-uniform vec3 lightPos;
+uniform vec3 lightDir;
 uniform vec3 viewPos;
 uniform bool has_animation;
 uniform mat4 light_space_matrix;
@@ -79,7 +79,7 @@ void main()
 	vec3 B = cross(N, T);
 	
 	mat3 TBN = transpose(mat3(T, B, N));
-	vs_out.TangentLightPos = TBN * lightPos;
+	vs_out.TangentLightPos = TBN * (aPos - lightDir);
 	vs_out.TangentFragPos = TBN * vs_out.FragPos;
 	// Tangent space normal from local space
 	vs_out.Normal = TBN * N;

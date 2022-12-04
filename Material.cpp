@@ -36,6 +36,7 @@ void Material::use()
 
 	for (unsigned int x = 0; x < textures.size(); x++)
 	{	
+		shader->setTexture(textures[x], x);
 		textures[x]->use(x);
 	}
 
