@@ -63,10 +63,24 @@ void Loader::loadPlayer(pugi::xml_node node)
 {
 	GameInstance& gameInstance = GameInstance::getInstance();
 
+	if (node.attribute("animationPath"))
+	{
+		std::string animationPath = node.attribute("animationPath").as_string();
+		std::string animationExtension = node.attribute("animationExtension").as_string();
+
+		gameInstance.setPlayer(std::make_shared<Player>(
+			node.child("Player").attribute("modelPath").as_string(),
+			node.child("Player").attribute("modelExtension").as_string(),
+			animationPath, animationExtension));
+	}
+	else
+	{
 	gameInstance.setPlayer(std::make_shared<Player>(
 		node.child("Player").attribute("modelPath").as_string(),
 		node.child("Player").attribute("modelExtension").as_string()
 	));
+}
+
 }
 
 void Loader::loadModels(pugi::xml_node node)

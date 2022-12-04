@@ -13,7 +13,10 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
 {
 	clipPlane = glm::vec4{ 0.f, 0.f, 0.f, 0.f };
 
-	updateAABB();
+	decomposeModelMatrix(modelMat);
+	computeModelMatrix();
+
+	recalculateAABB();
 
 	vbo = new VBO();
 	debugVBO = new VBO();
@@ -21,14 +24,10 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
 	setupMesh();
 
 	debugShader = GameInstance::getInstance().getShader(FRUSTUM_SHADER);
-
-	glm::vec3 worldMin = glm::vec3(model * glm::vec4(minAABB, 1.f));
-	glm::vec3 worldMax = glm::vec3(model * glm::vec4(maxAABB, 1.f));
-
-	Vertex nbl({ worldMin.x, worldMin.y, worldMax.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
-	Vertex nbr({ worldMax.x, worldMin.y, worldMax.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
-	Vertex ntl({ worldMin.x, worldMax.y, worldMax.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
-	Vertex ntr({ worldMax.x, worldMax.y, worldMax.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex nbl({ center.x - extents.x, center.y - extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex nbr({ center.x + extents.x, center.y - extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex ntl({ center.x - extents.x, center.y + extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
+	Vertex ntr({ center.x + extents.x, center.y + extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
 	Vertex fbl({ center.x - extents.x, center.y - extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
 	Vertex fbr({ center.x + extents.x, center.y - extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
 	Vertex ftl({ center.x - extents.x, center.y + extents.y, center.z - extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });
@@ -61,9 +60,6 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
 	
 	Vertex::setVertexAttributes();
 
-	decomposeModelMatrix(modelMat);
-	computeModelMatrix();
-	
 }
 
 void Mesh::render()
@@ -159,8 +155,6 @@ void Mesh::bind(GLenum polygonMode)
 
 void Mesh::recalculateAABB()
 {
-	
-
 	float a, b;
 	glm::vec3 min, max;
 	int    i, j;
@@ -172,12 +166,14 @@ void Mesh::recalculateAABB()
 	/* Now find the extreme points by considering the product of the */
 	/* min and max with each component of M.  */
 	glm::mat4 rot = glm::toMat4(rotation);
+	glm::mat4 s = glm::scale(glm::mat4(1.0f), scale);
+	glm::mat4 M = s * rot;
 
 	for (i = 0; i < 3; i++)
 		for (j = 0; j < 3; j++)
 		{
-			a = (float)(rot[i][j] * minAABB[j]);
-			b = (float)(rot[i][j] * maxAABB[j]);
+			a = (float)(M[i][j] * minAABB[j]);
+			b = (float)(M[i][j] * maxAABB[j]);
 			if (a < b)
 
 			{

@@ -40,8 +40,9 @@ class GameInstance
 	bool fPressed = false;
 	bool lPressed = false;
 	bool cPressed = false;
+	bool f11Pressed = false;
 
-	bool fullscreen = true;
+	bool fullscreen = false;
 	bool renderFrustum = false;
 	bool renderWireframe = false;
 	bool renderAABB = false;

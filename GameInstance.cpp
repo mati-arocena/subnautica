@@ -132,8 +132,16 @@ void GameInstance::processInput(double deltaTime)
 		camera->ProcessKeyboard(LEFT, static_cast<float>(deltaTime));
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera->ProcessKeyboard(RIGHT, static_cast<float>(deltaTime));
+
 	// F11 is fullscreen
 	if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS)
+	{
+		f11Pressed = true;
+	}
+
+	
+	// F11 is fullscreen
+	if (f11Pressed && glfwGetKey(window, GLFW_KEY_F11) == GLFW_RELEASE)
 	{
 		if (!fullscreen)
 		{
