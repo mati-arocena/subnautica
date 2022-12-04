@@ -24,6 +24,20 @@ void GameInstance::addGameObject(std::shared_ptr<GameObject> gameObject)
 	{
 		water = waterPtr;
 	}
+	
+	auto model = std::dynamic_pointer_cast<Model>(gameObject);
+	if (model)
+	{
+		const std::vector<std::shared_ptr<Mesh>> meshes = model->getMeshes();
+		for (const auto& mesh : meshes) 
+		{
+			if (mesh->hasCollision())
+				collisionObjects.push_back(mesh);
+		}
+
+	}
+
+
 }
 
 void GameInstance::setShadowMapBuffer(std::shared_ptr<ShadowMapBuffer> shadowMapBuffer)
@@ -61,6 +75,7 @@ void GameInstance::addSkyBox(std::shared_ptr<SkyBox> skyBox)
 void GameInstance::setPlayer(std::shared_ptr<Player> player)
 {
 	this->player = std::move(player);
+	this->playerMeshes = this->player->getMeshes();
 }
 
 GameInstance::GameInstance()
@@ -88,6 +103,23 @@ void GameInstance::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 void GameInstance::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	getInstance().camera->ProcessMouseScroll(static_cast<float>(yoffset));
+}
+
+glm::vec3 GameInstance::getMaxCollisionDelta()
+{
+	glm::vec3 result = { 0.f, 0.f, 0.f };
+	for (std::shared_ptr<Mesh> playerMesh : playerMeshes)
+	{
+		const glm::vec3& center = playerMesh->getAABBCenter();
+		const glm::vec3& extents = playerMesh->getAABBExtents();
+
+		for (auto& mesh : collisionObjects)
+		{
+			glm::vec3 collisionDelta = mesh->getCollisionDelta(center, extents);
+			if (glm::length(collisionDelta) > 0.01f)
+				return collisionDelta;
+		}
+	}
 }
 
 std::shared_ptr<Camera> GameInstance::getCamera() 
@@ -202,7 +234,7 @@ void GameInstance::processInput(double deltaTime)
 
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-		player->move(Movement::BACKWARD);
+		player->move(Movement::BACKWARD);	
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
@@ -222,10 +254,10 @@ void GameInstance::processInput(double deltaTime)
 
 	if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
 	{
-		player->move(Movement::DOWN);
+		if (!isCollision(Movement::DOWN))
+			player->move(Movement::DOWN);
 	}
 }
-
 
 void GameInstance::update(double deltaTime)
 {
@@ -241,7 +273,6 @@ void GameInstance::update(double deltaTime)
 	}
 
 	light->updatePosition(camera->GetPosition());
-
 }
 
 std::shared_ptr<Shader> GameInstance::getShader(const std::string& name)
@@ -304,7 +335,7 @@ void GameInstance::renderShadowMap()
 
 	player->render_withShader(shadowMapBuffer->shader);
 
-	shadowMapBuffer->unbind();
+	ShadowMapBuffer::unbind();
 
 	glCullFace(GL_BACK);
 	glDisable(GL_CULL_FACE);
@@ -376,6 +407,48 @@ bool GameInstance::isRunning() const
 void GameInstance::updateScreenSize(const glm::ivec2& size)
 {
 	this->camera->changeSize(size);
+}
+
+bool GameInstance::isCollision(Movement movement)
+{
+	/*
+	for (const auto& playerMesh : playerMeshes)
+	{
+		const glm::vec3& center = playerMesh.getAABBCenter();
+		const glm::vec3& extents = playerMesh.getAABBExtents();
+
+		for (auto& mesh : collisionObjects)
+		{
+			switch (movement)
+			{
+			case Movement::UP:
+				if (isCollision(center + extents.y))
+					return true;
+				break;
+			case Movement::DOWN:
+				if (isCollision(center - extents.y))
+					return true;
+				break;
+			case Movement::LEFT:
+				if (isCollision(center + extents.x))
+					return true;
+				break;
+			case Movement::RIGHT:
+				if (isCollision(center - extents.x))
+					return true;
+				break;
+			case Movement::FORWARD:
+				if (isCollision(center + extents.z))
+					return true;
+				break;
+			case Movement::BACKWARD:
+				if (isCollision(center - extents.z))
+					return true;
+				break;
+			}
+		}
+	}*/
+	return false;
 }
 
 std::shared_ptr<Player> GameInstance::getPlayer()

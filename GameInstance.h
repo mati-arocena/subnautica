@@ -27,6 +27,10 @@ class GameInstance
 	GLFWwindow* window;
 
 	std::vector<std::shared_ptr<GameObject>> objects;
+
+	std::vector<std::shared_ptr<Mesh>> collisionObjects;
+	std::vector<std::shared_ptr<Mesh>> playerMeshes;
+
 	std::shared_ptr<Water> water;
 	
 	std::shared_ptr<Light> light;
@@ -54,6 +58,7 @@ class GameInstance
 	static void mouse_callback(GLFWwindow* window,	double xpos, double ypos);
 	static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 	
+
 	std::shared_ptr<SkyBox> skyBox;
 	glm::vec3 clearColor;
 
@@ -81,6 +86,7 @@ public:
 	std::shared_ptr<Shader> getShader(const std::string& name);
 
 	std::shared_ptr<Player> getPlayer();
+	glm::vec3 getMaxCollisionDelta();
 
 	void processInput(double deltaTime);
 	void update(double deltaTime);
@@ -97,5 +103,7 @@ public:
 	bool isRunning() const;
 
 	void updateScreenSize(const glm::ivec2& size);
+
+	bool isCollision(Movement movement);
 };
 

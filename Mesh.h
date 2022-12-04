@@ -85,6 +85,11 @@ public:
 	bool isMovable() const;
 	void recalculateAABB();
 
+	glm::vec3 getCollisionDelta(const glm::vec3& center, const glm::vec3& extents);
+	glm::vec3 getAABBCenter() const;
+	glm::vec3 getAABBExtents() const;
+
+	bool hasCollision() const;
 
 private:
 
@@ -104,11 +109,14 @@ private:
 	glm::vec4 clipPlane;
 
 	float angle;
+	bool collision = true;
 
     void setupMesh();
     void bind(GLenum polygonMode);
     std::shared_ptr<Animator> animator;
     
 	bool isOnFrustum(glm::vec3 center, glm::vec3 extents, std::shared_ptr<Frustum> frustum);
+	
+	static bool collisionTest(glm::vec3 axis, float minA, float maxA, float minB, float maxB, glm::vec3& resAxis, float& resDistance);
 };
 
