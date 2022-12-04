@@ -177,6 +177,7 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShadowMapBuffer.cpp" />
     <ClCompile Include="SkyBox.cpp" />
+    <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="ThirdParty\includes\pugixml\pugixml.cpp" />
     <ClCompile Include="UIRenderer.cpp" />
     <ClCompile Include="stb.cpp" />
@@ -207,6 +208,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShadowMapBuffer.h" />
     <ClInclude Include="SkyBox.h" />
+    <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="ThirdParty\includes\pugixml\pugixml.hpp" />
     <ClInclude Include="UIRenderer.h" />
     <ClInclude Include="Texture.h" />

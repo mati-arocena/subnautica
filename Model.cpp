@@ -367,6 +367,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 	float specularStrenght, specularExponent;
 	specularStrenght = specularExponent = 0;
 
+	TextureLoader textureLoader = GameInstance::getInstance().getTextureLoader();
+	
 	textures.push_back(GameInstance::getInstance().shadowMapBuffer->shadowDepthTexture);
 
 	// 2. specular maps
@@ -410,28 +412,21 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 	std::vector<std::shared_ptr<Texture>> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height");
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
-	// Todo: Make one texture load only
-
-	std::shared_ptr<Texture> occlusion_texture = std::make_shared<Texture>("assets/caustics.jpg", "occlusion_map", true, true);
-	textures.push_back(occlusion_texture);
-
-	std::shared_ptr<Texture> dudv_texture = std::make_shared<Texture>("assets/causticsDUDV.png", "dudv_map", true, true);
-	textures.push_back(dudv_texture);
-
-	std::shared_ptr<Texture> caustics_factor = std::make_shared<Texture>("assets/causticFactor.jpg", "caustics_factor", true, true);
-	textures.push_back(caustics_factor);
+	textures.push_back(textureLoader.getTexture("assets/caustics.jpg", "occlusion_map"));
+	textures.push_back(textureLoader.getTexture("assets/causticsDUDV.png", "dudv_map"));
+	textures.push_back(textureLoader.getTexture("assets/causticFactor.jpg", "caustics_factor"));
 
 	Material *m = new Material(textures, GameInstance::getInstance().getShader(NORMAL_SHADER), diffuseColor, specularColor, specularStrenght, specularExponent);
 	
 	//glm::vec4 AABBModel =  mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z, 1.0f };
 	glm::vec3 AABBmin = { mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z };
 	glm::vec3 AABBmax = { mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z };
-
 	return Mesh(vertices, indices, m, transformMat, AABBmin, AABBmax);
 }
 
 std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName)
 {
+	TextureLoader textureLoader = GameInstance::getInstance().getTextureLoader();
 	std::vector<std::shared_ptr<Texture>> textures;
 
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
@@ -440,24 +435,11 @@ std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial* ma
 		mat->GetTexture(type, i, &str);
 		std::string filename;
 		filename = this->directory + '/' + str.C_Str();
-		// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
-		bool skip = false;
-		for (unsigned int j = 0; j < textures_loaded.size(); j++)
-		{
-			if (filename == textures_loaded[j]->path)
-			{
-				textures.push_back(textures_loaded[j]);
-				skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
-				break;
-			}
-		}
-		if (!skip)
-		{   // if texture hasn't been loaded already, load it
-			std::shared_ptr<Texture> texture = std::make_shared<Texture>(filename.c_str(), typeName, true, true);
-			textures.push_back(texture);
-			textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
-		}
 
+		auto texture = textureLoader.getTexture(filename, typeName);
+		
+		textures.push_back(texture);
+		textures_loaded.push_back(texture);
 	}
 	return textures;
 
