@@ -158,7 +158,7 @@ void main()
 
     float shadow = ShadowCalculation(fs_in.FragPosLightSpace);
 
-    FragColor = vec4(ambient +  (1 - shadow) * (diffuse + specular), 1.0) + inside_water * caustics;
+    FragColor = vec4(ambient +  (1 - shadow) * (diffuse + specular), 1.0) + (1 - shadow) * inside_water * caustics;
     //FragColor = vec4(vec3   (shadow), 1.0);
     //FragColor = vec4(vec3(normalize(vec3(fs_in.TangentViewPos))), 1.0);
 }

@@ -16,6 +16,7 @@
 #include "SkyBox.h"
 #include "DirectionalLight.h"
 #include "Player.h"
+#include "TextureLoader.h"
 
 class GameInstance
 {
@@ -62,6 +63,8 @@ class GameInstance
 	std::shared_ptr<SkyBox> skyBox;
 	glm::vec3 clearColor;
 
+	TextureLoader textureLoader;
+
 public:
 	static GameInstance& getInstance();
 	std::shared_ptr<ShadowMapBuffer> shadowMapBuffer;
@@ -103,6 +106,8 @@ public:
 	bool isRunning() const;
 
 	void updateScreenSize(const glm::ivec2& size);
+
+	inline const TextureLoader& getTextureLoader() { return textureLoader; }
 
 	bool isCollision(Movement movement);
 };

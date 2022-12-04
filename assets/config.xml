@@ -2,10 +2,13 @@
 <Scene resX="1920" resY="1080" bgColorR="0" bgColorG="0" bgColorB="0"
  near="0.1" far="300" occlusionResX="200"  occlusionResY="150" waterResX="200"  waterResY="150"
  mode="fly" >
-	<Player 
+
+
+	<Player
 		modelPath="assets/player_old"
 		modelExtension="gltf"
 	/>
+
 
 	<Light
 		colorr="1"
@@ -17,10 +20,6 @@
 	/>
 	
 	<Models>
-		<Model posx="5" posy="0" posz="0" 
-			modelPath="assets/caja"
-			modelExtension="obj" />
-
 
 		<Model posx="0" posy="0" posz="0"
 			modelPath="assets/mar2"
