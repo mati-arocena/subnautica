@@ -41,6 +41,7 @@ class GameInstance
 	bool lPressed = false;
 	bool cPressed = false;
 	bool f11Pressed = false;
+	bool mPressed = false;
 
 	bool fullscreen = false;
 	bool renderFrustum = false;
@@ -76,6 +77,8 @@ public:
 
 	std::shared_ptr<PointLight> getPointLight();
 	std::shared_ptr<Shader> getShader(const std::string& name);
+
+	std::shared_ptr<Player> getPlayer();
 
 	void processInput(double deltaTime);
 	void update(double deltaTime);

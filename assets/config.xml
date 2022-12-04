@@ -3,7 +3,7 @@
  near="0.1" far="300" occlusionResX="200"  occlusionResY="150" waterResX="200"  waterResY="150"
  mode="fly" >
 	<Player 
-		modelPath="assets/player"
+		modelPath="assets/player_old"
 		modelExtension="gltf"
 	/>
 
@@ -17,7 +17,10 @@
 	/>
 	
 	<Models>
-		<Model posx="1" posy="-2" posz="-1" 
+		<Model posx="5" posy="0" posz="0" 
+			modelPath="assets/caja"
+			modelExtension="obj" />
+		<!--Model posx="1" posy="-2" posz="-1" 
 			modelPath="assets/delfin/scene"
 			modelExtension="gltf" 
 			animationPath="assets/delfin/scene"
@@ -28,9 +31,6 @@
 			modelExtension="gltf" 
 		/>
 
-		<Model posx="5" posy="5" posz="5" 
-			modelPath="assets/caja"
-			modelExtension="obj" />
 		
 		<Model posx="20" posy="20" posz="20" 
 			modelPath="assets/caja"
@@ -38,7 +38,7 @@
 		
 		<Model posx="40" posy="40" posz="40" 
 			modelPath="assets/caja"
-			modelExtension="obj" />
+			modelExtension="obj" /-->
 		
 	</Models>
 </Scene>

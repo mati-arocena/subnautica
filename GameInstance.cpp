@@ -148,6 +148,7 @@ void GameInstance::processInput(double deltaTime)
 			removeFullscreen();
 			fullscreen = false;
 		}
+		f11Pressed = false;
 	}
 	
 	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
@@ -174,7 +175,20 @@ void GameInstance::processInput(double deltaTime)
 		cPressed = false;
 		renderAABB = !renderAABB;
 	}
-
+	
+	
+	if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
+		mPressed = true;
+	if (mPressed && glfwGetKey(window, GLFW_KEY_M) == GLFW_RELEASE)
+	{
+		mPressed = false;
+		Mode mode = camera->getMode();
+		if (mode == PLAYER_MODE)
+			camera->setMode(FLY_MODE);
+		else
+			camera->setMode(PLAYER_MODE);
+	}
+	
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
 		player->move(Movement::FORWARD);
@@ -327,6 +341,11 @@ bool GameInstance::isRunning()
 void GameInstance::updateScreenSize(const glm::ivec2& size)
 {
 	this->camera->changeSize(size);
+}
+
+std::shared_ptr<Player> GameInstance::getPlayer()
+{
+	return player;
 }
 
 std::shared_ptr<PointLight> GameInstance::getPointLight() {

@@ -55,6 +55,13 @@ Camera::Camera(
 
 void Camera::updateViewMatrix()
 {
+    if (mode == PLAYER_MODE)
+    {
+        glm::vec4 playerFront = glm::vec4(GameInstance::getInstance().getPlayer()->getFront(), 1.0f);
+        Front = playerFront;
+        Position = GameInstance::getInstance().getPlayer()->getPosition() - Front * .8f + glm::vec3 (0.f, 2.f, 0.f);
+        updateFrustumsPosition();
+    }
     ViewMatrix = glm::lookAt(Position, Position + Front, Up);        
 }
 
@@ -96,6 +103,11 @@ void Camera::renderFrustum()
     frustumLOD2->render({ 1.f, 1.f, 0.f });
 }
 
+void Camera::setMode(Mode mode)
+{
+    this->mode = mode;
+}
+
 
 glm::mat4 Camera::GetViewMatrix() const
 {
@@ -128,6 +140,8 @@ void Camera::InvertPitch()
 
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
+    if (mode == PLAYER_MODE)
+        return;
     float velocity = MovementSpeed * deltaTime;
     if (direction == FORWARD)
         Position += Front * velocity;
@@ -142,6 +156,8 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)
 {
+    if (mode == PLAYER_MODE)
+        return;
     xoffset *= MouseSensitivity;
     yoffset *= MouseSensitivity;
 
@@ -178,13 +194,34 @@ void Camera::ProcessMouseScroll(float yoffset)
 
 void Camera::updateCameraVectors()
 {
-    // calculate the new Front vector
-    glm::vec3 front;
-    front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-    front.y = sin(glm::radians(Pitch));
-    front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-    Front = glm::normalize(front);
-    // also re-calculate the Right and Up vector
-    Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-    Up = glm::normalize(glm::cross(Right, Front)); 
+    
+    if (mode == PLAYER_MODE)
+    {
+        Front = glm::vec4(GameInstance::getInstance().getPlayer()->getFront(), 1.0f);
+
+        Right = glm::normalize(glm::cross(Front, WorldUp));
+        Up = glm::normalize(glm::cross(Right, Front));
+
+        updateFrustumsVectors();
+    }
+    else
+    {
+        // calculate the new Front vector
+        glm::vec3 front;
+        front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+        front.y = sin(glm::radians(Pitch));
+        front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+        Front = glm::normalize(front);
+        // also re-calculate the Right and Up vector
+        Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+        Up = glm::normalize(glm::cross(Right, Front));
+
+    }
+    
+
 } 
+
+Mode Camera::getMode()
+{
+    return mode;
+}
