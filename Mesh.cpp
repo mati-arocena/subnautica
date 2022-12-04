@@ -259,6 +259,12 @@ void Mesh::render_withShader(std::shared_ptr<Shader> shader)
 
 }
 
+void Mesh::setModel(glm::mat4 model)
+{
+	this->model = model;
+}
+
+
 void Mesh::renderAABB()
 {
 	Vertex nbl({ center.x - extents.x, center.y - extents.y, center.z + extents.z }, { 0.f, 1.f, 0.f }, { 0.f,1.f });

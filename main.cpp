@@ -83,11 +83,13 @@ int main()
 	gameInstance.addShader(POST_SHADER, std::make_shared<Shader>(POST_SHADER + ".vert", POST_SHADER + ".frag"));
 	gameInstance.addShader(SKY_BOX_SHADER, std::make_shared<Shader>(SKY_BOX_SHADER + ".vert", SKY_BOX_SHADER + ".frag"));
 	gameInstance.addShader(SHADOW_MAP_SHADER, std::make_shared<Shader>(SHADOW_MAP_SHADER + ".vert", SHADOW_MAP_SHADER + ".frag"));
+	gameInstance.addShader(PARTICLE_SHADER, std::make_shared<Shader>(PARTICLE_SHADER + ".vert", PARTICLE_SHADER + ".frag"));
 
 	std::shared_ptr<ShadowMapBuffer> shadowMapBuffer = std::make_shared<ShadowMapBuffer>(gameInstance.getShader(SHADOW_MAP_SHADER));
 	gameInstance.setShadowMapBuffer(shadowMapBuffer);
 
 	Loader::loadScene();
+	gameInstance.setParticleGenerator();
 
 	gameInstance.addGameObject(std::make_shared<Water>());
 	gameInstance.addSkyBox(std::make_shared<SkyBox>());

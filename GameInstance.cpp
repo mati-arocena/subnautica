@@ -242,6 +242,7 @@ void GameInstance::update(double deltaTime)
 
 	light->updatePosition(camera->GetPosition());
 
+	particleGenerator->update(deltaTime);
 }
 
 std::shared_ptr<Shader> GameInstance::getShader(const std::string& name)
@@ -271,6 +272,7 @@ void GameInstance::render(const GameObject* excludeFromRendering, const glm::vec
 	}
 	glEnable(GL_DEPTH_TEST);
 
+
 	for (auto& object : objects)
 	{
 		if (auto m = dynamic_cast<Model*>(object.get()))
@@ -283,7 +285,6 @@ void GameInstance::render(const GameObject* excludeFromRendering, const glm::vec
 			object->render();
 		}
 	}
-
 }
 
 void GameInstance::renderShadowMap()
@@ -309,6 +310,12 @@ void GameInstance::renderShadowMap()
 	glCullFace(GL_BACK);
 	glDisable(GL_CULL_FACE);
 
+}
+
+
+void GameInstance::setParticleGenerator()
+{
+	this->particleGenerator = std::make_shared<ParticleGenerator>(glm::vec3(.0f, .0f, .0f));
 }
 
 void GameInstance::render()
@@ -363,6 +370,8 @@ void GameInstance::render()
 
 	if (renderFrustum)
 		camera->renderFrustum();
+
+	particleGenerator->render();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	postProcessor->draw();

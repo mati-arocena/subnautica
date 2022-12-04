@@ -25,7 +25,6 @@ Material::Material(std::vector<std::shared_ptr<Texture>> textures, std::shared_p
 }
 
 
-
 void Material::use()
 {
 	shader->use();

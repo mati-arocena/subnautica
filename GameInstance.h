@@ -16,6 +16,7 @@
 #include "SkyBox.h"
 #include "DirectionalLight.h"
 #include "Player.h"
+#include "ParticleGenerator.h"
 
 class GameInstance
 {
@@ -53,6 +54,10 @@ class GameInstance
 	static bool firstMouse;
 	static void mouse_callback(GLFWwindow* window,	double xpos, double ypos);
 	static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
+	std::shared_ptr<ParticleGenerator> particleGenerator;
+
+	std::vector<Particle> particles;
 	
 	std::shared_ptr<SkyBox> skyBox;
 	glm::vec3 clearColor;
@@ -84,11 +89,14 @@ public:
 
 	void processInput(double deltaTime);
 	void update(double deltaTime);
+
 	void render();
 	void render(const GameObject* excludeFromRendering, const glm::vec4& clipPlane);
 	void render_withShader(std::shared_ptr<Shader> shader);
 	void renderOclussion();
 	void renderShadowMap();
+	void setParticleGenerator();
+
 	void setPostProcessor();
 
 	void removeFullscreen();

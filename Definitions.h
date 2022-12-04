@@ -11,5 +11,8 @@ static inline std::string const OCCLUSION_SHADER       = "shaders/occlusion";
 static inline std::string const POST_SHADER            = "shaders/post"; 
 static inline std::string const SKY_BOX_SHADER		   = "shaders/skybox";
 static inline std::string const SHADOW_MAP_SHADER      = "shaders/shadow_map";
-static inline std::string const SKY_BOX_TEXT_PATH      = "assets/skybox/";
+static inline std::string const SKY_BOX_TEXT_PATH	   = "assets/skybox/";
+static inline std::string const PARTICLE_SHADER        = "shaders/particle";
 static inline std::string const LOD_SUFFIX             = "_LOD";
+static inline float const GRAVITY = -10.0;
+

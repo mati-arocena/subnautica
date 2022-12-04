@@ -85,6 +85,8 @@ public:
 	bool isMovable() const;
 	void recalculateAABB();
 
+	void setModel(glm::mat4 model);
+
 
 private:
 
