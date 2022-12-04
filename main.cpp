@@ -52,7 +52,7 @@ int main()
 #ifdef _DEBUG
 	GLFWwindow* window = glfwCreateWindow(width, height, "Subnautica", NULL, NULL);
 #else
-	GLFWwindow* window = glfwCreateWindow(width, height, "Subnautica", monitor, nullptr);
+	GLFWwindow* window = glfwCreateWindow(width, height, "Subnautica", nullptr, nullptr);
 #endif
 	if (!window)
 	{

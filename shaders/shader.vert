@@ -35,6 +35,9 @@ uniform vec3 viewPos;
 uniform bool has_animation;
 uniform mat4 light_space_matrix;
 
+const float shadowDistance = 150.0;
+const float transitionDistance = 10.0;
+
 void main()
 {	
 	vec4 totalPosition = vec4(0.0f);
@@ -79,10 +82,16 @@ void main()
 	vec3 B = cross(N, T);
 	
 	mat3 TBN = transpose(mat3(T, B, N));
-	vs_out.TangentLightPos = TBN * (aPos - lightDir);
+	vs_out.TangentLightPos = TBN * (aPos - lightDir * 100);
 	vs_out.TangentFragPos = TBN * vs_out.FragPos;
 	// Tangent space normal from local space
 	vs_out.Normal = TBN * N;
 
 	vs_out.TangentViewPos = TBN * viewPos;
+
+	//float dist = length(positionRelativeToCam.xyz);
+	//dist = dist - (shadowDistance - transitionDistance);
+	//dist = dist / transitionDistance;
+	//vs_out.FragPosLightSpace.w = clamp(1.0 - dist, 0.0, 1.0);
+
 }

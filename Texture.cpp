@@ -26,7 +26,7 @@ Texture::Texture(const char* texturePath, std::string name, bool alpha, bool min
     stbi_image_free(data);
 }
 
-Texture::Texture(int width, int height, int internalFormat, int format, std::string name, int attachment)
+Texture::Texture(int width, int height, int internalFormat, int format, std::string name, int attachment, const bool &clampBorder /* = false*/)
     : name(name), width(width), height(height), internalFormat(internalFormat), format(format)
 {
     this->alpha = false;
@@ -39,6 +39,15 @@ Texture::Texture(int width, int height, int internalFormat, int format, std::str
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    if (clampBorder)
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    }
+
     glBindTexture(GL_TEXTURE_2D, 0);
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, ID, 0);

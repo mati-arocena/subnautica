@@ -141,7 +141,7 @@ void GameInstance::processInput(double deltaTime)
 
 	
 	// F11 is fullscreen
-	if (f11Pressed && glfwGetKey(window, GLFW_KEY_F11) == GLFW_RELEASE)
+	if (f11Pressed && glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS)
 	{
 		if (!fullscreen)
 		{
@@ -273,6 +273,8 @@ void GameInstance::render(GameObject* excludeFromRendering, const glm::vec4& cli
 
 void GameInstance::renderShadowMap()
 {
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
 
 	shadowMapBuffer->bind();
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -288,6 +290,9 @@ void GameInstance::renderShadowMap()
 	player->render_withShader(shadowMapBuffer->shader);
 
 	shadowMapBuffer->unbind();
+
+	glCullFace(GL_BACK);
+	glDisable(GL_CULL_FACE);
 
 }
 

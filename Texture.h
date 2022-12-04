@@ -21,7 +21,7 @@ public:
 	GLuint internalFormat = GL_RGB;
 
 	Texture(const char* texturePath, std::string name, bool alpha, bool minmap);
-	Texture(int width, int height, int internalFormat, int format, std::string name, int attachment);
+	Texture(int width, int height, int internalFormat, int format, std::string name, int attachment, const bool &clampBorder = false);
 
 	// Use texture (default pos 0)
 	void use(int pos) const;
