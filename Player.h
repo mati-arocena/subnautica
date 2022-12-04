@@ -43,6 +43,7 @@ public:
 	void update(double deltaTime) override;
 
 	void move(Movement movement);
+	void move(const glm::vec3& movement);
 
 	float getYaw();
 	glm::vec3 getFront();

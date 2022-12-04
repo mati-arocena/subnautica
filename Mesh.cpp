@@ -3,13 +3,13 @@
 #include <GLFW/glfw3.h>
 #include "Definitions.h"
 #include "Animator.h"
-
+#include <limits>
 
 int Vertex::numElementsInVBO = 14;
 
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices,
-	Material* material, glm::mat4 modelMat, glm::vec3 AABBmin, glm::vec3 AABBmax, bool movable)
-	: vertices(vertices), indices(indices), material(material), model(modelMat), minAABB(AABBmin), maxAABB(AABBmax), movable(movable), clipPlane{}, angle{0.f}
+	Material* material, glm::mat4 modelMat, glm::vec3 AABBmin, glm::vec3 AABBmax, MeshType type)
+	: vertices(vertices), indices(indices), material(material), model(modelMat), minAABB(AABBmin), maxAABB(AABBmax),  clipPlane{}, angle{0.f}, type{type}
 {
 	decomposeModelMatrix(modelMat);
 	computeModelMatrix();
@@ -92,11 +92,6 @@ void Mesh::update(float delta)
 {
 	// At the end
 	computeModelMatrix();
-}
-
-bool Mesh::isMovable() const
-{
-	return movable;
 }
 
 void Mesh::setupMesh()
@@ -186,8 +181,118 @@ void Mesh::recalculateAABB()
 		}
 
 	/* Copy the result into the new box. */
-	center = { (max + min) * 0.5f };
-	extents = { max.x - center.x, max.y - center.y, max.z - center.z };
+	this->center = glm::vec3({ (max + min) * 0.5f });
+	this->extents = glm::vec3({ max.x - this->center.x, max.y - this->center.y, max.z - this->center.z });
+}
+
+
+glm::vec3 Mesh::getCollisionDelta(const glm::vec3& center, const glm::vec3& extents)
+{
+
+	// https://gamedev.stackexchange.com/questions/129446/how-can-i-calculate-the-penetration-depth-between-two-colliding-3d-aabbs
+
+	// Minimum Translation Vector
+	// ==========================
+	float resDistance = std::numeric_limits<float>::max();             // Set current minimum distance (max float value so next value is always less)
+	glm::vec3 resAxis = {};                // Axis along which to travel with the minimum distance
+
+	// Axes of potential separation
+	// ============================
+	// - Each shape must be projected on these axes to test for intersection:
+	//          
+	// (1, 0, 0)                    A0 (= B0) [X Axis]
+	// (0, 1, 0)                    A1 (= B1) [Y Axis]
+	// (0, 0, 1)                    A1 (= B2) [Z Axis]
+
+	const glm::vec3 thisMax = this->center + this->extents;
+	const glm::vec3 thisMin = this->center - this->extents;
+	const glm::vec3 playerMax = center + extents;
+	const glm::vec3 playerMin = center - extents;
+
+	// [X Axis]
+	if (!collisionTest({1.f, 0.f, 0.f}, thisMin.x, thisMax.x, playerMin.x, playerMax.x, resAxis, resDistance))
+		return { 0.f, 0.f, 0.f };
+
+	// [Y Axis]
+	if (!collisionTest({ 0.f, 1.f, 0.f }, thisMin.y, thisMax.y, playerMin.y, playerMax.y, resAxis, resDistance))
+		return { 0.f, 0.f, 0.f };
+
+
+	// [Z Axis]
+	if (!collisionTest({ 0.f, 0.f, 1.f }, thisMin.z, thisMax.z, playerMin.z, playerMax.z, resAxis, resDistance))
+		return { 0.f, 0.f, 0.f };
+
+
+	return glm::normalize(resAxis) * glm::sqrt(resDistance) * -1.001f;
+}
+
+
+
+bool Mesh::collisionTest(glm::vec3 axis, float minA, float maxA, float minB, float maxB, glm::vec3& resAxis, float& resDistance)
+{
+	// Separating Axis Theorem
+	// =======================
+	// - Two convex shapes only overlap if they overlap on all axes of separation
+	// - In order to create accurate responses we need to find the collision vector (Minimum Translation Vector)   
+	// - The collision vector is made from a vector and a scalar, 
+	//   - The vector value is the axis associated with the smallest penetration
+	//   - The scalar value is the smallest penetration value
+	// - Find if the two boxes intersect along a single axis
+	// - Compute the intersection interval for that axis
+	// - Keep the smallest intersection/penetration value
+	float axisLengthSquared = glm::dot(axis, axis);
+
+	// If the axis is degenerate then ignore
+	if (axisLengthSquared < 1.0e-8f)
+		return true;
+
+	// Calculate the two possible overlap ranges
+	// Either we overlap on the left or the right sides
+	float d0 = (maxB - minA);   // 'Left' side
+	float d1 = (maxA - minB);   // 'Right' side
+
+	// Intervals do not overlap, so no intersection
+	if (d0 <= 0.0f || d1 <= 0.0f)
+		return false;
+
+	// Find out if we overlap on the 'right' or 'left' of the object.
+	float overlap = (d0 < d1) ? d0 : -d1;
+
+	// The mtd vector for that axis
+	glm::vec3 sep = axis * (overlap / axisLengthSquared);
+
+	// The mtd vector length squared
+	float sepLengthSquared = glm::dot(sep, sep);
+
+	// If that vector is smaller than our computed Minimum Translation Distance use that vector as our current MTV distance
+	if (sepLengthSquared < resDistance)
+	{
+		resDistance = sepLengthSquared;
+		resAxis = sep;
+	}
+
+	return true;
+
+}
+
+glm::vec3 Mesh::getAABBCenter() const
+{
+	return center;
+}
+
+glm::vec3 Mesh::getAABBExtents() const
+{
+	return extents;
+}
+
+bool Mesh::hasCollision() const
+{
+	return type == MeshType::COLLISION;
+}
+
+bool Mesh::isParticle() const
+{
+	return type == MeshType::PARTICLE;
 }
 
 void Mesh::decomposeModelMatrix(glm::mat4 model)

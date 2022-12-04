@@ -17,6 +17,7 @@
 #include "DirectionalLight.h"
 #include "Player.h"
 #include "ParticleGenerator.h"
+#include "TextureLoader.h"
 
 class GameInstance
 {
@@ -28,6 +29,12 @@ class GameInstance
 	GLFWwindow* window;
 
 	std::vector<std::shared_ptr<GameObject>> objects;
+
+	std::vector<std::shared_ptr<Mesh>> collisionObjects;
+	std::vector<std::shared_ptr<Mesh>> playerMeshes;
+
+	std::vector<std::shared_ptr<Mesh>> particleMeshes;
+
 	std::shared_ptr<Water> water;
 	
 	std::shared_ptr<Light> light;
@@ -62,6 +69,8 @@ class GameInstance
 	std::shared_ptr<SkyBox> skyBox;
 	glm::vec3 clearColor;
 
+	TextureLoader textureLoader;
+
 public:
 	static GameInstance& getInstance();
 	std::shared_ptr<ShadowMapBuffer> shadowMapBuffer;
@@ -86,6 +95,7 @@ public:
 	std::shared_ptr<Shader> getShader(const std::string& name);
 
 	std::shared_ptr<Player> getPlayer();
+	glm::vec3 getMaxCollisionDelta();
 
 	void processInput(double deltaTime);
 	void update(double deltaTime);
@@ -105,5 +115,9 @@ public:
 	bool isRunning() const;
 
 	void updateScreenSize(const glm::ivec2& size);
+
+	inline const TextureLoader& getTextureLoader() { return textureLoader; }
+
+	bool isCollision(Movement movement);
 };
 
