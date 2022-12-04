@@ -51,14 +51,14 @@ PostProcessor::PostProcessor()
     // Occlusion Buffer
     glGenFramebuffers(1, &occlusion_FB);
     glBindFramebuffer(GL_FRAMEBUFFER, occlusion_FB);
-    occlusion_TX = new Texture(200, 150, GL_RGB, GL_RGB, "occlusion_texture", GL_COLOR_ATTACHMENT0);
+    occlusion_TX = std::make_shared<Texture>(200, 150, GL_RGB, GL_RGB, "occlusion_texture", GL_COLOR_ATTACHMENT0);
 
     // Scene Buffer
     glGenFramebuffers(1, &scene_FB);
     glBindFramebuffer(GL_FRAMEBUFFER, scene_FB);
 	
-    scene_TX = new Texture(windowSize.x, windowSize.y, GL_RGB, GL_RGB, "scene_texture", GL_COLOR_ATTACHMENT0);
-    sceneDepth_TX = new Texture(windowSize.x, windowSize.y, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "scene_texture_depth", GL_DEPTH_ATTACHMENT);
+    scene_TX = std::make_shared<Texture>(windowSize.x, windowSize.y, GL_RGB, GL_RGB, "scene_texture", GL_COLOR_ATTACHMENT0);
+    sceneDepth_TX = std::make_shared<Texture>(windowSize.x, windowSize.y, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "scene_texture_depth", GL_DEPTH_ATTACHMENT);
 
     postProcessingShader->setTexture(occlusion_TX, 0);
     postProcessingShader->setTexture(scene_TX, 1);
@@ -111,7 +111,7 @@ void PostProcessor::draw()
     glm::mat4 view = camera->GetViewMatrix();
     glm::mat4 model = glm::identity<glm::mat4>();
 	
-    glm::vec4 projected = projection * (view * glm::vec4(light->getPosition(), 1));
+    glm::vec4 projected = projection * (view * glm::vec4(light->getDirection(), 1));
 
 	// Between -1 and 1
 	glm::vec2 sunPos = glm::vec2(projected.x, projected.y) / projected.w * 0.5f + 0.5f;

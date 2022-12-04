@@ -175,6 +175,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PostProcessor.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="ShadowMapBuffer.cpp" />
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="ThirdParty\includes\pugixml\pugixml.cpp" />
     <ClCompile Include="UIRenderer.cpp" />
@@ -204,6 +205,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="PostProcessor.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="ShadowMapBuffer.h" />
     <ClInclude Include="SkyBox.h" />
     <ClInclude Include="ThirdParty\includes\pugixml\pugixml.hpp" />
     <ClInclude Include="UIRenderer.h" />
@@ -218,6 +220,8 @@
     <None Include="shaders\occlusion.frag" />
     <None Include="shaders\post.frag" />
     <None Include="shaders\post.vert" />
+    <None Include="shaders\shadow_map.frag" />
+    <None Include="shaders\shadow_map.vert" />
     <None Include="shaders\skybox.frag" />
     <None Include="shaders\skybox.vert" />
     <None Include="shaders\ui.frag" />

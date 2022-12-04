@@ -72,11 +72,5 @@ void SkyBox::render()
 
 void SkyBox::render_withShader(std::shared_ptr<Shader> shader)
 {
-	glBindVertexArray(vaoLOD1);
-	glEnableVertexAttribArray(0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glDisableVertexAttribArray(0);
-	glBindVertexArray(0);
+
 }

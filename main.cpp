@@ -71,8 +71,11 @@ int main()
 	std::shared_ptr<Camera> camera = std::make_shared<Camera>();
 	gameInstance.setCamera(camera);
 
+
 	glfwSetFramebufferSizeCallback(window, resizeWindow);
 	gameInstance.setupMouse();
+
+
 
 	gameInstance.addShader(NORMAL_SHADER, std::make_shared<Shader>(NORMAL_SHADER + ".vert", NORMAL_SHADER + ".frag"));
 	gameInstance.addShader(UI_SHADER, std::make_shared<Shader>(UI_SHADER + ".vert", UI_SHADER + ".frag"));
@@ -81,6 +84,10 @@ int main()
 	gameInstance.addShader(WATER_SHADER_OCCLUSION, std::make_shared<Shader>(WATER_SHADER_OCCLUSION + ".vert", WATER_SHADER_OCCLUSION + ".frag"));
 	gameInstance.addShader(POST_SHADER, std::make_shared<Shader>(POST_SHADER + ".vert", POST_SHADER + ".frag"));
 	gameInstance.addShader(SKY_BOX_SHADER, std::make_shared<Shader>(SKY_BOX_SHADER + ".vert", SKY_BOX_SHADER + ".frag"));
+	gameInstance.addShader(SHADOW_MAP_SHADER, std::make_shared<Shader>(SHADOW_MAP_SHADER + ".vert", SHADOW_MAP_SHADER + ".frag"));
+
+	std::shared_ptr<ShadowMapBuffer> shadowMapBuffer = std::make_shared<ShadowMapBuffer>(gameInstance.getShader(SHADOW_MAP_SHADER));
+	gameInstance.setShadowMapBuffer(shadowMapBuffer);
 
 	Loader::loadScene();
 

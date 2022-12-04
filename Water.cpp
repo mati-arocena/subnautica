@@ -37,34 +37,34 @@ Water::Water() : GameObject()
 
 Material* Water::initializeMaterial() 
 {
-	std::vector<Texture*> textures; //-V827
+	std::vector<std::shared_ptr<Texture>> textures;
 
 	glGenFramebuffers(1, &reflFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, reflFrameBuffer);
-	reflTexture = new Texture(waterReflectionResolution.x, waterReflectionResolution.y, GL_RGB, GL_RGB, "texture_reflection", GL_COLOR_ATTACHMENT0);
+	reflTexture = std::make_shared<Texture>(waterReflectionResolution.x, waterReflectionResolution.y, GL_RGB, GL_RGB, "texture_reflection", GL_COLOR_ATTACHMENT0);
 	textures.push_back(reflTexture);
 
-	reflectionDepthTexture = new Texture(waterReflectionResolution.x, waterReflectionResolution.y, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_reflection_depth", GL_DEPTH_ATTACHMENT);
+	reflectionDepthTexture = std::make_shared<Texture>(waterReflectionResolution.x, waterReflectionResolution.y, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_reflection_depth", GL_DEPTH_ATTACHMENT);
 	textures.push_back(reflectionDepthTexture);
 
 	unbindFrameFuffer();
 
 	glGenFramebuffers(1, &refrFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, refrFrameBuffer);
-	refrTexture = new Texture(waterReflectionResolution.x, waterReflectionResolution.y, GL_RGB, GL_RGB, "texture_refraction", GL_COLOR_ATTACHMENT0);
+	refrTexture = std::make_shared<Texture>(waterReflectionResolution.x, waterReflectionResolution.y, GL_RGB, GL_RGB, "texture_refraction", GL_COLOR_ATTACHMENT0);
 	textures.push_back(refrTexture);
 
-	refractionDepthTexture = new Texture(waterReflectionResolution.x, waterReflectionResolution.y, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_refraction_depth", GL_DEPTH_ATTACHMENT);
+	refractionDepthTexture = std::make_shared<Texture>(waterReflectionResolution.x, waterReflectionResolution.y, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, "texture_refraction_depth", GL_DEPTH_ATTACHMENT);
 	textures.push_back(refractionDepthTexture);
 	unbindFrameFuffer();
 
-	dudv_texture = new Texture("assets/waterDUDV.png", "dudv_map", true, true);
+	dudv_texture = std::make_shared<Texture>("assets/waterDUDV.png", "dudv_map", true, true);
 	textures.push_back(dudv_texture);
 
-	dudv_texture = new Texture("assets/waterNormalMap.png", "normal_map", true, true);
+	dudv_texture = std::make_shared<Texture>("assets/waterNormalMap.png", "normal_map", true, true);
 	textures.push_back(dudv_texture);
 
-	Texture* occlusion_texture = new Texture("assets/waterOclussion.jpg", "occlusion_map", true, true);
+	std::shared_ptr<Texture> occlusion_texture = std::make_shared<Texture>("assets/waterOclussion.jpg", "occlusion_map", true, true);
 	textures.push_back(occlusion_texture);
 
 	auto occlusionShader = GameInstance::getInstance().getShader(WATER_SHADER_OCCLUSION);

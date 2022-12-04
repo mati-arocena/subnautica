@@ -4,7 +4,7 @@
 
 #include "ConfigManager.h"
 #include "GameInstance.h"
-
+#include "Light.h"
 #include "Player.h"
 
 
@@ -133,13 +133,13 @@ void Loader::loadLight(pugi::xml_node node)
 		color.b = node.attribute("colorb").as_float();
 
 
-		glm::vec3 position;
-		position.x = node.attribute("x").as_float();
-		position.y = node.attribute("y").as_float();
-		position.z = node.attribute("z").as_float();
+		glm::vec3 direction;
+		direction.x = node.attribute("x").as_float();
+		direction.y = node.attribute("y").as_float();
+		direction.z = node.attribute("z").as_float();
 
-		std::shared_ptr<PointLight> pointLight = std::make_shared<PointLight>(color, position);
+		std::shared_ptr<Light> light = std::make_shared<Light>(color, direction);
 
-		GameInstance::getInstance().addLight(pointLight);
+		GameInstance::getInstance().addLight(light);
 	}
 }

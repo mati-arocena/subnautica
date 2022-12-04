@@ -28,7 +28,7 @@ protected:
     std::vector<Mesh> meshesLOD1;
     std::vector<Mesh> meshesLOD2;
 	std::string directory;
-    std::vector<Texture*> textures_loaded;
+    std::vector<std::shared_ptr<Texture>> textures_loaded;
     
     bool hasAnimations = false;
     void loadModel(const std::string& path, LOD lod);
@@ -37,7 +37,7 @@ protected:
     void readMissingBones(const aiAnimation* assimpAnim, std::shared_ptr<Animation> animation);
     void processNode(aiNode* node, const aiScene* scene, const glm::mat4& transformMat, LOD lod);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& transformMat);
-    std::vector<Texture*> loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName);
+    std::vector<std::shared_ptr<Texture>> loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName);
 
     std::shared_ptr<Animator> animator;
     std::vector<std::shared_ptr<Animation>> animations;
