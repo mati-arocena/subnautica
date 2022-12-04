@@ -32,6 +32,8 @@ class GameInstance
 	std::vector<std::shared_ptr<Mesh>> collisionObjects;
 	std::vector<std::shared_ptr<Mesh>> playerMeshes;
 
+	std::vector<std::shared_ptr<Mesh>> particleMeshes;
+
 	std::shared_ptr<Water> water;
 	
 	std::shared_ptr<Light> light;

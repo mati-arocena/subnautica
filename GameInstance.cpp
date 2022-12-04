@@ -18,13 +18,13 @@ GameInstance& GameInstance::getInstance()
 
 void GameInstance::addGameObject(std::shared_ptr<GameObject> gameObject)
 {
-	objects.push_back(gameObject);
 	auto waterPtr = std::dynamic_pointer_cast<Water>(gameObject);
 	if (waterPtr)
 	{
 		water = waterPtr;
 	}
 	
+	bool hasParticles = false;
 	auto model = std::dynamic_pointer_cast<Model>(gameObject);
 	if (model)
 	{
@@ -33,11 +33,19 @@ void GameInstance::addGameObject(std::shared_ptr<GameObject> gameObject)
 		{
 			if (mesh->hasCollision())
 				collisionObjects.push_back(mesh);
+			if (mesh->isParticle())
+			{
+				particleMeshes.push_back(mesh);
+				hasParticles = true;
+			}
 		}
 
 	}
 
-
+	if (!hasParticles)
+	{
+		objects.push_back(gameObject);
+	}
 }
 
 void GameInstance::setShadowMapBuffer(std::shared_ptr<ShadowMapBuffer> shadowMapBuffer)
@@ -107,7 +115,6 @@ void GameInstance::scroll_callback(GLFWwindow* window, double xoffset, double yo
 
 glm::vec3 GameInstance::getMaxCollisionDelta()
 {
-	glm::vec3 result = { 0.f, 0.f, 0.f };
 	for (std::shared_ptr<Mesh> playerMesh : playerMeshes)
 	{
 		const glm::vec3& center = playerMesh->getAABBCenter();
@@ -120,6 +127,7 @@ glm::vec3 GameInstance::getMaxCollisionDelta()
 				return collisionDelta;
 		}
 	}
+	return { 0.f, 0.f, 0.f };
 }
 
 std::shared_ptr<Camera> GameInstance::getCamera() 

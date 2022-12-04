@@ -72,7 +72,7 @@ Model::Model(const std::string& path, const std::string& extension, const std::s
 	loadModel(path + LOD_SUFFIX + "2." + extension, LOD::LOD2);
 
 	loadAnimations(path + LOD_SUFFIX + "0." + extension);
-	auto animation = this->animations[0];
+	auto& animation = this->animations[0];
 	this->setAnimator(std::make_shared<Animator>(animation));
 
 	isMovable = true;
@@ -219,7 +219,7 @@ void Model::loadModel(const std::string& path, LOD lod)
 	// Initial trnasformation
 	glm::mat4 transformMat = glm::identity<glm::mat4>();
 
-	processNode(scene->mRootNode, scene, transformMat, lod);
+	processNode(scene->mRootNode, scene, transformMat, lod, MeshType::NORMAL);
 }
 
 void Model::loadAnimations(std::string path)
@@ -237,11 +237,20 @@ void Model::loadAnimations(std::string path)
 	}
 }
 
-void Model::processNode(aiNode* node, const aiScene* scene, const glm::mat4& transformMat, LOD lod)
+void Model::processNode(aiNode* node, const aiScene* scene, const glm::mat4& transformMat, LOD lod, MeshType meshType)
 {
 	// Combined transformations applied
 	const glm::mat4 node_transformMat = transformMat * convertMatrix(node->mTransformation);
 
+
+	if (std::string(node->mName.C_Str())._Starts_with(COLLISION_TAG))
+	{
+		meshType = MeshType::COLLISION;
+	}
+	else if (std::string(node->mName.C_Str())._Starts_with(PARTICLE_TAG))
+	{
+		meshType = MeshType::PARTICLE;
+	}
 	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
@@ -251,13 +260,13 @@ void Model::processNode(aiNode* node, const aiScene* scene, const glm::mat4& tra
 		switch (lod)
 		{
 		case LOD::LOD0:
-			meshesLOD0.emplace_back(processMesh(mesh, scene, node_transformMat));
+			meshesLOD0.emplace_back(processMesh(mesh, scene, node_transformMat, meshType));
 			break;
 		case LOD::LOD1:
-			meshesLOD1.emplace_back(processMesh(mesh, scene, node_transformMat));
+			meshesLOD1.emplace_back(processMesh(mesh, scene, node_transformMat, meshType));
 			break;
 		case LOD::LOD2:
-			meshesLOD2.emplace_back(processMesh(mesh, scene, node_transformMat));
+			meshesLOD2.emplace_back(processMesh(mesh, scene, node_transformMat, meshType));
 			break;
 		default:
 			break;
@@ -266,7 +275,7 @@ void Model::processNode(aiNode* node, const aiScene* scene, const glm::mat4& tra
 	// then do the same for each of its children
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		processNode(node->mChildren[i], scene, node_transformMat, lod);
+		processNode(node->mChildren[i], scene, node_transformMat, lod, meshType);
 	}
 }
 
@@ -323,7 +332,7 @@ void Model::extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* 
 	}
 }
 
-std::shared_ptr<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& transformMat)
+std::shared_ptr<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& transformMat, MeshType type)
 {
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -427,7 +436,7 @@ std::shared_ptr<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene, con
 	glm::vec3 AABBmin = { mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z };
 	glm::vec3 AABBmax = { mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z };
 
-	return std::make_shared<Mesh>(vertices, indices, m, transformMat, AABBmin, AABBmax);
+	return std::make_shared<Mesh>(vertices, indices, m, transformMat, AABBmin, AABBmax, type);
 }
 
 std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName)

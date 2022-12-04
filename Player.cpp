@@ -97,6 +97,7 @@ void Player::move(Movement movement)
 	const glm::vec3& collisionDelta = GameInstance::getInstance().getMaxCollisionDelta();
 	if (glm::length(collisionDelta) > 0.01f)
 	{
+
 		move(collisionDelta);
 	}
 

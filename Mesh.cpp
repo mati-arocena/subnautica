@@ -8,8 +8,8 @@
 int Vertex::numElementsInVBO = 14;
 
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices,
-	Material* material, glm::mat4 modelMat, glm::vec3 AABBmin, glm::vec3 AABBmax, bool movable)
-	: vertices(vertices), indices(indices), material(material), model(modelMat), minAABB(AABBmin), maxAABB(AABBmax), movable(movable), clipPlane{}, angle{0.f}
+	Material* material, glm::mat4 modelMat, glm::vec3 AABBmin, glm::vec3 AABBmax, MeshType type)
+	: vertices(vertices), indices(indices), material(material), model(modelMat), minAABB(AABBmin), maxAABB(AABBmax),  clipPlane{}, angle{0.f}, type{type}
 {
 	decomposeModelMatrix(modelMat);
 	computeModelMatrix();
@@ -92,11 +92,6 @@ void Mesh::update(float delta)
 {
 	// At the end
 	computeModelMatrix();
-}
-
-bool Mesh::isMovable() const
-{
-	return movable;
 }
 
 void Mesh::setupMesh()
@@ -292,7 +287,12 @@ glm::vec3 Mesh::getAABBExtents() const
 
 bool Mesh::hasCollision() const
 {
-	return collision;
+	return type == MeshType::COLLISION;
+}
+
+bool Mesh::isParticle() const
+{
+	return type == MeshType::PARTICLE;
 }
 
 void Mesh::decomposeModelMatrix(glm::mat4 model)

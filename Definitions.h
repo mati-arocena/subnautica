@@ -13,3 +13,5 @@ static inline std::string const SKY_BOX_SHADER		   = "shaders/skybox";
 static inline std::string const SHADOW_MAP_SHADER      = "shaders/shadow_map";
 static inline std::string const SKY_BOX_TEXT_PATH      = "assets/skybox/";
 static inline std::string const LOD_SUFFIX             = "_LOD";
+static inline std::string const COLLISION_TAG          = "collision_";
+static inline std::string const PARTICLE_TAG           = "particle_";

@@ -20,6 +20,13 @@ enum class LOD
 	NotInFrustum
 };
 
+enum class MeshType
+{
+	NORMAL,
+	COLLISION,
+	PARTICLE
+};
+
 class Mesh
 {
 
@@ -32,7 +39,7 @@ public:
 	~Mesh() {};
 
 	Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices,
-		Material* material, glm::mat4 modelMat, glm::vec3 AABBmin, glm::vec3 AABBmax, bool movable = false);
+		Material* material, glm::mat4 modelMat, glm::vec3 AABBmin, glm::vec3 AABBmax, MeshType type = MeshType::NORMAL);
 	void render();
 	void renderAABB();
 	void renderWireframe();
@@ -82,7 +89,6 @@ public:
 
 	void update(float delta);
 
-	bool isMovable() const;
 	void recalculateAABB();
 
 	glm::vec3 getCollisionDelta(const glm::vec3& center, const glm::vec3& extents);
@@ -90,7 +96,7 @@ public:
 	glm::vec3 getAABBExtents() const;
 
 	bool hasCollision() const;
-
+	bool isParticle() const;
 private:
 
 	VBO* vbo;
@@ -105,11 +111,11 @@ private:
 	glm::vec3 extents;
 	glm::vec3 minAABB;
 	glm::vec3 maxAABB;
-	bool movable = false;
 	glm::vec4 clipPlane;
 
 	float angle;
-	bool collision = true;
+
+	MeshType type = MeshType::NORMAL;
 
     void setupMesh();
     void bind(GLenum polygonMode);
