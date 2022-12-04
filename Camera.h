@@ -44,7 +44,7 @@ class Camera
     inline void updateFrustumsPosition();
     inline void updateFrustumsZoom();
 
-    Mode mode;
+    Mode mode = FLY_MODE;
 public:
     // camera Attributes
     glm::vec3 Position;

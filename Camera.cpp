@@ -18,6 +18,7 @@ Camera::Camera(
     MouseSensitivity(SENSITIVITY), 
     Zoom(ZOOM)  
 {
+    mode = FLY_MODE;
     auto& config = ConfigManager::getInstance();
     height = static_cast<float>(config.getWindowSize().x);
     width = static_cast<float>(config.getWindowSize().y);
@@ -30,7 +31,6 @@ Camera::Camera(
 	float aspect = (float)width / (float)height;
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, near, far);
 
-    mode = FLY_MODE;
 }
 
 Camera::Camera(
@@ -41,6 +41,8 @@ Camera::Camera(
     WorldUp{upX, upY, upZ},
     MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
 {
+
+    mode = FLY_MODE;
     Yaw = yaw;
     Pitch = pitch;
 
@@ -56,7 +58,6 @@ Camera::Camera(
     float aspect = float(width) / float(height);
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, near, far);
 
-    mode = FLY_MODE;
 }
 
 void Camera::updateViewMatrix()
