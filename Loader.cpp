@@ -45,14 +45,14 @@ void Loader::loadScene()
 		doc.child("Scene").attribute("waterResY").as_int()
 	});
 
-	config.setMode(doc.child("Scene").attribute("mode").as_string() == "player" ? PLAYER_MODE : FLY_MODE);
-
 	config.setFar(doc.child("Scene").attribute("far").as_float());
 	config.setNear(doc.child("Scene").attribute("near").as_float());
 	
 	loadLight(doc.child("Scene"));
 	loadPlayer(doc.child("Scene"));
 	loadModels(doc.child("Scene"));
+
+	config.setMode(doc.child("Scene").attribute("mode").as_string() == "player" ? PLAYER_MODE : FLY_MODE);
 
 #ifdef _DEBUG
 	std::cout << "Scene loaded" << std::endl;

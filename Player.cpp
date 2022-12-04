@@ -1,5 +1,6 @@
 #include "Player.h"
 #include <GLFW/glfw3.h>
+#include "GameInstance.h"
 
 void Player::move(const glm::vec3& movement, double deltaTime)
 {
@@ -19,8 +20,6 @@ void Player::move(const glm::vec3& movement, double deltaTime)
 
 void Player::rotate(float angle, double deltaTime)
 {
-
-
 	for (auto& mesh : meshesLOD0)
 	{
 		mesh.rotate(rotationAxis, angle * static_cast<float>(deltaTime));
@@ -32,6 +31,21 @@ void Player::rotate(float angle, double deltaTime)
 	for (auto& mesh : meshesLOD2)
 	{
 		mesh.rotate(rotationAxis, angle * static_cast<float>(deltaTime));
+	}
+}
+
+void Player::render()
+{
+	if (GameInstance::getInstance().getCamera()->getMode() == PLAYER_MODE)
+	{
+		for (auto& mesh : meshesLOD0)
+		{
+			mesh.render();
+		}
+	}
+	else
+	{
+		Model::render();
 	}
 }
 
@@ -51,14 +65,15 @@ void Player::update(double deltaTime)
 
 void Player::move(Movement mov)
 {
+	glm::mat4 rot = glm::toMat4(meshesLOD0[0].rotation);
 	switch (mov)
 	{
 	case Movement::UP:
-		if (position.z < 0.f)
-			movementVector += glm::vec3{ 0.f, 0.f, upVelocity };
+		if (position.y < 0.f)
+			movementVector += glm::vec3{ 0.f, upVelocity, 0.f };
 		break;
 	case Movement::DOWN:
-		movementVector += glm::vec3{ 0.f, 0.f, -upVelocity };
+		movementVector += glm::vec3{ 0.f, -upVelocity, 0.f };
 		break;
 	case Movement::LEFT:
 		movementAngle += rotationVelocity;
@@ -67,13 +82,29 @@ void Player::move(Movement mov)
 		movementAngle -= rotationVelocity;
 		break;
 	case Movement::FORWARD:
-		movementVector += glm::vec3{ 0.f, -forwardVelocity, 0.f };
+		movementVector += glm::vec3(glm::normalize(rot * front)) * forwardVelocity;
 		break;
 	case Movement::BACKWARD:
-		movementVector += glm::vec3{ 0.f, forwardVelocity, 0.f };
+		movementVector -= glm::vec3(glm::normalize(rot * front)) * forwardVelocity;
 		break;
 	default:
 		break;
 	}
 
+}
+
+float Player::getYaw()
+{
+	return glm::eulerAngles( meshesLOD0[0].rotation).y;
+}
+
+glm::vec3 Player::getFront()
+{
+	glm::mat4 rot = glm::toMat4(meshesLOD0[0].rotation);
+	return glm::vec3(glm::normalize(rot * front));
+}
+
+glm::vec3 Player::getPosition()
+{
+	return meshesLOD0[0].translation;
 }
