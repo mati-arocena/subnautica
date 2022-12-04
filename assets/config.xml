@@ -20,6 +20,12 @@
 		<Model posx="5" posy="0" posz="0" 
 			modelPath="assets/caja"
 			modelExtension="obj" />
+
+
+		<Model posx="0" posy="0" posz="0"
+			modelPath="assets/mar2"
+			modelExtension="gltf"
+		/>
 		<!--Model posx="1" posy="-2" posz="-1" 
 			modelPath="assets/delfin/scene"
 			modelExtension="gltf" 
