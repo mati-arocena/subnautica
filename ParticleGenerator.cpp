@@ -4,13 +4,15 @@
 
 
 
-ParticleGenerator::ParticleGenerator(glm::vec3 position)
+ParticleGenerator::ParticleGenerator(glm::vec3 traslation, glm::vec3 center)
 {
+	this->center = center;
 	std::vector<std::shared_ptr<Texture>> textures;
 	std::shared_ptr<Texture> texture = std::make_shared<Texture>("assets/caustics.jpg", "particle_texture", true, true);
 	textures.push_back(texture);
 	material =  new Material (textures, GameInstance::getInstance().getShader(PARTICLE_SHADER));
-	this->position = position;
+	this->traslation = traslation;
+	this->position = traslation;
 	vbo = std::make_shared<VBO>();
 	this->velocity = glm::vec3(0.f, 1.f, 0.5f);
 
@@ -41,9 +43,16 @@ void ParticleGenerator::setVelocity(glm::vec3 velocity)
 	this->velocity = velocity;
 }
 
-void ParticleGenerator::move(const glm::vec3& movement, double deltaTime)
+void ParticleGenerator::move(glm::vec3 movement, double deltaTime, glm::vec3 front)
 {
-	this->position += movement * (float)deltaTime;
+	this->center += movement * (float)deltaTime;
+	//glm::vec3 newTras = -this->center - this->traslation;
+	this->position = this->center - (front * 3.f);
+}
+
+void ParticleGenerator::rotate(float angle, double deltaTime)
+{
+	mesh->rotate(rotationAxis, angle * static_cast<float>(deltaTime));
 }
 
 void ParticleGenerator::generateParticles()
