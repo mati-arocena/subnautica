@@ -172,6 +172,7 @@
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="OrbitAnimation.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PostProcessor.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -198,11 +199,13 @@
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameInstance.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GlobalAnimation.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Loader.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="OrbitAnimation.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PostProcessor.h" />
     <ClInclude Include="Shader.h" />
