@@ -68,5 +68,7 @@ public:
     std::vector<std::shared_ptr<Mesh>> getMeshes() const;
 
     void setAnimator(std::shared_ptr<Animator> animator);
+
+	void setGlobalAnimation(std::shared_ptr<GlobalAnimation> globalAnimation);
 };
 

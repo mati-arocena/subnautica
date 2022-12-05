@@ -6,6 +6,7 @@
 #include "GameInstance.h"
 #include "Light.h"
 #include "Player.h"
+#include "OrbitAnimation.h"
 
 
 void Loader::loadScene()
@@ -102,17 +103,42 @@ void Loader::loadModels(pugi::xml_node node)
 			std::string modelPath = obj.attribute("modelPath").as_string();
 			std::string modelExtension = obj.attribute("modelExtension").as_string();
 			
+			std::shared_ptr<Model> model;
+			
 			if (obj.attribute("animationPath"))
 			{
 				std::string animationPath = obj.attribute("animationPath").as_string();
 				std::string animationExtension = obj.attribute("animationExtension").as_string();
-
-				gameInstance.addGameObject(std::make_shared<Model>(modelPath, modelExtension, animationPath, animationExtension, position));
+				model = std::make_shared<Model>(modelPath, modelExtension, animationPath, animationExtension, position);
+				
 			}
 			else
 			{
-				gameInstance.addGameObject(std::make_shared<Model>(modelPath, modelExtension, position));
+				model = std::make_shared<Model>(modelPath, modelExtension, position);
 			}
+
+			if (obj.attribute("animationType"))
+			{
+				std::string animationType = obj.attribute("animationType").as_string();
+				if (animationType.compare("orbit") == 0)
+				{
+					glm::vec3 orbitCenter;
+					float radius = obj.attribute("radius").as_float();
+					float orbitSpeed = obj.attribute("orbitSpeed").as_float();
+					bool reverse = obj.attribute("reverse").as_bool();
+					
+					// Read from xml
+					orbitCenter = glm::vec3(
+						obj.attribute("orbitCenterX").as_float(),
+						obj.attribute("orbitCenterY").as_float(),
+						obj.attribute("orbitCenterZ").as_float()
+					);
+						
+					model->setGlobalAnimation(std::make_shared<OrbitAnimation>(orbitCenter, radius, orbitSpeed, reverse));
+				}
+				
+			}
+			gameInstance.addGameObject(model);
 		}
 	}
 

@@ -27,6 +27,15 @@ void Model::setAnimator(std::shared_ptr<Animator> animator)
 	}
 }
 
+void Model::setGlobalAnimation(std::shared_ptr<GlobalAnimation> globalAnimation)
+{
+	for (auto& mesh : meshesLOD0)
+	{
+		mesh->setGlobalAnimation(globalAnimation);
+	}
+
+}
+
 Model::Model(const std::string& path, const std::string& extension, glm::vec3 position) : GameObject()
 {
 	this->position = position;

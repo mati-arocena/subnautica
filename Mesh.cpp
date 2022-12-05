@@ -4,6 +4,7 @@
 #include "Definitions.h"
 #include "Animator.h"
 #include <limits>
+#include "OrbitAnimation.h"
 
 int Vertex::numElementsInVBO = 14;
 
@@ -57,7 +58,6 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>&
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * debugIndicesSize, VBO::toEBO(indicesAABB), GL_DYNAMIC_DRAW);
 	
 	Vertex::setVertexAttributes();
-
 }
 
 void Mesh::render()
@@ -91,7 +91,16 @@ void Mesh::setAnimator(std::shared_ptr<Animator> animator)
 void Mesh::update(float delta)
 {
 	// At the end
-	computeModelMatrix();
+	if (this->globalAnimation)
+	{
+		this->model = this->globalAnimation->getModelMatrix(delta);
+		decomposeModelMatrix(this->model);
+		
+	}
+	else
+	{
+		computeModelMatrix();
+	}
 }
 
 void Mesh::setupMesh()
@@ -346,6 +355,11 @@ glm::vec4 Mesh::getClipPlane() const
 	return this->clipPlane;
 }
 
+void Mesh::setGlobalAnimation(std::shared_ptr<GlobalAnimation> globalAnimation)
+{
+	this->globalAnimation = globalAnimation;
+}
+
 void Mesh::render_withShader(std::shared_ptr<Shader> shader)
 {
 	shader->use();
@@ -414,7 +428,3 @@ void Mesh::updateAABB()
 	center = { (worldMax + worldMin) * 0.5f };
 	extents = { worldMax.x - center.x, worldMax.y - center.y, worldMax.z - center.z };
 }
-
-
-
-

@@ -10,6 +10,7 @@
 #include <glm/gtx/matrix_decompose.hpp>
 
 #include "Animator.h"
+#include "GlobalAnimation.h"
 
 
 enum class LOD
@@ -50,6 +51,9 @@ public:
 	glm::vec4 getClipPlane() const;
 
 
+	std::shared_ptr<GlobalAnimation> globalAnimation;
+	void setGlobalAnimation(std::shared_ptr<GlobalAnimation> globalAnimation);
+
 	glm::mat4* model_P = new glm::mat4(1.f);
 
 	glm::vec3 scale;
@@ -57,8 +61,6 @@ public:
 	glm::vec3 translation;
 	glm::vec3 skew;
 	glm::vec4 perspective;
-
-
 
 	void render_withShader(std::shared_ptr<Shader> shader);
 
