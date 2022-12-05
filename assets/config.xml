@@ -43,7 +43,7 @@
 			   
 				animationType="orbit"
 				radius="5.0"
-				orbitSpeed="1"
+				orbitSpeed=".3"
 				orbitCenterX="0.0" orbitCenterY="-2.0" orbitCenterZ="0.0"
 				reverse="false"
 		/>
