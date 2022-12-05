@@ -35,6 +35,19 @@
 				reverse="true"
 		/>
 
+		<Model  posx="1" posy="-2" posz="-1"
+				modelPath="assets/delfin/scene"
+				modelExtension="gltf"
+				animationPath="assets/delfin/scene"
+				animationExtension="gltf"
+			   
+				animationType="orbit"
+				radius="5.0"
+				orbitSpeed="1"
+				orbitCenterX="0.0" orbitCenterY="-2.0" orbitCenterZ="0.0"
+				reverse="false"
+		/>
+
 
 		<Model 
 		modelPath="assets/escena/scene"
