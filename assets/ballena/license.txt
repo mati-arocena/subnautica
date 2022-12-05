@@ -1,0 +1,11 @@
+Model Information:
+* title:	Humpback Whale (Swimming)
+* source:	https://sketchfab.com/3d-models/humpback-whale-swimming-f4912be9163a4f45b2480df8ccb8b2c6
+* author:	Connlan_Immure (https://sketchfab.com/Connlan_Immure)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Humpback Whale (Swimming)" (https://sketchfab.com/3d-models/humpback-whale-swimming-f4912be9163a4f45b2480df8ccb8b2c6) by Connlan_Immure (https://sketchfab.com/Connlan_Immure) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
