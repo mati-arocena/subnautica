@@ -22,7 +22,7 @@
 	<Models>
 
 		<Model posx="0" posy="0" posz="0"
-			modelPath="assets/mar3"
+			modelPath="assets/mar4"
 			modelExtension="gltf"
 		/> -->
 		<Model  posx="1" posy="-2" posz="-1" 
