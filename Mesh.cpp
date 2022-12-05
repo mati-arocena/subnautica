@@ -10,7 +10,7 @@ int Vertex::numElementsInVBO = 14;
 
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices,
 	Material* material, glm::mat4 modelMat, glm::vec3 AABBmin, glm::vec3 AABBmax, MeshType type)
-	: vertices(vertices), indices(indices), material(material), model(modelMat), minAABB(AABBmin), maxAABB(AABBmax),  clipPlane{}, angle{0.f}, type{type}
+	: vertices(vertices), indices(indices), material(material), model(modelMat), minAABB(AABBmin), maxAABB(AABBmax), clipPlane{}, angle{ 0.f }, type{ type }
 {
 	decomposeModelMatrix(modelMat);
 	computeModelMatrix();
@@ -51,12 +51,12 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>&
 	glGenVertexArrays(1, &debugVao);
 	glGenBuffers(1, &debugEbo);
 
-	glBindVertexArray(debugVao);	
+	glBindVertexArray(debugVao);
 
 	debugVBO->load(verticesAABB, verticesAABB.size() * Vertex::numElementsInVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, debugEbo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * debugIndicesSize, VBO::toEBO(indicesAABB), GL_DYNAMIC_DRAW);
-	
+
 	Vertex::setVertexAttributes();
 }
 
@@ -70,7 +70,7 @@ void Mesh::render()
 	shader->setFloat("clippingPlane", clipPlane.x, clipPlane.y, clipPlane.z, clipPlane.w);
 	shader->setMat4("model", model);
 
-	
+
 	shader->setBool("has_animation", this->animator != nullptr);
 	if (this->animator != nullptr)
 	{
@@ -79,8 +79,8 @@ void Mesh::render()
 			shader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms->at(i));
 	}
 	bind(GL_FILL);
-	
-	
+
+
 }
 
 void Mesh::setAnimator(std::shared_ptr<Animator> animator)
@@ -95,7 +95,7 @@ void Mesh::update(float delta)
 	{
 		this->model = this->globalAnimation->getModelMatrix(delta);
 		decomposeModelMatrix(this->model);
-		
+
 	}
 	else
 	{
@@ -157,37 +157,52 @@ void Mesh::bind(GLenum polygonMode)
 
 void Mesh::recalculateAABB()
 {
-	float a, b;
-	glm::vec3 min, max;
-	int    i, j;
+	//float a, b;
+	//glm::vec3 min, max;
+	//int    i, j;
 
-	/* Take care of translation by beginning at T. */
+	///* Take care of translation by beginning at T. */
 
-	min = max = translation;
+	//min = max = translation;
 
-	/* Now find the extreme points by considering the product of the */
-	/* min and max with each component of M.  */
+	///* Now find the extreme points by considering the product of the */
+	///* min and max with each component of M.  */
+	//glm::mat4 rot = glm::toMat4(rotation);
+	//glm::mat4 s = glm::scale(glm::mat4(1.0f), scale);
+	//glm::mat4 M = s * rot;
+
+	//for (i = 0; i < 3; i++)
+	//	for (j = 0; j < 3; j++)
+	//	{
+	//		a = (float)(M[i][j] * minAABB[j]);
+	//		b = (float)(M[i][j] * maxAABB[j]);
+	//		if (a < b)
+
+	//		{
+	//			min[i] += a;
+	//			max[i] += b;
+	//		}
+	//		else
+	//		{
+	//			min[i] += b;
+	//			max[i] += a;
+	//		}
+	//	}
+
 	glm::mat4 rot = glm::toMat4(rotation);
-	glm::mat4 s = glm::scale(glm::mat4(1.0f), scale);
-	glm::mat4 M = s * rot;
 
-	for (i = 0; i < 3; i++)
-		for (j = 0; j < 3; j++)
-		{
-			a = (float)(M[i][j] * minAABB[j]);
-			b = (float)(M[i][j] * maxAABB[j]);
-			if (a < b)
-
-			{
-				min[i] += a;
-				max[i] += b;
-			}
-			else
-			{
-				min[i] += b;
-				max[i] += a;
-			}
-		}
+	glm::vec3 min = glm::vec4(std::numeric_limits<float>::max());
+	glm::vec3 max = glm::vec4(-std::numeric_limits<float>::max());
+	for (const auto& vertex : vertices)
+	{
+		glm::vec3 pos = model * glm::vec4(vertex.Position, 1.0f);
+		max.x = pos.x > max.x ? pos.x : max.x;
+		min.x = pos.x < min.x ? pos.x : min.x;
+		max.y = pos.y > max.y ? pos.y : max.y;
+		min.y = pos.y < min.y ? pos.y : min.y;
+		max.z = pos.z > max.z ? pos.z : max.z;
+		min.z = pos.z < min.z ? pos.z : min.z;
+	}
 
 	/* Copy the result into the new box. */
 	this->center = glm::vec3({ (max + min) * 0.5f });
@@ -219,7 +234,7 @@ glm::vec3 Mesh::getCollisionDelta(const glm::vec3& center, const glm::vec3& exte
 	const glm::vec3 playerMin = center - extents;
 
 	// [X Axis]
-	if (!collisionTest({1.f, 0.f, 0.f}, thisMin.x, thisMax.x, playerMin.x, playerMax.x, resAxis, resDistance))
+	if (!collisionTest({ 1.f, 0.f, 0.f }, thisMin.x, thisMax.x, playerMin.x, playerMax.x, resAxis, resDistance))
 		return { 0.f, 0.f, 0.f };
 
 	// [Y Axis]
@@ -321,20 +336,20 @@ bool Mesh::isOnFrustum(std::shared_ptr<Frustum> frustum)
 float* Vertex::toVBO(const std::vector<Vertex>& vertices)
 {
 	float* vboLOD1 = new float[vertices.size() * Vertex::numElementsInVBO];
-	
+
 	for (size_t i = 0; i < vertices.size(); ++i)
 	{
 		const Vertex& v = vertices[i];
-		vboLOD1[i * Vertex::numElementsInVBO     ] = v.Position.x;
-		vboLOD1[i * Vertex::numElementsInVBO +  1] = v.Position.y;
-		vboLOD1[i * Vertex::numElementsInVBO +  2] = v.Position.z;
-		vboLOD1[i * Vertex::numElementsInVBO +  3] = v.Normal.x;
-		vboLOD1[i * Vertex::numElementsInVBO +  4] = v.Normal.y;
-		vboLOD1[i * Vertex::numElementsInVBO +  5] = v.Normal.z;
-		vboLOD1[i * Vertex::numElementsInVBO +  6] = v.TexCoords.x;
-		vboLOD1[i * Vertex::numElementsInVBO +  7] = v.TexCoords.y;
-		vboLOD1[i * Vertex::numElementsInVBO +  8] = v.Tangent.x;
-		vboLOD1[i * Vertex::numElementsInVBO +  9] = v.Tangent.y;
+		vboLOD1[i * Vertex::numElementsInVBO] = v.Position.x;
+		vboLOD1[i * Vertex::numElementsInVBO + 1] = v.Position.y;
+		vboLOD1[i * Vertex::numElementsInVBO + 2] = v.Position.z;
+		vboLOD1[i * Vertex::numElementsInVBO + 3] = v.Normal.x;
+		vboLOD1[i * Vertex::numElementsInVBO + 4] = v.Normal.y;
+		vboLOD1[i * Vertex::numElementsInVBO + 5] = v.Normal.z;
+		vboLOD1[i * Vertex::numElementsInVBO + 6] = v.TexCoords.x;
+		vboLOD1[i * Vertex::numElementsInVBO + 7] = v.TexCoords.y;
+		vboLOD1[i * Vertex::numElementsInVBO + 8] = v.Tangent.x;
+		vboLOD1[i * Vertex::numElementsInVBO + 9] = v.Tangent.y;
 		vboLOD1[i * Vertex::numElementsInVBO + 10] = v.Tangent.z;
 		vboLOD1[i * Vertex::numElementsInVBO + 11] = v.Bitangent.x;
 		vboLOD1[i * Vertex::numElementsInVBO + 12] = v.Bitangent.y;
