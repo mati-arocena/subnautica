@@ -31,7 +31,7 @@ void Model::setGlobalAnimation(std::shared_ptr<GlobalAnimation> globalAnimation)
 {
 	for (auto& mesh : meshesLOD0)
 	{
-		mesh.setGlobalAnimation(globalAnimation);
+		mesh->setGlobalAnimation(globalAnimation);
 	}
 
 }
