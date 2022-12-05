@@ -223,6 +223,7 @@ void GameInstance::processInput(double deltaTime)
 			camera->setMode(FLY_MODE);
 		else
 			camera->setMode(PLAYER_MODE);
+		camera->updateFrustum();
 	}
 	
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)

@@ -96,6 +96,7 @@ public:
     std::shared_ptr<Frustum> getFrustum(enum class LOD lod);
     void toggleFrustumUpdate();
     void renderFrustum();
+    void updateFrustum();
 
     void setMode(Mode mode);
     Mode getMode() const;
@@ -127,7 +128,7 @@ void Camera::updateFrustumsZoom()
 
 void Camera::createFrustums()
 {
-    frustumLOD0 = std::make_shared<Frustum>(Position, Front, Up, Right, glm::radians(Zoom), near, far * 0.68f, static_cast<float>(width / height));
-    frustumLOD1 = std::make_shared<Frustum>(Position, Front, Up, Right, glm::radians(Zoom), far * 0.68f, far * 0.95f, static_cast<float>(width / height));
-    frustumLOD2 = std::make_shared<Frustum>(Position, Front, Up, Right, glm::radians(Zoom), far * 0.95f, far, static_cast<float>(width / height));
+    frustumLOD0 = std::make_shared<Frustum>(Position, Front, Up, Right, glm::radians(Zoom), near, far * 0.35f, static_cast<float>(width / height));
+    frustumLOD1 = std::make_shared<Frustum>(Position, Front, Up, Right, glm::radians(Zoom), far * 0.35f, far * 0.65f, static_cast<float>(width / height));
+    frustumLOD2 = std::make_shared<Frustum>(Position, Front, Up, Right, glm::radians(Zoom), far * 0.65f, far, static_cast<float>(width / height));
 }

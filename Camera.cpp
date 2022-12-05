@@ -111,6 +111,12 @@ void Camera::renderFrustum()
     frustumLOD2->render({ 1.f, 1.f, 0.f });
 }
 
+void Camera::updateFrustum()
+{/*
+    updateFrustumsPosition();
+    updateFrustumsVectors();*/
+}
+
 void Camera::setMode(Mode mode)
 {
     this->mode = mode;

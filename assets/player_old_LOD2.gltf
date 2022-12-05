@@ -1,6 +1,6 @@
 {
     "asset" : {
-        "generator" : "Khronos glTF Blender I/O v1.8.19",
+        "generator" : "Khronos glTF Blender I/O v3.3.27",
         "version" : "2.0"
     },
     "scene" : 0,
@@ -8,7 +8,10 @@
         {
             "name" : "Scene",
             "nodes" : [
-                2
+                2,
+                3,
+                4,
+                5
             ]
         }
     ],
@@ -18,8 +21,8 @@
             "name" : "Object_2",
             "scale" : [
                 0.02520640753209591,
-                0.02520640753209591,
-                0.02520640753209591
+                0.02520640939474106,
+                0.02520640939474106
             ]
         },
         {
@@ -39,11 +42,68 @@
                 0,
                 0.7071067094802856
             ]
+        },
+        {
+            "name" : "particle_1",
+            "rotation" : [
+                0.7071068286895752,
+                0,
+                0,
+                0.7071067094802856
+            ],
+            "scale" : [
+                0.6396915912628174,
+                0.6396916508674622,
+                0.6396916508674622
+            ],
+            "translation" : [
+                0,
+                0,
+                -3.080510139465332
+            ]
+        },
+        {
+            "name" : "particle_2",
+            "rotation" : [
+                0.7048583626747131,
+                0.056344807147979736,
+                -0.056344810873270035,
+                0.7048583030700684
+            ],
+            "scale" : [
+                0.537672221660614,
+                0.537672221660614,
+                0.537672221660614
+            ],
+            "translation" : [
+                -1.9055978059768677,
+                -0.6370457410812378,
+                -2.046700954437256
+            ]
+        },
+        {
+            "name" : "particle_0",
+            "rotation" : [
+                0.7059943675994873,
+                -0.03964851051568985,
+                0.03964851424098015,
+                0.7059943079948425
+            ],
+            "scale" : [
+                0.537672221660614,
+                0.537672221660614,
+                0.537672221660614
+            ],
+            "translation" : [
+                1.9332953691482544,
+                -0.659203827381134,
+                -2.046700954437256
+            ]
         }
     ],
     "materials" : [
         {
-            "name" : "material_0",
+            "name" : "material_0.001",
             "normalTexture" : {
                 "index" : 0
             },
@@ -58,7 +118,7 @@
     ],
     "meshes" : [
         {
-            "name" : "Object_0",
+            "name" : "Object_0.001",
             "primitives" : [
                 {
                     "attributes" : {
@@ -98,15 +158,15 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 4268,
+            "count" : 2132,
             "max" : [
-                97.26789855957031,
+                97.10348510742188,
                 121.65480041503906,
-                81.97760009765625
+                81.84870147705078
             ],
             "min" : [
-                -97.26789855957031,
-                -97.33529663085938,
+                -97.1034927368164,
+                -97.55825805664062,
                 -91.32579803466797
             ],
             "type" : "VEC3"
@@ -114,42 +174,46 @@
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 4268,
+            "count" : 2132,
             "type" : "VEC3"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 4268,
+            "count" : 2132,
             "type" : "VEC2"
         },
         {
             "bufferView" : 3,
             "componentType" : 5123,
-            "count" : 19620,
+            "count" : 7845,
             "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 51216,
-            "byteOffset" : 0
+            "byteLength" : 25584,
+            "byteOffset" : 0,
+            "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 51216,
-            "byteOffset" : 51216
+            "byteLength" : 25584,
+            "byteOffset" : 25584,
+            "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 34144,
-            "byteOffset" : 102432
+            "byteLength" : 17056,
+            "byteOffset" : 51168,
+            "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 39240,
-            "byteOffset" : 136576
+            "byteLength" : 15690,
+            "byteOffset" : 68224,
+            "target" : 34963
         }
     ],
     "samplers" : [
@@ -160,8 +224,8 @@
     ],
     "buffers" : [
         {
-            "byteLength" : 175816,
-            "uri" : "player_old_LOD0.bin"
+            "byteLength" : 83916,
+            "uri" : "player_old_LOD2.bin"
         }
     ]
 }

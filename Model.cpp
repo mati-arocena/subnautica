@@ -479,6 +479,14 @@ void Model::clipModel(const glm::vec4& plane)
 	{
 		m->setClipPlane(plane);
 	}
+	for (std::shared_ptr<Mesh> m : meshesLOD1)
+	{
+		m->setClipPlane(plane);
+	}
+	for (std::shared_ptr<Mesh> m : meshesLOD2)
+	{
+		m->setClipPlane(plane);
+	}
 }
 
 void Model::render_withShader(std::shared_ptr<Shader> shader)
