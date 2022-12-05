@@ -122,6 +122,8 @@ private:
 
 	MeshType type = MeshType::NORMAL;
 
+	bool isAABBSet = false;
+
     void setupMesh();
     void bind(GLenum polygonMode);
     std::shared_ptr<Animator> animator;

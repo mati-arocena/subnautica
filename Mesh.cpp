@@ -15,7 +15,6 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>&
 	decomposeModelMatrix(modelMat);
 	computeModelMatrix();
 
-	recalculateAABB();
 
 	vbo = new VBO();
 	debugVBO = new VBO();
@@ -99,6 +98,10 @@ void Mesh::update(float delta)
 	else
 	{
 		computeModelMatrix();
+		if (!isAABBSet) {
+			 recalculateAABB();
+			 isAABBSet = true;
+		}
 	}
 }
 

@@ -30,7 +30,6 @@ Camera::Camera(
 
 	float aspect = (float)width / (float)height;
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, near, far);
-
 }
 
 Camera::Camera(
