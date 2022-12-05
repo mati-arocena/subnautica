@@ -30,7 +30,7 @@ void Light::updatePosition(glm::vec3 position)
 
 glm::mat4 Light::getLightProjection()
 {
-	return glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 0.1f, 100.f);
+	return glm::ortho(-40.0f, 40.0f, -40.0f, 40.0f, 0.1f, 100.f);
 }
 
 glm::mat4 Light::getLightView()

@@ -321,8 +321,8 @@ void GameInstance::render(const GameObject* excludeFromRendering, const glm::vec
 
 void GameInstance::renderShadowMap()
 {
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_FRONT);
 
 	shadowMapBuffer->bind();
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -339,8 +339,8 @@ void GameInstance::renderShadowMap()
 
 	ShadowMapBuffer::unbind();
 
-	glCullFace(GL_BACK);
-	glDisable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	//glDisable(GL_CULL_FACE);
 
 }
 
