@@ -25,11 +25,27 @@ void Model::setAnimator(std::shared_ptr<Animator> animator)
 	{
 		mesh->setAnimator(animator);
 	}
+	for (auto& mesh : meshesLOD1)
+	{
+		mesh->setAnimator(animator);
+	}
+	for (auto& mesh : meshesLOD2)
+	{
+		mesh->setAnimator(animator);
+	}
 }
 
 void Model::setGlobalAnimation(std::shared_ptr<GlobalAnimation> globalAnimation)
 {
 	for (auto& mesh : meshesLOD0)
+	{
+		mesh->setGlobalAnimation(globalAnimation);
+	}
+	for (auto& mesh : meshesLOD1)
+	{
+		mesh->setGlobalAnimation(globalAnimation);
+	}
+	for (auto& mesh : meshesLOD2)
 	{
 		mesh->setGlobalAnimation(globalAnimation);
 	}
