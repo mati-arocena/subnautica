@@ -1,0 +1,11 @@
+Model Information:
+* title:	Sea Weed
+* source:	https://sketchfab.com/3d-models/sea-weed-d97c596b189845b681cc8eef8a3ab429
+* author:	rkuhlf (https://sketchfab.com/rkuhlf)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Sea Weed" (https://sketchfab.com/3d-models/sea-weed-d97c596b189845b681cc8eef8a3ab429) by rkuhlf (https://sketchfab.com/rkuhlf) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

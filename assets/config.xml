@@ -33,6 +33,8 @@
 				orbitCenterX="0.0" orbitCenterY="0.0" orbitCenterZ="0.0"
 				reverse="false"
 		/>
+		
+		
 
 		<Model  posx="1" posy="-2" posz="-1"
 				modelPath="assets/ballena/scene"
@@ -41,10 +43,15 @@
 				animationExtension="gltf"
 			   
 				animationType="orbit"
-				radius="100.0"
-				orbitSpeed=".3"
-				orbitCenterX="0.0" orbitCenterY="0.0" orbitCenterZ="0.0"
-				reverse="false"
+				radius="50.0"
+				orbitSpeed=".03"
+				orbitCenterX="25" orbitCenterY="-5.0" orbitCenterZ="0.0"
+				reverse="true"
+		/>
+
+		<Model  posx="0" posy="0" posz="0"
+		modelPath="assets/mar4"
+		modelExtension="gltf"
 		/>
 
 
