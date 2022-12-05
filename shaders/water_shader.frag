@@ -53,7 +53,7 @@ void main()
 
     vec2 distortedTexCoords = texture(dudv_map, vec2(TextCoord.x + moveFactor, TextCoord.y)).rg*0.1;
 	distortedTexCoords = TextCoord + vec2(distortedTexCoords.x, distortedTexCoords.y + moveFactor);
-	vec2 totalDistortion = (texture(dudv_map, distortedTexCoords).rg * 2.0 - 1.0) * waveStrength * clamp(dist/20.0, 0.0, 1.0);
+	vec2 totalDistortion = (texture(dudv_map, distortedTexCoords).rg * 2.0 - 1.0) * waveStrength * clamp(dist * 20.0, 0.0, 1.0);
 
     reflectTextCoords += totalDistortion;
     reflectTextCoords.x = clamp(reflectTextCoords.x, 0.001, 0.999);

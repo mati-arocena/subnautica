@@ -1,0 +1,11 @@
+Model Information:
+* title:	Ships drafts lowpoly models
+* source:	https://sketchfab.com/3d-models/ships-drafts-lowpoly-models-c2f7f95f64c24769adc6cceee1691dc0
+* author:	Rixael (https://sketchfab.com/rixael)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Ships drafts lowpoly models" (https://sketchfab.com/3d-models/ships-drafts-lowpoly-models-c2f7f95f64c24769adc6cceee1691dc0) by Rixael (https://sketchfab.com/rixael) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

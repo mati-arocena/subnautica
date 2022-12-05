@@ -50,9 +50,10 @@
 		/>
 
 		<Model  posx="0" posy="0" posz="0"
-		modelPath="assets/mar4"
+		modelPath="assets/escena/scene"
 		modelExtension="gltf"
 		/>
+
 
 
 	</Models>

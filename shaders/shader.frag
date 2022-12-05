@@ -160,5 +160,4 @@ void main()
 
     FragColor = vec4(ambient +  (1 - shadow) * (diffuse + specular), 1.0) + (1 - shadow) * inside_water * caustics;
     //FragColor = vec4(vec3   (shadow), 1.0);
-    //FragColor = vec4(specular, 1);
 }
