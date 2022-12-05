@@ -93,6 +93,12 @@
     <ClCompile Include="ShadowMapBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Particle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="TextureLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -185,6 +191,12 @@
     <ClInclude Include="ShadowMapBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Particle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="TextureLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -213,5 +225,7 @@
     <None Include="shaders\frustum.frag" />
     <None Include="shaders\frustum.vert" />
     <None Include="shaders\water_occlusion.vert" />
+    <None Include="shaders\particle.frag" />
+    <None Include="shaders\particle.vert" />
   </ItemGroup>
 </Project>

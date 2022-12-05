@@ -172,6 +172,8 @@
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Particle.cpp" />
+    <ClCompile Include="ParticleGenerator.cpp" />
     <ClCompile Include="OrbitAnimation.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PostProcessor.cpp" />
@@ -205,6 +207,8 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Particle.h" />
+    <ClInclude Include="ParticleGenerator.h" />
     <ClInclude Include="OrbitAnimation.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PostProcessor.h" />
@@ -223,6 +227,8 @@
     <None Include="shaders\frustum.frag" />
     <None Include="shaders\frustum.vert" />
     <None Include="shaders\occlusion.frag" />
+    <None Include="shaders\particle.frag" />
+    <None Include="shaders\particle.vert" />
     <None Include="shaders\post.frag" />
     <None Include="shaders\post.vert" />
     <None Include="shaders\shadow_map.frag" />

@@ -15,7 +15,6 @@
 
 #include "Animator.h"
 
-
 class Model : public GameObject
 {
 
@@ -24,9 +23,9 @@ protected:
     std::shared_ptr<Frustum> frustumLOD1;
     std::shared_ptr<Frustum> frustumLOD2;
 
-	std::vector<Mesh> meshesLOD0;
-    std::vector<Mesh> meshesLOD1;
-    std::vector<Mesh> meshesLOD2;
+	std::vector<std::shared_ptr<Mesh>> meshesLOD0;
+    std::vector<std::shared_ptr<Mesh>> meshesLOD1;
+    std::vector<std::shared_ptr<Mesh>> meshesLOD2;
 	std::string directory;
     std::vector<std::shared_ptr<Texture>> textures_loaded;
     
@@ -35,8 +34,8 @@ protected:
     void loadAnimations(std::string path);
 
     void readMissingBones(const aiAnimation* assimpAnim, std::shared_ptr<Animation> animation);
-    void processNode(aiNode* node, const aiScene* scene, const glm::mat4& transformMat, LOD lod);
-    Mesh processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& transformMat);
+    void processNode(aiNode* node, const aiScene* scene, const glm::mat4& transformMat, LOD lod, MeshType meshType = MeshType::NORMAL);
+    std::shared_ptr<Mesh> processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& transformMat, MeshType type);
     std::vector<std::shared_ptr<Texture>> loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName);
 
     std::shared_ptr<Animator> animator;
@@ -64,6 +63,7 @@ public:
     void move(const glm::vec3& movement);
     void rotate(const glm::vec3& rotationAxis, float angle);
     int& getBoneCount();
+    std::vector<std::shared_ptr<Mesh>> getMeshes() const;
 
     void setAnimator(std::shared_ptr<Animator> animator);
 

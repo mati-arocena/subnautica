@@ -13,12 +13,17 @@ int& Model::getBoneCount()
 	return m_BoneCounter;
 }
 
+std::vector<std::shared_ptr<Mesh>> Model::getMeshes() const
+{
+	return meshesLOD0;
+}
+
 void Model::setAnimator(std::shared_ptr<Animator> animator)
 {
 	this->animator = animator;
 	for (auto &mesh : meshesLOD0)
 	{
-		mesh.setAnimator(animator);
+		mesh->setAnimator(animator);
 	}
 }
 
@@ -48,15 +53,15 @@ Model::Model(const std::string& path, const std::string& extension, glm::vec3 po
 
 	for (auto& mesh : meshesLOD0)
 	{
-		mesh.move(position);
+		mesh->move(position);
 	}
 	for (auto& mesh : meshesLOD1)
 	{
-		mesh.move(position);
+		mesh->move(position);
 	}
 	for (auto& mesh : meshesLOD2)
 	{
-		mesh.move(position);
+		mesh->move(position);
 	}
 }
 
@@ -76,72 +81,72 @@ Model::Model(const std::string& path, const std::string& extension, const std::s
 	loadModel(path + LOD_SUFFIX + "2." + extension, LOD::LOD2);
 
 	loadAnimations(path + LOD_SUFFIX + "0." + extension);
-	auto animation = this->animations[0];
+	auto& animation = this->animations[0];
 	this->setAnimator(std::make_shared<Animator>(animation));
 
 	isMovable = true;
 	for (auto& mesh : meshesLOD0)
 	{
-		mesh.move(position);
+		mesh->move(position);
 	}
 	for (auto& mesh : meshesLOD1)
 	{
-		mesh.move(position);
+		mesh->move(position);
 	}
 	for (auto& mesh : meshesLOD2)
 	{
-		mesh.move(position);
+		mesh->move(position);
 	}
 }
 
 void Model::render()
 {
-	for (Mesh& mesh : meshesLOD0)
+	for (std::shared_ptr<Mesh> mesh : meshesLOD0)
 	{
-		if (mesh.isOnFrustum(frustumLOD0))
-			mesh.render();
+		if (mesh->isOnFrustum(frustumLOD0))
+			mesh->render();
 	}
 	
-	for (Mesh& mesh : meshesLOD1)
+	for (std::shared_ptr<Mesh> mesh : meshesLOD1)
 	{
-		if (mesh.isOnFrustum(frustumLOD1) && !mesh.isOnFrustum(frustumLOD0))
-			mesh.render();
+		if (mesh->isOnFrustum(frustumLOD1) && !mesh->isOnFrustum(frustumLOD0))
+			mesh->render();
 	}
 
-	for (Mesh& mesh : meshesLOD2)
+	for (std::shared_ptr<Mesh> mesh : meshesLOD2)
 	{
-		if (mesh.isOnFrustum(frustumLOD2) && !mesh.isOnFrustum(frustumLOD1))
-			mesh.render();
+		if (mesh->isOnFrustum(frustumLOD2) && !mesh->isOnFrustum(frustumLOD1))
+			mesh->render();
 	}
 
 }
 
 void Model::renderAABB()
 {
-	for (Mesh& mesh : meshesLOD0)
+	for (std::shared_ptr<Mesh> mesh : meshesLOD0)
 	{
-		mesh.renderAABB();
+		mesh->renderAABB();
 	}
 }
 
 void Model::renderWireframe()
 {
-	for (Mesh& mesh : meshesLOD0)
+	for (std::shared_ptr<Mesh> mesh : meshesLOD0)
 	{
-		if (mesh.isOnFrustum(frustumLOD0))
-			mesh.renderWireframe();
+		if (mesh->isOnFrustum(frustumLOD0))
+			mesh->renderWireframe();
 	}
 
-	for (Mesh& mesh : meshesLOD1)
+	for (std::shared_ptr<Mesh> mesh : meshesLOD1)
 	{
-		if (mesh.isOnFrustum(frustumLOD1) && !mesh.isOnFrustum(frustumLOD0))
-			mesh.renderWireframe();
+		if (mesh->isOnFrustum(frustumLOD1) && !mesh->isOnFrustum(frustumLOD0))
+			mesh->renderWireframe();
 	}
 
-	for (Mesh& mesh : meshesLOD2)
+	for (std::shared_ptr<Mesh> mesh : meshesLOD2)
 	{
-		if (mesh.isOnFrustum(frustumLOD2) && !mesh.isOnFrustum(frustumLOD0) && !mesh.isOnFrustum(frustumLOD1))
-			mesh.renderWireframe();
+		if (mesh->isOnFrustum(frustumLOD2) && !mesh->isOnFrustum(frustumLOD0) && !mesh->isOnFrustum(frustumLOD1))
+			mesh->renderWireframe();
 	}
 
 }
@@ -150,30 +155,30 @@ void Model::update(double DeltaTime)
 {
 	for (auto& mesh : meshesLOD0)
 	{
-		mesh.recalculateAABB();
+		mesh->recalculateAABB();
 	}
 	for (auto& mesh : meshesLOD1)
 	{
-		mesh.recalculateAABB();
+		mesh->recalculateAABB();
 	}
 	for (auto& mesh : meshesLOD2)
 	{
-		mesh.recalculateAABB();
+		mesh->recalculateAABB();
 	}
 	if (this->animator != nullptr)
 		this->animator->updateAnimation(static_cast<float>(DeltaTime));
 	
-	for (Mesh& mesh : meshesLOD0)
+	for (std::shared_ptr<Mesh> mesh : meshesLOD0)
 	{
-		mesh.update(static_cast<float>(DeltaTime));
+		mesh->update(static_cast<float>(DeltaTime));
 	}
-	for (Mesh& mesh : meshesLOD1)
+	for (std::shared_ptr<Mesh> mesh : meshesLOD1)
 	{
-		mesh.update(static_cast<float>(DeltaTime));
+		mesh->update(static_cast<float>(DeltaTime));
 	}
-	for (Mesh& mesh : meshesLOD2)
+	for (std::shared_ptr<Mesh> mesh : meshesLOD2)
 	{
-		mesh.update(static_cast<float>(DeltaTime));
+		mesh->update(static_cast<float>(DeltaTime));
 	}
 }
 
@@ -223,7 +228,7 @@ void Model::loadModel(const std::string& path, LOD lod)
 	// Initial trnasformation
 	glm::mat4 transformMat = glm::identity<glm::mat4>();
 
-	processNode(scene->mRootNode, scene, transformMat, lod);
+	processNode(scene->mRootNode, scene, transformMat, lod, MeshType::NORMAL);
 }
 
 void Model::loadAnimations(std::string path)
@@ -241,27 +246,36 @@ void Model::loadAnimations(std::string path)
 	}
 }
 
-void Model::processNode(aiNode* node, const aiScene* scene, const glm::mat4& transformMat, LOD lod)
+void Model::processNode(aiNode* node, const aiScene* scene, const glm::mat4& transformMat, LOD lod, MeshType meshType)
 {
 	// Combined transformations applied
 	const glm::mat4 node_transformMat = transformMat * convertMatrix(node->mTransformation);
 
+
+	if (std::string(node->mName.C_Str())._Starts_with(COLLISION_TAG))
+	{
+		meshType = MeshType::COLLISION;
+	}
+	else if (std::string(node->mName.C_Str())._Starts_with(PARTICLE_TAG))
+	{
+		meshType = MeshType::PARTICLE;
+	}
 	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		Mesh m = processMesh(mesh, scene, node_transformMat);
+		//std::shared_ptr<Mesh> m = processMesh(mesh, scene, node_transformMat);
 
 		switch (lod)
 		{
 		case LOD::LOD0:
-			meshesLOD0.emplace_back(processMesh(mesh, scene, node_transformMat));
+			meshesLOD0.emplace_back(processMesh(mesh, scene, node_transformMat, meshType));
 			break;
 		case LOD::LOD1:
-			meshesLOD1.emplace_back(processMesh(mesh, scene, node_transformMat));
+			meshesLOD1.emplace_back(processMesh(mesh, scene, node_transformMat, meshType));
 			break;
 		case LOD::LOD2:
-			meshesLOD2.emplace_back(processMesh(mesh, scene, node_transformMat));
+			meshesLOD2.emplace_back(processMesh(mesh, scene, node_transformMat, meshType));
 			break;
 		default:
 			break;
@@ -270,7 +284,7 @@ void Model::processNode(aiNode* node, const aiScene* scene, const glm::mat4& tra
 	// then do the same for each of its children
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		processNode(node->mChildren[i], scene, node_transformMat, lod);
+		processNode(node->mChildren[i], scene, node_transformMat, lod, meshType);
 	}
 }
 
@@ -327,7 +341,7 @@ void Model::extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* 
 	}
 }
 
-Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& transformMat)
+std::shared_ptr<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& transformMat, MeshType type)
 {
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -430,7 +444,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, const glm::mat4& tra
 	//glm::vec4 AABBModel =  mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z, 1.0f };
 	glm::vec3 AABBmin = { mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z };
 	glm::vec3 AABBmax = { mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z };
-	return Mesh(vertices, indices, m, transformMat, AABBmin, AABBmax);
+
+	return std::make_shared<Mesh>(vertices, indices, m, transformMat, AABBmin, AABBmax, type);
 }
 
 std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName)
@@ -456,17 +471,17 @@ std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial* ma
 
 void Model::clipModel(const glm::vec4& plane)
 {
-	for (Mesh &m : meshesLOD0)
+	for (std::shared_ptr<Mesh> m : meshesLOD0)
 	{
-		m.setClipPlane(plane);
+		m->setClipPlane(plane);
 	}
 }
 
 void Model::render_withShader(std::shared_ptr<Shader> shader)
 {
-	for (Mesh& mesh : meshesLOD0)
+	for (std::shared_ptr<Mesh> mesh : meshesLOD0)
 	{
-		mesh.render_withShader(shader);
+		mesh->render_withShader(shader);
 	}
 }
 
