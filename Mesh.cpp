@@ -94,8 +94,7 @@ void Mesh::update(float delta)
 	if (this->globalAnimation)
 	{
 		this->model = this->globalAnimation->getModelMatrix(delta);
-		decomposeModelMatrix(this->model);
-
+		recalculateAABB();
 	}
 	else
 	{
@@ -189,13 +188,11 @@ void Mesh::recalculateAABB()
 	//		}
 	//	}
 
-	glm::mat4 rot = glm::toMat4(rotation);
-
 	glm::vec3 min = glm::vec4(std::numeric_limits<float>::max());
 	glm::vec3 max = glm::vec4(-std::numeric_limits<float>::max());
 	for (const auto& vertex : vertices)
 	{
-		glm::vec3 pos = model * glm::vec4(vertex.Position, 1.0f);
+		const glm::vec3& pos = model * glm::vec4(vertex.Position, 1.0f);
 		max.x = pos.x > max.x ? pos.x : max.x;
 		min.x = pos.x < min.x ? pos.x : min.x;
 		max.y = pos.y > max.y ? pos.y : max.y;

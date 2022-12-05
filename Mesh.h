@@ -67,6 +67,7 @@ public:
 	inline void move(const glm::vec3& translate)
 	{
 		translation += translate;
+		recalculateAABB();
 	}
 
     inline void rotate(const glm::vec3& rotationAxis, float angle)

@@ -158,18 +158,6 @@ void Model::renderWireframe()
 
 void Model::update(double DeltaTime)
 {
-	for (auto& mesh : meshesLOD0)
-	{
-		mesh->recalculateAABB();
-	}
-	for (auto& mesh : meshesLOD1)
-	{
-		mesh->recalculateAABB();
-	}
-	for (auto& mesh : meshesLOD2)
-	{
-		mesh->recalculateAABB();
-	}
 	if (this->animator != nullptr)
 		this->animator->updateAnimation(static_cast<float>(DeltaTime));
 	
