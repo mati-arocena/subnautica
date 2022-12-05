@@ -89,7 +89,6 @@ int main()
 	gameInstance.setShadowMapBuffer(shadowMapBuffer);
 
 	Loader::loadScene();
-	gameInstance.setParticleGenerator();
 
 	gameInstance.addGameObject(std::make_shared<Water>());
 	gameInstance.addSkyBox(std::make_shared<SkyBox>());

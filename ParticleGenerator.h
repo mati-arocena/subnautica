@@ -24,6 +24,8 @@ public:
 	void setPosition(glm::vec3 position);
 	void setVelocity(glm::vec3 velocity);
 
+	void move(const glm::vec3& movement, double deltaTime);
+
 	bool update(double deltaTime);
 	void render();
 

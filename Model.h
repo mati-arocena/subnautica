@@ -10,7 +10,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Mesh.h"
-
+#include "ParticleGenerator.h"
 #include "BoneInfo.h"
 
 #include "Animator.h"
@@ -49,6 +49,8 @@ protected:
     glm::vec3 scale;
     glm::vec3 rotation;
     glm::vec3 position;
+    std::vector<ParticleGenerator> particleGenerators;
+
 public:
     Model(const std::string& path, const std::string& extension, glm::vec3 position);
     Model(const std::string& path, const std::string& extension, const std::string& animationPath, const std::string& animationExtension, glm::vec3 position);

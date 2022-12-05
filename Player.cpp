@@ -42,6 +42,11 @@ void Player::render()
 		{
 			mesh->render();
 		}
+
+		for (ParticleGenerator& particleGenerator : particleGenerators)
+		{
+			particleGenerator.render();
+		}
 	}
 	else
 	{
@@ -61,6 +66,12 @@ void Player::update(double deltaTime)
 	if (movementVector.x != 0.f || movementVector.y != 0.f || movementVector.z != 0.f)
 	{
 		move(movementVector, deltaTime);
+	}
+
+	for (ParticleGenerator& particleGenerator : particleGenerators)
+	{
+		particleGenerator.move(movementVector, deltaTime);
+		particleGenerator.setVelocity(-front * forwardVelocity);
 	}
 
 	movementVector = { 0.f, 0.f, 0.f };

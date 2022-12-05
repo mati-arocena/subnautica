@@ -62,10 +62,6 @@ class GameInstance
 	static void mouse_callback(GLFWwindow* window,	double xpos, double ypos);
 	static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
-	std::shared_ptr<ParticleGenerator> particleGenerator;
-
-	std::vector<Particle> particles;
-	
 	std::shared_ptr<SkyBox> skyBox;
 	glm::vec3 clearColor;
 
@@ -105,7 +101,6 @@ public:
 	void render_withShader(std::shared_ptr<Shader> shader);
 	void renderOclussion();
 	void renderShadowMap();
-	void setParticleGenerator();
 
 	void setPostProcessor();
 

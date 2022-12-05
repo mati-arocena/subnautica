@@ -24,7 +24,6 @@ void GameInstance::addGameObject(std::shared_ptr<GameObject> gameObject)
 		water = waterPtr;
 	}
 	
-	bool hasParticles = false;
 	auto model = std::dynamic_pointer_cast<Model>(gameObject);
 	if (model)
 	{
@@ -33,19 +32,11 @@ void GameInstance::addGameObject(std::shared_ptr<GameObject> gameObject)
 		{
 			if (mesh->hasCollision())
 				collisionObjects.push_back(mesh);
-			if (mesh->isParticle())
-			{
-				particleMeshes.push_back(mesh);
-				hasParticles = true;
-			}
 		}
 
 	}
 
-	if (!hasParticles)
-	{
 		objects.push_back(gameObject);
-	}
 }
 
 void GameInstance::setShadowMapBuffer(std::shared_ptr<ShadowMapBuffer> shadowMapBuffer)
@@ -282,7 +273,6 @@ void GameInstance::update(double deltaTime)
 
 	light->updatePosition(camera->GetPosition());
 
-	particleGenerator->update(deltaTime);
 }
 
 std::shared_ptr<Shader> GameInstance::getShader(const std::string& name)
@@ -353,11 +343,6 @@ void GameInstance::renderShadowMap()
 }
 
 
-void GameInstance::setParticleGenerator()
-{
-	this->particleGenerator = std::make_shared<ParticleGenerator>(glm::vec3(.0f, .0f, .0f));
-}
-
 void GameInstance::render()
 {
 	renderShadowMap();
@@ -411,7 +396,6 @@ void GameInstance::render()
 	if (renderFrustum)
 		camera->renderFrustum();
 
-	particleGenerator->render();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	postProcessor->draw();

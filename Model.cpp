@@ -110,6 +110,11 @@ void Model::render()
 			mesh->render();
 	}
 
+	for (ParticleGenerator& particleGenerator : particleGenerators)
+	{
+		particleGenerator.render();
+	}
+
 }
 
 void Model::renderAABB()
@@ -170,6 +175,10 @@ void Model::update(double DeltaTime)
 	for (std::shared_ptr<Mesh> mesh : meshesLOD2)
 	{
 		mesh->update(static_cast<float>(DeltaTime));
+	}
+	for (ParticleGenerator& particleGenerator : particleGenerators)
+	{
+		particleGenerator.update(DeltaTime);
 	}
 }
 
@@ -250,6 +259,13 @@ void Model::processNode(aiNode* node, const aiScene* scene, const glm::mat4& tra
 	else if (std::string(node->mName.C_Str())._Starts_with(PARTICLE_TAG))
 	{
 		meshType = MeshType::PARTICLE;
+		glm::vec3 scale, translation, skew;
+		glm::vec4 perspective;
+		glm::quat rotation;
+		glm::decompose(node_transformMat, scale, rotation, translation, skew, perspective);
+		ParticleGenerator particleGenerator = ParticleGenerator(translation);
+		particleGenerators.push_back(particleGenerator);
+		return;
 	}
 	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)

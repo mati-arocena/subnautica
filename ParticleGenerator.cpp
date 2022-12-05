@@ -41,6 +41,11 @@ void ParticleGenerator::setVelocity(glm::vec3 velocity)
 	this->velocity = velocity;
 }
 
+void ParticleGenerator::move(const glm::vec3& movement, double deltaTime)
+{
+	this->position += movement * (float)deltaTime;
+}
+
 void ParticleGenerator::generateParticles()
 {
 	unsigned new_particles = 3;
