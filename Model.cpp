@@ -253,17 +253,17 @@ void Model::processNode(aiNode* node, const aiScene* scene, const glm::mat4& tra
 	{
 		meshType = MeshType::COLLISION;
 	}
-	else if (std::string(node->mName.C_Str())._Starts_with(PARTICLE_TAG))
-	{
-		meshType = MeshType::PARTICLE;
-		glm::vec3 scale, translation, skew;
-		glm::vec4 perspective;
-		glm::quat rotation;
-		glm::decompose(node_transformMat, scale, rotation, translation, skew, perspective);
-		ParticleGenerator particleGenerator = ParticleGenerator(translation);
-		particleGenerators.push_back(particleGenerator);
-		return;
-	}
+	//else if (std::string(node->mName.C_Str())._Starts_with(PARTICLE_TAG))
+	//{
+	//	meshType = MeshType::PARTICLE;
+	//	glm::vec3 scale, translation, skew;
+	//	glm::vec4 perspective;
+	//	glm::quat rotation;
+	//	glm::decompose(node_transformMat, scale, rotation, translation, skew, perspective);
+	//	ParticleGenerator particleGenerator = ParticleGenerator(-translation);
+	//	particleGenerators.push_back(particleGenerator);
+	//	return;
+	//}
 	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{

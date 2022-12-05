@@ -59,7 +59,6 @@ void Player::update(double deltaTime)
 	Model::update(deltaTime);
 
 	rotate(movementAngle, deltaTime);
-	movementAngle = 0.f;
 
 	position += movementVector;
 
@@ -68,12 +67,13 @@ void Player::update(double deltaTime)
 		move(movementVector, deltaTime);
 	}
 
-	for (ParticleGenerator& particleGenerator : particleGenerators)
-	{
-		particleGenerator.move(movementVector, deltaTime);
-		particleGenerator.setVelocity(-front * forwardVelocity);
-	}
+	//for (ParticleGenerator& particleGenerator : particleGenerators)
+	//{
+	//	particleGenerator.move(movementVector, deltaTime, getFront());
+	//	particleGenerator.setVelocity(-getFront() * forwardVelocity);
+	//}
 
+	movementAngle = 0.f;
 	movementVector = { 0.f, 0.f, 0.f };
 }
 
