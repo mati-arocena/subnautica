@@ -20,7 +20,7 @@ private:
 	
 	glm::vec3 clearColor = glm::vec3(0, 0, 0);
 	
-	float far = 100.f;
+	float far = 200.f;
 	float near = 0.01f;
 	Mode mode = Mode::FLY_MODE;
 

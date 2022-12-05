@@ -1,6 +1,6 @@
 #include "ConfigManager.h"
 
-ConfigManager::ConfigManager() : windowSize {glm::ivec2(800, 600)}, far {100.f}, near {0.1f}
+ConfigManager::ConfigManager() : windowSize {glm::ivec2(800, 600)}, far {200.f}, near {0.1f}
 {
 }
 

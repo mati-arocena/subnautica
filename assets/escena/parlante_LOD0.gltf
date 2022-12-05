@@ -1,0 +1,151 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v1.8.19",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Object_7.001",
+            "scale" : [
+                0.1426716148853302,
+                0.1426716148853302,
+                0.1426716148853302
+            ]
+        }
+    ],
+    "materials" : [
+        {
+            "alphaMode" : "BLEND",
+            "doubleSided" : true,
+            "name" : "Scene_-_Root",
+            "normalTexture" : {
+                "index" : 0
+            },
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 1
+                },
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.5
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Lighthouse_low__0.001",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1,
+                        "TEXCOORD_0" : 2
+                    },
+                    "indices" : 3,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "textures" : [
+        {
+            "sampler" : 0,
+            "source" : 0
+        },
+        {
+            "sampler" : 0,
+            "source" : 1
+        }
+    ],
+    "images" : [
+        {
+            "mimeType" : "image/jpeg",
+            "name" : "Scene_-_Root_normal",
+            "uri" : "Scene_-_Root_normal.jpg"
+        },
+        {
+            "mimeType" : "image/jpeg",
+            "name" : "Scene_-_Root_baseColor",
+            "uri" : "Scene_-_Root_baseColor.jpg"
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 496,
+            "max" : [
+                9.100226402282715,
+                24.482852935791016,
+                5.853639602661133
+            ],
+            "min" : [
+                -8.869401931762695,
+                -0.24920272827148438,
+                -5.773826599121094
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 496,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 496,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5123,
+            "count" : 1692,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 5952,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 5952,
+            "byteOffset" : 5952
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 3968,
+            "byteOffset" : 11904
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 3384,
+            "byteOffset" : 15872
+        }
+    ],
+    "samplers" : [
+        {
+            "magFilter" : 9729,
+            "minFilter" : 9987
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 19256,
+            "uri" : "parlante.bin"
+        }
+    ]
+}
