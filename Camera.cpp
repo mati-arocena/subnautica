@@ -67,7 +67,8 @@ void Camera::updateViewMatrix()
         glm::vec4 playerFront = glm::vec4(GameInstance::getInstance().getPlayer()->getFront(), 1.0f);
         Front = playerFront;
         Position = GameInstance::getInstance().getPlayer()->getPosition() - Front * .8f + glm::vec3 (0.f, 2.f, 0.f);
-        updateFrustumsPosition();
+        if(!isDoingReflection)
+            updateFrustumsPosition();
     }
     ViewMatrix = glm::lookAt(Position, Position + Front, Up);        
 }
@@ -93,7 +94,8 @@ void Camera::changeSize(const glm::ivec2& size)
     this->width  = static_cast<float>(size.x);
     this->height = static_cast<float>(size.y);
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), width / height, near, far);
-    updateFrustumsVectors();
+    if(!isDoingReflection)
+        updateFrustumsVectors();
 }
 
 void Camera::toggleFrustumUpdate()
@@ -134,14 +136,16 @@ glm::vec4 Camera::GetPosition() const
 void Camera::SetPosition(const glm::vec3& position) 
 {
     this->Position = position;
-    updateFrustumsPosition();
+    if(!isDoingReflection)
+        updateFrustumsPosition();
 }
 
 void Camera::InvertPitch()
 {
     this->Pitch = -Pitch;
     updateCameraVectors();
-    updateFrustumsVectors();
+    if(!isDoingReflection)  
+        updateFrustumsVectors();
 }
 
 
@@ -158,7 +162,8 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
         Position -= Right * velocity;
     if (direction == RIGHT)
         Position += Right * velocity;
-    updateFrustumsPosition();
+    if(!isDoingReflection)
+        updateFrustumsPosition();
 }
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)
@@ -182,7 +187,9 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constr
 
     // update Front, Right and Up Vectors using the updated Euler angles
     updateCameraVectors();
-    updateFrustumsVectors();
+    if (!isDoingReflection)
+       updateFrustumsVectors();
+
 }
 
 void Camera::ProcessMouseScroll(float yoffset)
@@ -196,7 +203,8 @@ void Camera::ProcessMouseScroll(float yoffset)
 	
     ProjectionMatrix = glm::perspective(glm::radians(Zoom), aspect, 0.1f, 100.0f);
 
-    updateFrustumsZoom();
+    if(!isDoingReflection)
+        updateFrustumsZoom();
 }
 
 void Camera::updateCameraVectors()
@@ -209,7 +217,8 @@ void Camera::updateCameraVectors()
         Right = glm::normalize(glm::cross(Front, WorldUp));
         Up = glm::normalize(glm::cross(Right, Front));
 
-        updateFrustumsVectors();
+        if (!isDoingReflection)
+            updateFrustumsVectors();
     }
     else
     {
@@ -231,4 +240,21 @@ void Camera::updateCameraVectors()
 Mode Camera::getMode() const
 {
     return mode;
+}
+
+void Camera::startReflections(float posY)
+{
+    isDoingReflection = true;
+    this->Position.y = posY;
+    this->InvertPitch();
+    this->updateViewMatrix();
+
+}
+
+void Camera::stopReflections(glm::vec3 pos)
+{
+    this->InvertPitch();
+    this->SetPosition(pos);
+    this->updateViewMatrix();
+    isDoingReflection = false;
 }

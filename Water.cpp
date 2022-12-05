@@ -107,9 +107,7 @@ void Water::update(double deltaTime)
 
 
 	float distance = 2 * (camPos.y - this->position.y);
-	camera->Position.y = camPos.y - distance;
-	camera->InvertPitch();
-	camera->updateViewMatrix();
+	camera->startReflections(camPos.y - distance);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, reflFrameBuffer);
@@ -118,9 +116,8 @@ void Water::update(double deltaTime)
 	GameInstance::getInstance().render(this, glm::vec4(0.f, camDir, 0.f, this->position.y * camDir * -1));
 	unbindFrameFuffer();
 
-	camera->InvertPitch();
-	camera->SetPosition(camPos);
-	camera->updateViewMatrix();
+	camera->stopReflections(camPos);
+
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, refrFrameBuffer);
