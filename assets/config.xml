@@ -22,10 +22,10 @@
 	<Models>
 
 		<Model posx="0" posy="0" posz="0"
-			modelPath="assets/mar3"
+			modelPath="assets/mar4"
 			modelExtension="gltf"
-		/> -->
-		<!--Model  posx="1" posy="-2" posz="-1" 
+		/>
+		<Model  posx="1" posy="-2" posz="-1" 
 				modelPath="assets/delfin/scene"
 				modelExtension="gltf" 
 				animationPath="assets/delfin/scene"
@@ -36,20 +36,7 @@
 				orbitSpeed=".3"
 				orbitCenterX="0.0" orbitCenterY="0.0" orbitCenterZ="0.0"
 				reverse="false"
-		/-->
-		<Model posx="0" posy="0" posz="0" 
-			modelPath="assets/mar3"
-			modelExtension="gltf" 
 		/>
-
-		
-		<!--Model posx="20" posy="20" posz="20" 
-			modelPath="assets/caja"
-			modelExtension="obj" />
-		
-		<Model posx="40" posy="40" posz="40" 
-			modelPath="assets/caja"
-			modelExtension="obj" /-->
 		
 	</Models>
 </Scene>

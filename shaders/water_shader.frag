@@ -29,9 +29,10 @@ const float waveSpeed = 0.04;
 const float shininess = 20.0;
 const float reflectivity = 0.6;
 
-float near = 0.1; 
+const float near = 0.1; 
+const float far = 6.0;
 
-float LinearizeDepth(float depth, float far) 
+float LinearizeDepth(float depth) 
 {
     float z = depth * 2.0 - 1.0; // back to NDC 
     return (2.0 * near * far) / (far + near - z * (far - near));	
@@ -46,8 +47,8 @@ void main()
     float moveFactor = waveSpeed * time;
     moveFactor = mod(moveFactor,1);
 
-    float floorDistance = LinearizeDepth(texture(texture_refraction_depth, refractTextCoords).r, 100.0f);
-    float waterDistance = LinearizeDepth(gl_FragCoord.z, 100.0f);
+    float floorDistance = LinearizeDepth(texture(texture_refraction_depth, refractTextCoords).r) / far;
+    float waterDistance = LinearizeDepth(gl_FragCoord.z) / far;
     float dist = floorDistance - waterDistance;    
 
     vec2 distortedTexCoords = texture(dudv_map, vec2(TextCoord.x + moveFactor, TextCoord.y)).rg*0.1;
@@ -77,11 +78,10 @@ void main()
 	specular = pow(specular, shininess);
 	vec3 specularHighlights = lightColor * specular * reflectivity * clamp(dist/20.0, 0.0, 1.0);
 
-    refractColor = mix(refractColor, water_fog_color/2.0, clamp(dist * (1-inside_water), 0.0, 1.0));
+    FragColor = mix(FragColor, water_fog_color, 0.35 * (1-inside_water)) + vec4(specularHighlights, .1);
+    refractColor = mix(refractColor, FragColor, clamp(dist * (1-inside_water), 0.0, 1.0));
 
     FragColor = mix(reflectColor, refractColor, refractFactor);
     FragColor = mix(FragColor, water_fog_color, 0.35 * (1-inside_water)) + vec4(specularHighlights, .1);
     FragColor.a = clamp(dist/5.0, 0.0, 1.0);
-    //FragColor = texture(texture_reflection, TextCoord);
-
 }
