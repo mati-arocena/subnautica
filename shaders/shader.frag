@@ -145,19 +145,15 @@ void main()
     vec3 reflectDir = reflect(-lightDir, normal);
 	
     float roughness = avg(texture(texture_specular, fs_in.TexCoords).rgb);
-    float spec = texture_factor.y * roughnessToSpec(roughness) + (1 - texture_factor.y) * pow(max(dot(viewDir, reflectDir), 0.0), specular_exponent);
-
+    float spec = texture_factor.y * roughnessToSpec(roughness) + (1 - texture_factor.y) * pow(max(dot(viewDir, reflectDir), 0.0), max(specular_exponent, 10));
 	
     vec3 specularColor = texture(texture_specular, fs_in.TexCoords).rgb * texture_factor.y + (1 - texture_factor.y) * specular_color;
     
     vec3 specular = specular_strenght * spec * specularColor;
 
-
-
 	vec4 caustics = computeCaustics(normal);
 
     float shadow = ShadowCalculation(fs_in.FragPosLightSpace);
 
-    FragColor = vec4(ambient +  (1 - shadow) * (diffuse + specular), 1.0) + (1 - shadow) * inside_water * caustics;
-    //FragColor = vec4(vec3   (shadow), 1.0);
+    FragColor = vec4(ambient +  (1 - shadow) * (clamp(diffuse, 0.0, 1.0) + clamp(specular, 0.0, 1.0)), 1.0) + (1 - shadow) * inside_water * caustics;
 }

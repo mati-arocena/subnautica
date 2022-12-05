@@ -63,7 +63,7 @@ void main()
     refractTextCoords = clamp(refractTextCoords, 0.001, 0.999);
 
     vec4 refractColor = texture(texture_refraction, refractTextCoords);
-    vec4 reflectColor = texture(texture_reflection, reflectTextCoords);
+    vec4 reflectColor = texture(texture_reflection, reflectTextCoords) * (1 - inside_water);
 
     vec3 viewVector = normalize(toCameraVector);
     float refractFactor = dot(viewVector, normal_direction);
