@@ -112,9 +112,9 @@ void Camera::renderFrustum()
 }
 
 void Camera::updateFrustum()
-{/*
+{
     updateFrustumsPosition();
-    updateFrustumsVectors();*/
+    updateFrustumsVectors();
 }
 
 void Camera::setMode(Mode mode)
@@ -157,7 +157,11 @@ void Camera::InvertPitch()
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
     if (mode == PLAYER_MODE)
+    {
+        if (!isDoingReflection)
+            updateFrustumsPosition();
         return;
+    }
     float velocity = MovementSpeed * deltaTime;
     if (direction == FORWARD)
         Position += Front * velocity;
@@ -173,8 +177,7 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)
 {
-    if (mode == PLAYER_MODE)
-        return;
+
     xoffset *= MouseSensitivity;
     yoffset *= MouseSensitivity;
 

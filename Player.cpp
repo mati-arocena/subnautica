@@ -87,7 +87,8 @@ void Player::move(Movement movement)
 			movementVector += glm::vec3{ 0.f, upVelocity, 0.f };
 		break;
 	case Movement::DOWN:
-		movementVector += glm::vec3{ 0.f, -upVelocity, 0.f };
+		if (position.y > -1300.f)
+			movementVector += glm::vec3{ 0.f, -upVelocity, 0.f };
 		break;
 	case Movement::LEFT:
 		movementAngle += rotationVelocity;
