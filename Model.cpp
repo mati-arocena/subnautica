@@ -158,18 +158,6 @@ void Model::renderWireframe()
 
 void Model::update(double DeltaTime)
 {
-	for (auto& mesh : meshesLOD0)
-	{
-		mesh->recalculateAABB();
-	}
-	for (auto& mesh : meshesLOD1)
-	{
-		mesh->recalculateAABB();
-	}
-	for (auto& mesh : meshesLOD2)
-	{
-		mesh->recalculateAABB();
-	}
 	if (this->animator != nullptr)
 		this->animator->updateAnimation(static_cast<float>(DeltaTime));
 	
@@ -265,17 +253,17 @@ void Model::processNode(aiNode* node, const aiScene* scene, const glm::mat4& tra
 	{
 		meshType = MeshType::COLLISION;
 	}
-	else if (std::string(node->mName.C_Str())._Starts_with(PARTICLE_TAG))
-	{
-		meshType = MeshType::PARTICLE;
-		glm::vec3 scale, translation, skew;
-		glm::vec4 perspective;
-		glm::quat rotation;
-		glm::decompose(node_transformMat, scale, rotation, translation, skew, perspective);
-		ParticleGenerator particleGenerator = ParticleGenerator(translation);
-		particleGenerators.push_back(particleGenerator);
-		return;
-	}
+	//else if (std::string(node->mName.C_Str())._Starts_with(PARTICLE_TAG))
+	//{
+	//	meshType = MeshType::PARTICLE;
+	//	glm::vec3 scale, translation, skew;
+	//	glm::vec4 perspective;
+	//	glm::quat rotation;
+	//	glm::decompose(node_transformMat, scale, rotation, translation, skew, perspective);
+	//	ParticleGenerator particleGenerator = ParticleGenerator(-translation);
+	//	particleGenerators.push_back(particleGenerator);
+	//	return;
+	//}
 	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{

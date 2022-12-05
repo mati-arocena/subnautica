@@ -67,6 +67,7 @@ public:
 	inline void move(const glm::vec3& translate)
 	{
 		translation += translate;
+		recalculateAABB();
 	}
 
     inline void rotate(const glm::vec3& rotationAxis, float angle)
@@ -101,12 +102,12 @@ public:
 
 	bool hasCollision() const;
 	bool isParticle() const;
+	glm::mat4 model; // your transformation matrix.
 private:
 
 	VBO* vbo;
 	unsigned int vao, ebo;
 
-	glm::mat4 model; // your transformation matrix.
 	std::shared_ptr<Shader> debugShader;
 	unsigned int debugIndicesSize, debugVao, debugEbo;
 	VBO* debugVBO;
