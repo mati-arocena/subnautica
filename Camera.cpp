@@ -248,7 +248,6 @@ void Camera::startReflections(float posY)
     this->Position.y = posY;
     this->InvertPitch();
     this->updateViewMatrix();
-
 }
 
 void Camera::stopReflections(glm::vec3 pos)

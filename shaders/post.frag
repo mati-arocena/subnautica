@@ -21,7 +21,7 @@ const float fogGradient = 3;
 const int steps = 300;
 
 float near = 0.1; 
-float far  = 8.0;
+float far  = 6.0;
 
 float LinearizeDepth(float depth) 
 {

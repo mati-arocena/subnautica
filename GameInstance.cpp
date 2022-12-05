@@ -315,6 +315,8 @@ void GameInstance::render(const GameObject* excludeFromRendering, const glm::vec
 			object->render();
 		}
 	}
+
+	player->clipModel(clipPlane);
 	player->render();
 }
 
