@@ -28,6 +28,8 @@ const float ZOOM = 45.0f;
 
 class Camera
 {
+    bool isDoingReflection = false;
+
     float height;
     float width;
     float near; 
@@ -97,6 +99,9 @@ public:
 
     void setMode(Mode mode);
     Mode getMode() const;
+
+    void startReflections(float posY);
+    void stopReflections(glm::vec3 pos);
 };
 
 void Camera::updateFrustumsVectors()

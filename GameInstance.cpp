@@ -315,6 +315,7 @@ void GameInstance::render(const GameObject* excludeFromRendering, const glm::vec
 			object->render();
 		}
 	}
+	player->render();
 }
 
 void GameInstance::renderShadowMap()
